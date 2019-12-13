@@ -11,13 +11,15 @@
  * 
  */
 
+//Passar para o lugar
+#define PAGINA_IR 15
 
-#define PAGINA_IR 1
+NexPage Irrig = NexPage(PAGINA_IR,0,"Pagina_Irrig");
 
 #define botaoIR0 0
 #define botaoIR1 1
-#define botaoIR1 1
-#define botaoIR1 1
+#define botaoIR2 2
+#define botaoIR3 3
 
 
 NexDSButton Gota1 = NexDSButton(PAGINA_IR, 14, "Gota1");//botao da pagina 1 numero 6 nome numeroGota1
@@ -31,11 +33,6 @@ NexDSButton Gota4 = NexDSButton(PAGINA_IR, 13, "setPoint4");//botao da pagina 1 
 #define Irrigacao_h
 class Irrigacao {
 private:
-  //variavel que armazena qual pino ligar
-  int PinRele0;
-  int PinRele1;
-  int PinRele2;
-  int PinRele3;
   //variavel que armazena qual pino se le
   int PinSensor0;
   int PinSensor1;
@@ -46,11 +43,7 @@ private:
   int mediA1;
   int mediA2;
   int mediA3;
-  //estatus de o que esta ligado
-  bool Ligado0;
-  bool Ligado1;
-  bool Ligado2;
-  bool Ligado3;
+ 
   int TerraUmida;
   int TerraSECA;
   float Tempo;
@@ -70,12 +63,22 @@ private:
   float IntervaloLigado3;
 
 public:
-
+  //variavel que armazena qual pino ligar
+  int PinRele0;
+  int PinRele1;
+  int PinRele2;
+  int PinRele3;
+	//estatus de o que esta ligado
+  bool Ligado0;
+  bool Ligado1;
+  bool Ligado2;
+  bool Ligado3;
 	//nome dos botoes
-	const uint8_t Botao0 = 0;
-	const uint8_t Botao1 = 1;
-	const uint8_t Botao2 = 2;
-	const uint8_t Botao3 = 3;
+ 
+	const uint8_t Botao0 = botaoIR0;
+	const uint8_t Botao1 = botaoIR1;
+	const uint8_t Botao2 = botaoIR2;
+	const uint8_t Botao3 = botaoIR3;
 
 
   void SetupRele(int , int , int , int);
@@ -427,20 +430,25 @@ void Irrigacao::SetupCalibragemMAX(int endereco2, int sensor) {
 
   */
 }
-
+Irrigacao IR;
 
 void Irriga0Callback(void* ptr) {
-	//botaoAbertado = IR.Botao0;
-	//PAGINA = PAGINA_IR;
-	//teclado.show();
+	//se estiver ligado desliga o sistema
+  if(IR.Ligado0 == 1){
+    IR.Ligado0 = 0; // zero é desligado
+    digitalWrite(IR.PinRele0, LOW);
+  }
+
+  else{
+    botaoAbertado = IR.Botao0;
+    PAGINA = PAGINA_IR;
+    teclado.show();
+  }
+
 	
-	//colocar pra levar o numero do bot�o para a tela do teclado
+	//colocar pra levar o numero do botao para a tela do teclado
 }
 
 
-
-
-
-Irrigacao IR;
 
 #endif 

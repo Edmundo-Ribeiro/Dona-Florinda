@@ -10,14 +10,8 @@
 #include "gascarbonico.h"
 #include "trava.h"
 #include "tempumi.h"
+#include "Irrigacao.h"
 
-/*Pinos do CO2:
-    Pino rele do Cilindro de CO2 = 18
-    Pino sensor do CO2 = 19
-  Pino da trava:
-    Pino do fim de curso = 1
-    Pino do transistor da trava = 2
-*/
 
 
 void ConfirmaPopCallback(void *ptr){
@@ -249,6 +243,19 @@ void ConfirmaPopCallback(void *ptr){
         default:
         break;
       }
+      case PAGINA_IR:
+        switch(botaoAbertado){
+        case botaoIR0://botao irriga0ligado
+        	IR.IrrigaVaso0(valor);  //pega o valor que recebe
+        	//necessario corrigir o valor da pagina em que Irrig esta declarado
+        	Irrig.show();//volta para a tela anterior
+         break;
+
+        default:
+        break;
+        }
+        
+
 		default:
 		break;
 	}		
@@ -288,6 +295,7 @@ NexTouch *nex_listen_list[] = {
   &btn_setar_variacao_temp,
   &btn_setar_variacao_umi,
   &voltar_tempumi,
+  &Gota1, //escuta se o botao Gota1 foi abertado
  
     NULL
 };
@@ -347,6 +355,7 @@ void setup() {
 // ####################################################################################################
   valor_CO2.attachPop(CO2ValorPopCallback);
   intervalo_CO2.attachPop(CO2IntervaloPopCallback); 
+// ####################################################################################################
 
   
 //pagina trava
@@ -354,7 +363,13 @@ void setup() {
 TravaBotao.attachPop(TravaPopCallBack);
 // ####################################################################################################
 
+//pagina Irrigacao
+// ####################################################################################################
+Gota1.attachPop(Irriga0Callback);
+// ####################################################################################################
 
+
+//pagina temperatura
 //#####################################################################################################
 btn_setar_temp.attachPop(TemperaturaCallback);
 btn_setar_umi.attachPop(UmidadeCallback);

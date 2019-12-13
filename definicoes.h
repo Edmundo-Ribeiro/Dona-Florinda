@@ -2,6 +2,15 @@
 #define definicoes_h
 
 DS3231  rtc(SDA, SCL);
+/*Pinos do CO2:
+    Pino rele do Cilindro de CO2 = 18
+    Pino sensor do CO2 = 19
+  Pino da trava:
+    Pino do fim de curso = 1
+    Pino do transistor da trava = 2
+*/
+
+
 
 
 uint8_t botaoAbertado = 0;
