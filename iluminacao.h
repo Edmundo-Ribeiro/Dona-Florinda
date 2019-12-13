@@ -101,7 +101,7 @@ void degubEstadoVariaveis();
 				this->loadMinutosPassados();
 
 
-				this->definePinos(PINO_RELE_PAINEL,PINO_RELE_LED);
+//				this->definePinos(PINO_RELE_PAINEL,PINO_RELE_LED);
 			}
 
 			void desligarPainel(){
