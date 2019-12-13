@@ -322,7 +322,7 @@ void degubEstadoVariaveis();
 				//olha se passou o intervalo 
 				if(atual - this->iluminacaoMillis >= this->iluminacaoIntervalo){
 
-					
+		
 
 
 					uint16_t minuto_atual;
@@ -398,7 +398,7 @@ void degubEstadoVariaveis();
 					degubEstadoVariaveis();
 				
 				}
-			}
+			}//fernanda ta aprendendo git
 	};
 
 	SI I; //Desclaração do objeto sistema de iluminação
