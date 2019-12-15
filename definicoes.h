@@ -28,7 +28,8 @@ uint8_t PAGINA = 0;
 //#define DESLIGADO 0
 
 #define SENSORDHTPINO 18
-
+#define PINO_LED 8
+#define PINO_PAINEL 7
 //	Definir aqui os edereços ondes as coisas serão salvas
 // 0 - quantidade de horas ligado ciclo 1 - q_horas_ligado_c1
 #define end_q_horas_ligado_c1 40
@@ -81,6 +82,7 @@ uint8_t PAGINA = 0;
 #define BTNTEMPVAR 10
 #define BTNUMIVAR 11
 
+#define MINUTOS_DIA 1440
 // #####################################################################
 
 NexPage menu = NexPage(PAGINA_MENU,0,"Menu"); 

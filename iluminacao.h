@@ -3,23 +3,6 @@
 #include "teclado.h"
 
 
-/*TO DO:
-[X] mudar set e get minutos paddos para load e save minutos passados
-[] ao mudar relogio interno ajustar valores das variaveis minuto de ligar e minuto de desligar
-[X] agendar hórario
-[X] alterar endereço de minutos passado a cada 2 anos
-[X] modo pausa
-[X] ligar fita de led
-[] testar mudanca de ano
-[] bug, se o sistema estava desligado quando ele liga ele não atualiz qual o minuto de ligar/desligar
-// ou seja, o tempo que deveria ficar ligado passa mas ele não desliga pois o minuto de desligar salvo já havia passado
-//quando estava desligado
-[] classe datahora
-*/ 
-
-
-#define MINUTOS_DIA 1440
-
 
 //não presisaria fazer isso se tivesse um .h e .cpp separados para parte grafica e a classe SI
 void mostraDadosIluminacao();
@@ -27,7 +10,7 @@ uint16_t minutoAtual();
 void degubEstadoVariaveis();
 
 // ###########################################################################################################
-// ########################## VARIAVEIS PARA PAGINA DE DEFINIÇÂO ILUMINAÇÃO ##################################
+// ########################## VARIAVEIS PARA PAGINA DE ILUMINAÇÃO ############################################
 // ###########################################################################################################
 	NexPage iluminacao = NexPage(PAGINA_ILUMINACAO,0,"Iluminacao");
 	
@@ -44,365 +27,273 @@ void degubEstadoVariaveis();
 	NexProgressBar progresso = NexProgressBar(PAGINA_ILUMINACAO,8,"progresso");
 	NexText tempo_restante = NexText(PAGINA_ILUMINACAO, 10, "tempo_restante");
 	
-	NexButton icone_ilumincao = NexButton(PAGINA_MENU,4,"iluminacao");
-	
-	class SI{			
-		public:
-			bool estado_atual,
-				 door = CLOSED,
-				 flag_resumed = RESUMED;
+	NexButton icone_ilumincao = NexButton(PAGINA_MENU,4,"iluminacao");	
+// ###########################################################################################################
 
-			uint8_t q_horas_ligado_c1,
-				    q_horas_ligado_c2,
-				    ciclo_atual;
-				    
-			uint16_t minuto_de_desligar,
-				    minuto_de_ligar,
-				    minutos_passados,
-				    ultimo_minuto_registrado;
+class SI{			
+	public:
+		bool estado_atual;
+
+		uint8_t q_horas_ligado_c1,
+			    q_horas_ligado_c2,
+			    ciclo_atual;
+		
+		uint16_t minuto_de_desligar,
+			     minuto_de_ligar,
+			     minutos_passados,
+			     ultimo_minuto_registrado;
 
 
-			const bool DESLIGADO = 0; //Acho que pode mudar isso para um #define
-			const bool LIGADO = 1;
-			const uint8_t CICLO_1 = 1;
-			const uint8_t CICLO_2 = 2;
-			const uint8_t CICLO_NENHUM = 0;
-			uint8_t pino_painel, pino_led;
-			unsigned long iluminacaoMillis = 0;
-			unsigned long iluminacaoIntervalo = 10000;
+		const bool DESLIGADO = 0; //Acho que pode mudar isso para um #define
+		const bool LIGADO = 1;
+		const uint8_t CICLO_NENHUM = 0;
+		const uint8_t CICLO_1 = 1;
+		const uint8_t CICLO_2 = 2;
 
+		unsigned long iluminacaoMillis = 0;
+		unsigned long iluminacaoIntervalo = 1000;
+
+		SI(){
+
+			pinMode(PINO_PAINEL, OUTPUT);
+			pinMode(PINO_LED, OUTPUT);
+
+			uint16_t q_minutos_desligado;
+
+			this->estado_atual = EEPROM.read(end_estado_atual);
+			this->ciclo_atual = EEPROM.read(end_ciclo_atual);
 			
-			SI(){
-				uint16_t q_minutos_desligado;
+			this->q_horas_ligado_c1 = EEPROM.read(end_q_horas_ligado_c1);
+			this->q_horas_ligado_c2 = EEPROM.read(end_q_horas_ligado_c2);
 
-				this->estado_atual = EEPROM.read(end_estado_atual);
-				this->ciclo_atual = EEPROM.read(end_ciclo_atual);
-				
-				this->q_horas_ligado_c1 = EEPROM.read(end_q_horas_ligado_c1);
-				this->q_horas_ligado_c2 = EEPROM.read(end_q_horas_ligado_c2);
-
-				EEPROM.get(end_minuto_de_ligar, this->minuto_de_ligar);//ler da eeprom
-				//this->minuto_de_desligar = MINUTOS_DIA - this->minuto_de_ligar; 
-				if(this->ciclo_atual == this->CICLO_1){
-					q_minutos_desligado = (24 - this->q_horas_ligado_c1)*60;
-				}
-				else if(this->ciclo_atual == this->CICLO_2){
-					q_minutos_desligado = (24 - this->q_horas_ligado_c2)*60;
-				}
-				else{
-					q_minutos_desligado = MINUTOS_DIA;
-				}
-				this->minuto_de_desligar = calcularMinutoDeLigarDesligar(
-												this->minuto_de_ligar,
-												q_minutos_desligado);	
-
-				//da pra descobrir com isso quanto tempo ficou fora da energia???
-				this->ultimo_minuto_registrado =0;// minutoAtual();
-				this->loadMinutosPassados();
-
-
-//				this->definePinos(PINO_RELE_PAINEL,PINO_RELE_LED);
+			EEPROM.get(end_minuto_de_ligar, this->minuto_de_ligar);
+			/*
+			como não estou salvando o minuto de desligar na memoria
+			sempre que inicia ele é calculado a partir do minuto de ligar 
+			e o intervalo de tempo 
+			*/
+			if(this->ciclo_atual == this->CICLO_1){
+				q_minutos_desligado = (24 - this->q_horas_ligado_c1)*60;
+			}
+			else if(this->ciclo_atual == this->CICLO_2){
+				q_minutos_desligado = (24 - this->q_horas_ligado_c2)*60;
+			}
+			else{
+				q_minutos_desligado = MINUTOS_DIA;
 			}
 
-			void desligarPainel(){
-				Serial.println("\nDesligando...\n");
-				digitalWrite(this->pino_painel, LOW);
-			}
-			void ligarPainel(){
-				Serial.println("\nLigando...\n");
-				digitalWrite(this->pino_painel, HIGH);
-			}
+			this->minuto_de_desligar = calcularMinuto(this->minuto_de_ligar, q_minutos_desligado);	
 
-			void desligarLED(){
-				Serial.println("\nDesligando LED...\n");
-				digitalWrite(this->pino_led, LOW);
-			}
+			//da pra descobrir com isso quanto tempo ficou fora da energia???
+			this->ultimo_minuto_registrado =0;// minutoAtual();
+			this->loadMinutosPassados();
 
-			void ligarLED(){
-				Serial.println("\nLigando LED...\n");
-				digitalWrite(this->pino_led, HIGH);
-			}
+		}
 
-			void desligar(){
-				this->desligarPainel();
-				this->minutos_passados = 0;
-				this->estado_atual = this->DESLIGADO;
-				EEPROM.update(end_estado_atual,this->estado_atual);
-				this->saveMinutosPassados();
-			}
-			void ligar(){
+		//metodo para calcular o minuto de ligar ou desligar considerando a passagem do dia
+		uint16_t calcularMinuto(uint16_t inicio, uint16_t intervalo){
+			uint16_t minuto = inicio + intervalo;
+			/*se o resultado da soma for maior que a quantidade de minutos em um dia
+			  deve-se pegar o resto da divisão inteira*/
+			minuto = minuto <= MINUTOS_DIA ? 
+									   minuto : 
+									   minuto % MINUTOS_DIA;
+
+			return minuto;
+		}
+
+		void desligarPainel(){
+			Serial.println("\nDesligando Painel...\n");
+			digitalWrite(this->pino_painel, LOW);
+		}
+
+		void ligarPainel(){
+			Serial.println("\nLigando Painel...\n");
+			digitalWrite(this->pino_painel, HIGH);
+		}
+
+		void desligarLED(){
+			Serial.println("\nDesligando LED...\n");
+			digitalWrite(this->pino_led, LOW);
+		}
+
+		void ligarLED(){
+			Serial.println("\nLigando LED...\n");
+			digitalWrite(this->pino_led, HIGH);
+		}
+
+		void desligar(){
+			this->desligarPainel();
+			this->minutos_passados = 0;
+			this->estado_atual = this->DESLIGADO;
+			//EEPROM.update(end_estado_atual,this->estado_atual);// e se só salvar isso quando desligado?
+		}
+
+		void ligar(){
+			this->ligarPainel();
+			this->minutos_passados = 0;
+			this->estado_atual = this->LIGADO;
+			//EEPROM.update(end_estado_atual,this->estado_atual);
+		}
+
+		void pausa(){
+			this->desligarPainel();
+			this->ligarLED();
+		}
+
+		void retomar(){
+			this->desligarLED();
+			if(this->estado_atual == this->LIGADO)
 				this->ligarPainel();
-				this->minutos_passados = 0;
-				this->estado_atual = this->LIGADO;
-				EEPROM.update(end_estado_atual,this->estado_atual);
-				this->saveMinutosPassados();
-			}
-
-			void pause(){
+			else
 				this->desligarPainel();
-				this->ligarLED();
-				this->door = OPEN;
-				this->flag_resumed = NOTRESUMED;
+		}
+
+		void run(bool estado_porta){
+			/*
+			se a porta está aberta pausar o sistema
+			ou seja, ligar fita de led, deligar painel, 
+			parar de contar minutos passados, 
+			verificar se deve ligar ou não o painel
+			*/
+			if(estado_porta == ABERTA){
+				this->pausa();
 			}
-
-			void resume(){
-				if(this->flag_resumed == NOTRESUMED){
-					this->troca_ciclo(this->ciclo_atual);
-					this->desligarLED();
-					this->door = CLOSED;
-					this->flag_resumed = RESUMED;
-				}
-			}
-
-
-			uint16_t calcularMinutoDeLigarDesligar(uint16_t inicio, uint16_t intervalo){
-				uint16_t variavel = inicio + intervalo;
-				/*se o resultado da soma for maior que a quantidade de minutos em um dia
-				  deve-se pegar o resto da divisão inteira*/
-				variavel = variavel <= MINUTOS_DIA ? 
-										   variavel : 
-										   variavel % MINUTOS_DIA;
-
-				return variavel;
-			}
-
-			///////////////////////////////////////////////////////////////////////////////////
-			//Minutos Passados é dessa forma pois tem que ser atualizado na memoria varias vezes
-			//Então a cada dois anos seu endereço de leitura e escrita muda!
-			//Código que realia essa mudança está em agendamento.h
-
-			uint16_t loadMinutosPassados(){
-				uint16_t end_minutos_passados;
-				EEPROM.get(end_endereco_minutos_passados, end_minutos_passados);
-				EEPROM.get(end_minutos_passados, this->minutos_passados);
-				
-				return this->minutos_passados;
-			}
-
-			void saveMinutosPassados(){
-				uint16_t end_minutos_passados;
-				EEPROM.get(end_endereco_minutos_passados, end_minutos_passados);
-				EEPROM.put(end_minutos_passados,this->minutos_passados);
-			}
-
-
-			void definePinos(uint8_t painel, uint8_t led){
-			 	this->pino_painel = painel;
-			 	this->pino_led = led;
-				pinMode(this->pino_painel, OUTPUT);
-				pinMode(this->pino_led, OUTPUT);
-			}
-
-			void troca_ciclo(uint8_t ciclo_destino){
-				uint8_t q_horas_ligado, 
-						q_horas_desligado,
-						ciclo_origem;
-
-				uint16_t minuto_atual,
-						 minutos_restantes;
-					
-				ciclo_origem = this->ciclo_atual;
-
-				if(ciclo_destino == this->CICLO_1){
-					q_horas_ligado = this->q_horas_ligado_c1;
-					this->ciclo_atual = this->CICLO_1;
-				}
-				else if(ciclo_destino == this->CICLO_2){
-					q_horas_ligado = this->q_horas_ligado_c2;
-					this->ciclo_atual = this->CICLO_2;
-						
-				}
-				else{
-					q_horas_ligado = 0;
-					this->ciclo_atual = this->CICLO_NENHUM;
-				}
-				
-				
-				q_horas_desligado = 24 - q_horas_ligado;
-
-				minuto_atual = minutoAtual();
-				
-
-				if(ciclo_origem != this->CICLO_NENHUM){
-					if(ciclo_destino != this->CICLO_NENHUM) {
-						if(this->estado_atual == this->LIGADO){
-
-							minutos_restantes = q_horas_desligado*60 - this->minutos_passados;
-
-							if(minutos_restantes > 0){
-								//manter ligado então
-								this->minuto_de_desligar = calcularMinutoDeLigarDesligar(
-															minuto_atual,
-															minutos_restantes);
-								this->minuto_de_ligar = calcularMinutoDeLigarDesligar(
-															this->minuto_de_desligar,
-															q_horas_desligado*60);
-							}
-							else{
-								//já era pra ter desligado!
-								this->minuto_de_desligar = minuto_atual;
-								this->minuto_de_ligar = calcularMinutoDeLigarDesligar(
-														 minuto_atual,
-														 q_horas_desligado*60);
-								this->desligar();
-							}
-						}
-						else{
-
-							minutos_restantes = q_horas_ligado*60 - this->minutos_passados;
-
-							if(minutos_restantes > 0){
-								//manter desligado então
-								this->minuto_de_ligar = calcularMinutoDeLigarDesligar(
-															minuto_atual,
-															minutos_restantes);
-
-								this->minuto_de_desligar = calcularMinutoDeLigarDesligar(
-															this->minuto_de_ligar,
-															q_horas_ligado*60);
-							}
-							else{
-								//já era pra ter ligado!
-								this->minuto_de_ligar = minuto_atual;
-								this->minuto_de_desligar = calcularMinutoDeLigarDesligar(
-														 minuto_atual,
-														 q_horas_ligado*60);
-								this->ligar();
-							}
-						}
-
-					}
-					else{
-						this->desligar();
-						this->minuto_de_ligar = MINUTOS_DIA + 10; //(valor que não é possivel)
-						this->minuto_de_desligar = 0;
-						EEPROM.put(end_minuto_de_ligar, this->minuto_de_ligar);
-					}
-				}
-				else{
-
-					if(ciclo_destino != this->CICLO_NENHUM){
-						this->minuto_de_ligar = minuto_atual;
-						this->minuto_de_desligar = calcularMinutoDeLigarDesligar(
-													 minuto_atual,
-													 q_horas_ligado*60);
-						this->ligar();
-
-					}
-				}	
-
-
-				EEPROM.put(end_minuto_de_ligar, this->minuto_de_ligar);
-				EEPROM.update(end_ciclo_atual, this->ciclo_atual);
-			}
-
-			void setar(uint8_t ciclo, uint8_t valor){
-				if(ciclo == this->CICLO_1){
-					this->q_horas_ligado_c1 = valor;
-					EEPROM.update(end_q_horas_ligado_c1,valor);
-				}
-				else if(ciclo == this->CICLO_2){
-					this->q_horas_ligado_c2 = valor;
-					EEPROM.update(end_q_horas_ligado_c2,valor);
-				}
-				this->troca_ciclo(this->ciclo_atual);
-			}
-
-			void run(bool door_state){
-
-				//pega o millisegundo atual
-				if(door_state == OPEN){
-					this->pause();
-				}
-				else{
-					this->resume();
-				}
-
+			/*
+			Caso a porta esteja fechada 
+			deligar a fita de ledl
+			retomar ao estado que deveira estar(painel ligado ou desligao)
+			e etc...
+			*/
+			else{
+				//desliga fita de led e retoma o estado do painel
+				this->retomar();
+				//pegar milisegundo atual "inicio to timer"
 				unsigned long atual = millis();
 				//olha se passou o intervalo 
 				if(atual - this->iluminacaoMillis >= this->iluminacaoIntervalo){
+					//pegar qual o minuto atual 
+					uint16_t minuto_atual = minutoAtual();
 
-		
-
-
-					uint16_t minuto_atual;
-					//se estiver na pagina de iluminação atualiza os dados
-					minuto_atual = minutoAtual();
-					//verifica se passou "1" minuto
+					//verificar se passou "1" minuto
 					if(minuto_atual != this->ultimo_minuto_registrado){
-						if(this->ciclo_atual != this->CICLO_NENHUM){
-							this->minutos_passados += 1;
-							//se passou uma hora salvar a quantidade de minutos passados
-							if(this->minutos_passados % 15 == 0 ){
-								this->saveMinutosPassados();
-								// EEPROM.put(end_minutos_passados,this->minutos_passados);
-								// // EEPROM.put(end_minuto_de_ligar, this->minuto_de_ligar);
-							}
-
-						}
-						//registra qual foi o ultimo minuto
+						this->minutos_passados += 1;
+						//registra qual foi o ultimo minuto "resetar o timer"
 						this->ultimo_minuto_registrado = minuto_atual;
 					}
 
+					/*Veririficações no caso do sistema ter sido reiniciado após desligamento ou queda de energia
+					caso o sistema seja desligado no meio de um ciclo e ligado novamente algum tempo depois, 
+					devemos verificar em qual estado ele deveria estar (painel desligado ou painel ligado).
+					
+					Nesse primeiro if verificamos qual dos tipos de ciclos estamos executando ou seja,
+					se é um ciclo em que o minuto de ligar é antes ou depois do minuto de desligar*/
+					bool esta_no_lado_ciclo_ligado;
 
 					if(this->minuto_de_ligar < minuto_de_desligar){
-
-						if(this->estado_atual == this->LIGADO &&
-							!(minuto_atual >= this->minuto_de_ligar 
-							  && minuto_atual <= this->minuto_de_desligar)
-							){
-							this->desligar();
-						}
-						else if(this->estado_atual == this->DESLIGADO &&
-							 (minuto_atual >= this->minuto_de_ligar 
-							  && minuto_atual <= this->minuto_de_desligar)){
-							this->ligar();
-						}
+						//verificando em qual lado do ciclo está (lado desligado ou lado ligado)
+						esta_no_lado_ciclo_ligado = (minuto_atual >= this->minuto_de_ligar 
+													 && 
+													 minuto_atual <= this->minuto_de_desligar);
 					}
 					else{
-						if(this->estado_atual == this->LIGADO &&
-							(minuto_atual >= this->minuto_de_desligar 
-							  && minuto_atual <= this->minuto_de_ligar)){
-
-							this->desligar();
-						}
-						else if(this->estado_atual == this->DESLIGADO &&
-							!(minuto_atual >= this->minuto_de_desligar 
-							  && minuto_atual <= this->minuto_de_ligar)){
-
-							this->ligar();
-						}
+						esta_no_lado_ciclo_ligado = !(minuto_atual >= this->minuto_de_desligar 
+								  					  &&
+								  					  minuto_atual <= this->minuto_de_ligar);
 					}
-					
-					//verifica se deve desligar
-					if(this->estado_atual == this->LIGADO && 
-					   minuto_atual == this->minuto_de_desligar &&
-					   this>door == CLOSED){
+
+					//se está ligado mas não está do lado do ciclo ligado
+					if(this->estado_atual == this->LIGADO && !esta_no_lado_ciclo_ligado){
+						//desligue
 						this->desligar();
-
-
 					}
-					//verifica se deve ligar
-					if(this->estado_atual == this->DESLIGADO && 
-						minuto_atual == this->minuto_de_ligar &&
-						this->door == CLOSED){
+					else if(this->estado_atual == this->DESLIGADO && esta_no_lado_ciclo_ligado){
 						this->ligar();
 					}
 
+					//resetar o contador do intervalo
+					this->iluminacaoMillis = atual;
+
+					//se estiver na pagina de iluminação atualiza os dados
 					if(PAGINA == PAGINA_ILUMINACAO){
 						mostraDadosIluminacao();
 					}
-					//reset o contador do intervalo
-					this->iluminacaoMillis = atual;
-					
-					degubEstadoVariaveis();
-				
 				}
-			}//fernanda ta aprendendo git
-	};
+			}
+		}
 
-	SI I; //Desclaração do objeto sistema de iluminação
-// ###########################################################################################################
+		void setar(uint8_t ciclo, uint8_t valor){
+			if(ciclo == this->CICLO_1){
+				this->q_horas_ligado_c1 = valor;
+				EEPROM.update(end_q_horas_ligado_c1,valor);
+			}
+			else if(ciclo == this->CICLO_2){
+				this->q_horas_ligado_c2 = valor;
+				EEPROM.update(end_q_horas_ligado_c2,valor);
+			}
+			this->troca_ciclo(this->ciclo_atual);
+		}
+
+		void troca_ciclo(uint8_t ciclo_destino){
+			uint8_t q_horas_ligado, 
+					q_horas_desligado,
+					ciclo_origem;
+
+			uint16_t minuto_atual,
+					 minutos_restantes;
+				
+
+			ciclo_origem = this->ciclo_atual;
+
+			if(ciclo_destino == this->CICLO_1){
+				q_horas_ligado = this->q_horas_ligado_c1;
+				this->ciclo_atual = this->CICLO_1;
+			}
+			else if(ciclo_destino == this->CICLO_2){
+				q_horas_ligado = this->q_horas_ligado_c2;
+				this->ciclo_atual = this->CICLO_2;
+					
+			}
+			else{
+				q_horas_ligado = 0;
+				this->ciclo_atual = this->CICLO_NENHUM;
+			}
+			
+			
+			q_horas_desligado = 24 - q_horas_ligado;
+
+			minuto_atual = minutoAtual();
+			
+			//situação em que o cliente setou um novo valor para algum dos ciclos
+			//nesse caso só atualizar que horas deve desligar e o metodo run cuida de ver se deve ligar ou desligar
+			if(ciclo_origem == ciclo_destino){
+				this->minuto_de_desligar = calcularMinuto(this->minuto_de_ligar, q_horas_ligado*60);
+			}
+
+			//se está saindo de ciclo nenhum para algum ciclo 
+			//entaõ o sistema esta sendo iniciado naquele momento
+			//dessa forma, o minuto de ligar é o estante atual e basta calcular quando desligar
+			else if(ciclo_destino == this->CICLO_NENHUM){
+				this->minuto_de_ligar = MINUTOS_DIA; 
+				this->minuto_de_desligar = 0;
+			}
+
+			else{
+				this->minuto_de_ligar = minuto_atual;
+				this->minuto_de_desligar = calcularMinuto(minuto_atual, q_horas_ligado*60);
+			}
+
+			// EEPROM.put(end_minuto_de_ligar, this->minuto_de_ligar);
+		}
+
+
+
+
+	
+};
+
+SI I; //Desclaração do objeto sistema de iluminação
+
 
 
 // ###########################################################################################################
@@ -445,19 +336,7 @@ void degubEstadoVariaveis();
 
 		char conteudo_botao[8], 
 			 texto_tempo_restante[8];
-		uint16_t minutos_ligado,minutos_desligado;
-
-		if(I.ciclo_atual == I.CICLO_1){
-			minutos_ligado = I.q_horas_ligado_c1*60;
-		} 
-
-		else if (I.ciclo_atual == I.CICLO_2){
-			minutos_ligado = I.q_horas_ligado_c2*60;
-		}
-		else{
-			minutos_ligado = 0;
-		}
-		minutos_desligado = MINUTOS_DIA - minutos_ligado;
+		
 
 		sprintf(conteudo_botao,"%02d | %02d", EEPROM.read(end_q_horas_ligado_c1), 24-EEPROM.read(end_q_horas_ligado_c1));
 		btn_c1.setText(conteudo_botao);
@@ -480,19 +359,22 @@ void degubEstadoVariaveis();
 			btn_c2.setValue(0);
 		}
 
+
+		uint16_t minuto_atual = minutoAtual();
+
 		if(I.estado_atual == I.LIGADO){
 			estado_ciclo_texto.setText("LUZ");
-			progresso.setValue(map(I.minutos_passados, 0, minutos_ligado, 0, 100));
+			progresso.setValue(map(minuto_atual, I.minuto_de_ligar, I.minuto_de_desligar, 0, 100));
 			sprintf(texto_tempo_restante,
 					"%02d:%02d",
-					 (minutos_ligado - I.minutos_passados)/60, (minutos_ligado - I.minutos_passados)%60);
+					 (I.minutos_desligado - minuto_atual)/60, (I.minutos_desligado - minuto_atual)%60);
 		}
 		else{
 			estado_ciclo_texto.setText("ESCURO");
-			progresso.setValue(map(I.minutos_passados, 0, minutos_desligado ,0 , 100));
+			progresso.setValue(map(minuto_atual, I.minuto_de_desligar, I.minuto_de_ligar, 0, 100));
 			sprintf(texto_tempo_restante,
 					"%02d:%02d",
-					 (minutos_desligado - I.minutos_passados)/60, (minutos_desligado - I.minutos_passados)%60);
+					 (I.minutos_ligado - minuto_atual)/60, (I.minutos_ligado - minuto_atual)%60);
 		}
 		
 		tempo_restante.setText(texto_tempo_restante);
@@ -540,14 +422,13 @@ void degubEstadoVariaveis();
 	void setarCiclo1Callback(void *ptr){
 		botaoAbertado = I.CICLO_1;
 		teclado.show();
-		PassaBotaoParaTela(I.q_horas_ligado_c1);
 		//colocar pra levar o numero do botão para a tela do teclado
+		PassaBotaoParaTela(I.q_horas_ligado_c1);
 	}
 	void setarCiclo2Callback(void *ptr){
 		botaoAbertado = I.CICLO_2;
 		teclado.show();
 		PassaBotaoParaTela(I.q_horas_ligado_c2);
-
 	}
 
 	void iconeIluminacaoCallback(void *ptr){
