@@ -382,26 +382,22 @@ icone_temp_umi.attachPop(icone_temp_umiCallback);
 
 void loop() {
 
-	// if(analogRead(PINO_CAPACITOR) == SEM_ENERGIA){
-	// 	//I.salvar();
-	// 	// Serial.println(analogRead(PINO_CAPACITOR));
-	// }
+	
+	nexLoop(nex_listen_list);
+	T.run();
+	runConfig();
 
+	if(T.estado_porta_inferior == FECHADA){
+		I.run(FECHADA);
+		A.run();
+		//D_CO2.run(I.estado_atual);
+		//TU.run();	    
+	//}
 	// else{
-		nexLoop(nex_listen_list);
-		T.run();
-		runConfig();
-
-		//if(T.estado_porta_inferior == FECHADA){
-			I.run(FECHADA);
-			A.run();
-			//D_CO2.run();
-			//TU.run();	    
-		//}
-		// else{
-		//     if(D_CO2.co2_ligado == 1)
-		//       digitalWrite(D_CO2.Pino_rele, LOW);
-		// }
+	//     if(D_CO2.co2_ligado == 1)
+	//       digitalWrite(D_CO2.Pino_rele, LOW);
+	// }
 	}
+}
 		
 // }

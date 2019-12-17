@@ -18,8 +18,10 @@ class Trava{
          estado_porta_inferior;
     
     Trava(){
-      pinMode(PINO_FIM_DE_CURSO, INPUT);
+      pinMode(PINO_FIM_DE_CURSO_SUPERIOR, INPUT);
+      pinMode(PINO_FIM_DE_CURSO_INFERIOR, INPUT);
       pinMode(PINO_TRANSISTOR_INFERIOR, OUTPUT);
+      pinMode(PINO_TRANSISTOR_SUPERIOR, OUTPUT);
     }
     
     void Trava::abrirInferior(){
@@ -35,8 +37,8 @@ class Trava{
     }
 
     void Trava::run(){
-      this->estado_porta_superior = digitalRead(PINO_FIM_DE_CURSO);
-      this->estado_porta_inferior = digitalRead(PINO_FIM_DE_CURSO);//colocar pino correto aqui
+      this->estado_porta_superior = digitalRead(PINO_FIM_DE_CURSO_SUPERIOR);
+      this->estado_porta_inferior = digitalRead(PINO_FIM_DE_CURSO_INFERIOR);//colocar pino correto aqui
 
       if( (millis() - this->timerSuperior) >= INTERVALO ){
         digitalWrite(PINO_TRANSISTOR_SUPERIOR, LOW); // Desliga relé

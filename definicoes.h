@@ -24,16 +24,18 @@ uint8_t PAGINA = 0;
 #define PAGINA_TRAVA 0
 #define PAGINA_EXAUSTAO 8
 #define PAGINA_TEMP_E_UMI 9
-//#define LIGADO 1
-//#define DESLIGADO 0
+
 
 #define SENSORDHTPINO 18
 #define PINO_LED 8
 #define PINO_PAINEL 7
 #define PINO_CAPACITOR A0
-#define PINO_FIM_DE_CURSO 2 // não pode ser esse o pino
-#define PINO_TRANSISTOR_INFERIOR 3
-#define PINO_TRANSISTOR_SUPERIOR 4
+#define PINO_FIM_DE_CURSO_SUPERIOR 2
+#define PINO_FIM_DE_CURSO_INFERIOR 3
+#define PINO_TRANSISTOR_INFERIOR 4
+#define PINO_TRANSISTOR_SUPERIOR 5
+#define PINO_SENSOR_CO2 19
+#define PINO_RELE_CO2 20
 
 //	Definir aqui os edereços ondes as coisas serão salvas
 // 0 - quantidade de horas ligado ciclo 1 - q_horas_ligado_c1
@@ -66,7 +68,8 @@ uint8_t PAGINA = 0;
 #define variacao_temperatura 17
 #define variacao_umidade 18
 
-
+#define LIGADO 1
+#define DESLIGADO 0
 #define ABERTA 1
 #define FECHADA 0
 

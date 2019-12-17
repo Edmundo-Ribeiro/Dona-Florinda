@@ -221,9 +221,9 @@ void SelecionaCiclo1PopCallback(void *ptr){
 	ciclo1_agendar.getValue(&estado_botao_c1);
 
 	Serial.println("IF ESTADO1");
-	if(estado_botao_c1 == I.LIGADO){
+	if(estado_botao_c1 == LIGADO){
 
-		ciclo2_agendar.setValue(I.DESLIGADO);
+		ciclo2_agendar.setValue(DESLIGADO);
 		A.seleciona_ciclo(I.CICLO_1);
 		
 	}
@@ -236,8 +236,8 @@ void SelecionaCiclo2PopCallback(void *ptr){
 
 	ciclo2_agendar.getValue(&estado_botao_c2);
 
-	if(estado_botao_c2 == I.LIGADO){	
-		ciclo1_agendar.setValue(I.DESLIGADO);
+	if(estado_botao_c2 == LIGADO){	
+		ciclo1_agendar.setValue(DESLIGADO);
 		A.seleciona_ciclo(I.CICLO_2);
 		
 	}
@@ -249,7 +249,6 @@ void AgendarPopCallBack(void *ptr){
 		PAGINA = PAGINA_AGENDAMENTO;
 		agendamento.show();
 		mostraDadosAgendamento();
-		Serial.println("OIII");
 }
 
 #endif

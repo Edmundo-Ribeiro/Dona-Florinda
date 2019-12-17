@@ -8,7 +8,7 @@ NexPage CO2_PAG = NexPage(PAGINA_CO2,0,"CO2");
 NexButton valor_CO2 = NexButton(PAGINA_CO2, 5, "co2");
 NexButton intervalo_CO2 = NexButton(PAGINA_CO2, 6, "intervalo_co2");
 
-#define INTERVALO_RAPIDO 200
+#define INTERVALO_RAPIDO 500
 #define INTERVALO_LENTO 60000
 #define BTNCO2 1
 #define BTNINTCO2 2
@@ -16,8 +16,7 @@ NexButton intervalo_CO2 = NexButton(PAGINA_CO2, 6, "intervalo_co2");
 class gascarbonico{
 
 private:
-  
-  int Pino_sensor;
+  //ED: ver se não da pra trocar esses inteiros por tipos que ocupam menos espaço (uint8 ...) ou definições
   int Valor;
   int valor_setup = 0;
   int valor_intervalo = 0;
@@ -30,17 +29,18 @@ private:
   long th, tl, h, l, ppm = 0;
 
 public:
-  int Pino_rele;
-  int co2_ligado = 0; // 1 quando ligado e 0 quando desligado
+  int co2_ligado = DESLIGADO; // 1 quando ligado e 0 quando desligado
   
   gascarbonico(){
     this->valor_intervalo = EEPROM.read(end_valor_intervalo);
     this->valor_setup = EEPROM.read(end_valor_setup);
+    pinMode(PINO_RELE_CO2, OUTPUT);
+    pinMode(PINO_SENSOR_CO2, INPUT);
   }
 
   long PWM_ISR() {
     long tt = millis();
-    int val = digitalRead(Pino_sensor);
+    int val = digitalRead(PINO_SENSOR_CO2);
     
     if (val == HIGH) {    
       if (val != prevVal) {
@@ -69,22 +69,11 @@ public:
     EEPROM.update(end_valor_intervalo,valor);
   }
 
-  void SetupSR_CO2(int valor1, int valor2){
-
-    this->Pino_rele = 18;
-    this->Pino_sensor = 19;
-
-    Serial.begin(9600);
-
-    pinMode(Pino_rele, OUTPUT);
-    pinMode(Pino_sensor, INPUT);
-  } 
-
-  void run(){
+  void run(bool estado_atual){
     
     unsigned long tempo_atual = millis();
 
-    if(I.estado_atual == I.LIGADO){
+    if(estado_atual == LIGADO){
     
       if((tempo_atual - this->tempo_anterior) >= this->tempo_intervalo_sensor){
         
@@ -94,14 +83,14 @@ public:
         //Valor = analogRead(this->Pino_sensor); 
        
         if(Valor <= (valor_setup - valor_intervalo)){
-          digitalWrite(Pino_rele, HIGH);  //Liga rele
+          digitalWrite(PINO_RELE_CO2, HIGH);  //Liga rele
           this->co2_ligado = 1;    
           this->tempo_intervalo_sensor = INTERVALO_RAPIDO;
         }
 
         if(Valor >= (valor_setup + valor_intervalo)){
 
-          digitalWrite(Pino_rele, LOW); //Desliga rele
+          digitalWrite(PINO_RELE_CO2, LOW); //Desliga rele
           this->co2_ligado = 0;
           this->tempo_intervalo_sensor = INTERVALO_LENTO;
         }

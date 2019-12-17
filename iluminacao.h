@@ -2,7 +2,8 @@
 #define iluminacao_h
 #include "teclado.h"
 
-
+//TO DO
+//- colocar pra salvar estado atual na mudança de ciclo
 
 //não presisaria fazer isso se tivesse um .h e .cpp separados para parte grafica e a classe SI
 void mostraDadosIluminacao();
@@ -34,16 +35,14 @@ class SI{
 	public:
 		bool estado_atual;
 
-		uint8_t q_horas_ligado_c1,
-			    q_horas_ligado_c2,
-			    ciclo_atual;
+		uint8_t q_horas_ligado_c1, // onde fica armazenado quantas horas o ciclo 1 tem que ficar ligado (mudar pra minutos?)
+			    q_horas_ligado_c2, // onde fica armazenado quantas horas o ciclo 2 tem que ficar ligado
+			    ciclo_atual;   // onde fica armazenado qual do ciclo está sendo executado (ciclo1, ciclo 2, ciclo_nenhum)
 		
-		uint16_t minuto_de_desligar,
+		uint16_t minuto_de_desligar, // onde fica armazenado o minuto do dia em que deve desligar e ligar
 			     minuto_de_ligar;
 
 
-		const bool DESLIGADO = 0; //Acho que pode mudar isso para um #define
-		const bool LIGADO = 1;
 		const uint8_t CICLO_NENHUM = 0;
 		const uint8_t CICLO_1 = 1;
 		const uint8_t CICLO_2 = 2;
@@ -119,14 +118,13 @@ class SI{
 
 		void desligar(){
 			this->desligarPainel();
-			this->estado_atual = this->DESLIGADO;
-			//EEPROM.update(end_estado_atual,this->estado_atual);// e se só salvar isso quando desligado?
+			this->estado_atual = DESLIGADO;
+			EEPROM.update(end_estado_atual,this->estado_atual);
 		}
-
 		void ligar(){
 			this->ligarPainel();
-			this->estado_atual = this->LIGADO;
-			//EEPROM.update(end_estado_atual,this->estado_atual);
+			this->estado_atual = LIGADO;
+			EEPROM.update(end_estado_atual,this->estado_atual);
 		}
 
 		void pausa(){
@@ -136,12 +134,47 @@ class SI{
 
 		void retomar(){
 			this->desligarLED();
-			if(this->estado_atual == this->LIGADO)
+			if(this->estado_atual == LIGADO)
 				this->ligarPainel();
 			else
 				this->desligarPainel();
 		}
+		//mudar esse nome
+		void verificacoes(){
+			//pegar qual o minuto atual 
+			uint16_t minuto_atual = minutoAtual();
 
+			
+
+			/*Veririficações no caso do sistema ter sido reiniciado após desligamento ou queda de energia
+			caso o sistema seja desligado no meio de um ciclo e ligado novamente algum tempo depois, 
+			devemos verificar em qual estado ele deveria estar (painel desligado ou painel ligado).
+			
+			Nesse primeiro if verificamos qual dos tipos de ciclos estamos executando ou seja,
+			se é um ciclo em que o minuto de ligar é antes ou depois do minuto de desligar*/
+			bool esta_no_lado_ciclo_ligado;
+
+			if(this->minuto_de_ligar < minuto_de_desligar){
+				//verificando em qual lado do ciclo está (lado desligado ou lado ligado)
+				esta_no_lado_ciclo_ligado = (minuto_atual >= this->minuto_de_ligar 
+											 && 
+											 minuto_atual <= this->minuto_de_desligar);
+			}
+			else{
+				esta_no_lado_ciclo_ligado = !(minuto_atual >= this->minuto_de_desligar 
+						  					  &&
+						  					  minuto_atual <= this->minuto_de_ligar);
+			}
+
+			//se está ligado mas não está do lado do ciclo ligado
+			if(this->estado_atual == LIGADO && !esta_no_lado_ciclo_ligado){
+				//desligue
+				this->desligar();
+			}
+			else if(this->estado_atual == DESLIGADO && esta_no_lado_ciclo_ligado){
+				this->ligar();
+			}
+		}
 		void run(bool estado_porta){
 			/*
 			se a porta está aberta pausar o sistema
@@ -165,39 +198,8 @@ class SI{
 				unsigned long atual = millis();
 				//olha se passou o intervalo 
 				if(atual - this->iluminacaoMillis >= this->iluminacaoIntervalo){
-					//pegar qual o minuto atual 
-					uint16_t minuto_atual = minutoAtual();
-
 					
-
-					/*Veririficações no caso do sistema ter sido reiniciado após desligamento ou queda de energia
-					caso o sistema seja desligado no meio de um ciclo e ligado novamente algum tempo depois, 
-					devemos verificar em qual estado ele deveria estar (painel desligado ou painel ligado).
-					
-					Nesse primeiro if verificamos qual dos tipos de ciclos estamos executando ou seja,
-					se é um ciclo em que o minuto de ligar é antes ou depois do minuto de desligar*/
-					bool esta_no_lado_ciclo_ligado;
-
-					if(this->minuto_de_ligar < minuto_de_desligar){
-						//verificando em qual lado do ciclo está (lado desligado ou lado ligado)
-						esta_no_lado_ciclo_ligado = (minuto_atual >= this->minuto_de_ligar 
-													 && 
-													 minuto_atual <= this->minuto_de_desligar);
-					}
-					else{
-						esta_no_lado_ciclo_ligado = !(minuto_atual >= this->minuto_de_desligar 
-								  					  &&
-								  					  minuto_atual <= this->minuto_de_ligar);
-					}
-
-					//se está ligado mas não está do lado do ciclo ligado
-					if(this->estado_atual == this->LIGADO && !esta_no_lado_ciclo_ligado){
-						//desligue
-						this->desligar();
-					}
-					else if(this->estado_atual == this->DESLIGADO && esta_no_lado_ciclo_ligado){
-						this->ligar();
-					}
+					this->verificacoes();
 
 					//resetar o contador do intervalo
 					this->iluminacaoMillis = atual;
@@ -272,7 +274,8 @@ class SI{
 				this->minuto_de_desligar = calcularMinuto(minuto_atual, q_horas_ligado*60);
 			}
 
-			// EEPROM.put(end_minuto_de_ligar, this->minuto_de_ligar);
+			EEPROM.put(end_minuto_de_ligar, this->minuto_de_ligar);
+			this->verificacoes();
 			mostraDadosIluminacao();
 		}
 
@@ -351,7 +354,7 @@ SI I; //Desclaração do objeto sistema de iluminação
 
 		uint16_t minuto_atual = minutoAtual();
 
-		if(I.estado_atual == I.LIGADO){
+		if(I.estado_atual == LIGADO){
 			estado_ciclo_texto.setText("LUZ");
 			progresso.setValue(map(minuto_atual, I.minuto_de_ligar, I.minuto_de_desligar, 0, 100));
 			sprintf(texto_tempo_restante,
@@ -375,10 +378,10 @@ SI I; //Desclaração do objeto sistema de iluminação
 
 		btn_c1.getValue(&estado_botao_c1);
 
-		if(estado_botao_c1 == I.LIGADO){
+		if(estado_botao_c1 == LIGADO){
 
 			if(I.ciclo_atual != I.CICLO_1){
-				btn_c2.setValue(I.DESLIGADO);
+				btn_c2.setValue(DESLIGADO);
 				I.troca_ciclo(I.CICLO_1);
 			}
 		}
@@ -394,10 +397,10 @@ SI I; //Desclaração do objeto sistema de iluminação
 
 		btn_c2.getValue(&estado_botao_c2);
 
-		if(estado_botao_c2 == I.LIGADO){
+		if(estado_botao_c2 == LIGADO){
 
 			if(I.ciclo_atual != I.CICLO_2){
-				btn_c1.setValue(I.DESLIGADO);
+				btn_c1.setValue(DESLIGADO);
 				I.troca_ciclo(I.CICLO_2);
 			}
 		}
