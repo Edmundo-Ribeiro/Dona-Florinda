@@ -1,49 +1,67 @@
 #ifndef trava_h
 #define trava_h
 
-#include "gascarbonico.h"
+#define INTERVALO 5000
 
-#define INTERVALO 10000
 //alterar nome do objeto na pagina
-NexButton TravaBotao = NexButton(PAGINA_TRAVA, 0, "BTrava");
+NexButton btnTravaSuperior = NexButton(PAGINA_TRAVA, 0, "BTrava");
+NexButton btnTravaInferior = NexButton(PAGINA_TRAVA, 0, "BTrava");
 
 
-
-class trava{
+class Trava{
   private:
-    int Pino_fimcurso = 1;
-    int Pino_trans = 2;
-    unsigned long tempo_anterior = 0;
+    unsigned long timerSuperior = millis();
+    unsigned long timerInferior = millis();
  
   public:
-    int porta;
-    void trava::setup(){
-      Serial.begin(9600);
-      pinMode(Pino_fimcurso, INPUT);
-      pinMode(Pino_trans, OUTPUT);
+    bool estado_porta_superior,
+         estado_porta_inferior;
+    
+    Trava(){
+      pinMode(PINO_FIM_DE_CURSO, INPUT);
+      pinMode(PINO_TRANSISTOR_INFERIOR, OUTPUT);
     }
     
-    void trava::testar_porta(){
-      this->porta = digitalRead(Pino_fimcurso);
+    void Trava::abrirInferior(){
+      digitalWrite(PINO_TRANSISTOR_INFERIOR, HIGH); //Liga relé
+      timerInferior = millis();//resetar o timer
+
     }
-    
-    void trava::abrir(){
-      unsigned long tempo_atual = millis();
-      digitalWrite(Pino_trans, HIGH); //Liga relé
-      
-      if((tempo_atual - this->tempo_anterior) >= INTERVALO){
-           digitalWrite(Pino_trans, LOW); // Desliga relé
-           this->tempo_anterior = tempo_atual;
+
+    void Trava::abrirSuperior(){
+      digitalWrite(PINO_TRANSISTOR_SUPERIOR, HIGH); //Liga relé
+      timerSuperior = millis();//resetar o timer
+
+    }
+
+    void Trava::run(){
+      this->estado_porta_superior = digitalRead(PINO_FIM_DE_CURSO);
+      this->estado_porta_inferior = digitalRead(PINO_FIM_DE_CURSO);//colocar pino correto aqui
+
+      if( (millis() - this->timerSuperior) >= INTERVALO ){
+        digitalWrite(PINO_TRANSISTOR_SUPERIOR, LOW); // Desliga relé
+        this->timerSuperior = millis();
+      }
+
+      if( (millis() - this->timerInferior) >= INTERVALO ){
+        Serial.println((millis() - this->timerInferior));
+        digitalWrite(PINO_TRANSISTOR_INFERIOR, LOW); // Desliga relé
+        this->timerInferior = millis();
       }
     }
+
 };
 
 
 
 
-trava T; //declaração do objeto
-void TravaPopCallBack(){
-  T.abrir();
-  }
+Trava T; //declaração do objeto
+void TravaSuperiorPopCallBack(){
+  T.abrirSuperior();
+}
+
+void TravaInferiorPopCallBack(){
+  T.abrirInferior();
+}
 
 #endif

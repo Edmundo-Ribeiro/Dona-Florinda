@@ -30,6 +30,11 @@ uint8_t PAGINA = 0;
 #define SENSORDHTPINO 18
 #define PINO_LED 8
 #define PINO_PAINEL 7
+#define PINO_CAPACITOR A0
+#define PINO_FIM_DE_CURSO 2 // não pode ser esse o pino
+#define PINO_TRANSISTOR_INFERIOR 3
+#define PINO_TRANSISTOR_SUPERIOR 4
+
 //	Definir aqui os edereços ondes as coisas serão salvas
 // 0 - quantidade de horas ligado ciclo 1 - q_horas_ligado_c1
 #define end_q_horas_ligado_c1 40
@@ -62,10 +67,8 @@ uint8_t PAGINA = 0;
 #define variacao_umidade 18
 
 
-#define OPEN 1
-#define CLOSED 0
-#define RESUMED 1
-#define NOTRESUMED 0
+#define ABERTA 1
+#define FECHADA 0
 
 #define BASEYEAR 2019
 #define end_endereco_minutos_passados 1000// 1000 e 1001
@@ -83,6 +86,7 @@ uint8_t PAGINA = 0;
 #define BTNUMIVAR 11
 
 #define MINUTOS_DIA 1440
+#define SEM_ENERGIA 1023
 // #####################################################################
 
 NexPage menu = NexPage(PAGINA_MENU,0,"Menu"); 

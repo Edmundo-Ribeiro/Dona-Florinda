@@ -286,7 +286,6 @@ NexTouch *nex_listen_list[] = {
 	&icone_ilumincao,
 	&voltar_iluminacao,
 	&voltar_datahora,
-  &TravaBotao,
  //Botões CO2
  //&valor_CO2,
  //&intervalo_CO2,
@@ -296,13 +295,15 @@ NexTouch *nex_listen_list[] = {
   &btn_setar_variacao_umi,
   &voltar_tempumi,
   &Gota1, //escuta se o botao Gota1 foi abertado
- 
+  &btnTravaSuperior,
+  &btnTravaInferior,
     NULL
 };
+ 
 
 void setup() {
 	Serial.begin(9600);
-
+	Serial2.begin(9600);
   dht.begin(); //Sensor de umidade e temperatura
 	rtc.begin();
 	dbSerialPrintln("SETUP");
@@ -311,8 +312,6 @@ void setup() {
 	PAGINA = PAGINA_MENU;
 	menu.show();
 	
-	I.definePinos(7,8);
-
 // ####################################################################################################
 	hora.attachPop(HoraPopCallback);
 	minuto.attachPop(MinutoPopCallback);
@@ -360,7 +359,8 @@ void setup() {
   
 //pagina trava
 // ####################################################################################################
-TravaBotao.attachPop(TravaPopCallBack);
+btnTravaSuperior.attachPop(TravaSuperiorPopCallBack);
+btnTravaInferior.attachPop(TravaInferiorPopCallBack);
 // ####################################################################################################
 
 //pagina Irrigacao
@@ -378,33 +378,30 @@ btn_setar_variacao_umi.attachPop(VariacaoUmidadeCallback);
 voltar_tempumi.attachPop(voltarTempUmiCallback);
 icone_temp_umi.attachPop(icone_temp_umiCallback);
 }
-long startTime, endTime;
+
+
 void loop() {
 
-  startTime = millis();
+	// if(analogRead(PINO_CAPACITOR) == SEM_ENERGIA){
+	// 	//I.salvar();
+	// 	// Serial.println(analogRead(PINO_CAPACITOR));
+	// }
 
-  nexLoop(nex_listen_list);
-  runConfig();
-  T.testar_porta();
-  if(T.porta == 0){
-    I.run(CLOSED);
-    A.run();
-    D_CO2.run();
-    TU.run();
-    
-  }else{
-    if(D_CO2.co2_ligado == 1){
-      digitalWrite(D_CO2.Pino_rele, LOW);
-    }
-  }
-    
-  
-  endTime = millis();
+	// else{
+		nexLoop(nex_listen_list);
+		T.run();
+		runConfig();
 
-  Serial.print("\n####################################\nTempo  de execulcao do loop: ");
-  Serial.println(endTime);
-  Serial.println(startTime);
-  Serial.println(endTime-startTime);
-
-  delay(2000);
-}
+		//if(T.estado_porta_inferior == FECHADA){
+			I.run(FECHADA);
+			A.run();
+			//D_CO2.run();
+			//TU.run();	    
+		//}
+		// else{
+		//     if(D_CO2.co2_ligado == 1)
+		//       digitalWrite(D_CO2.Pino_rele, LOW);
+		// }
+	}
+		
+// }

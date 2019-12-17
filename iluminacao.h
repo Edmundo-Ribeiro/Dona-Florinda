@@ -39,9 +39,7 @@ class SI{
 			    ciclo_atual;
 		
 		uint16_t minuto_de_desligar,
-			     minuto_de_ligar,
-			     minutos_passados,
-			     ultimo_minuto_registrado;
+			     minuto_de_ligar;
 
 
 		const bool DESLIGADO = 0; //Acho que pode mudar isso para um #define
@@ -51,7 +49,7 @@ class SI{
 		const uint8_t CICLO_2 = 2;
 
 		unsigned long iluminacaoMillis = 0;
-		unsigned long iluminacaoIntervalo = 1000;
+		unsigned long iluminacaoIntervalo = 10000;
 
 		SI(){
 
@@ -84,9 +82,6 @@ class SI{
 
 			this->minuto_de_desligar = calcularMinuto(this->minuto_de_ligar, q_minutos_desligado);	
 
-			//da pra descobrir com isso quanto tempo ficou fora da energia???
-			this->ultimo_minuto_registrado =0;// minutoAtual();
-			this->loadMinutosPassados();
 
 		}
 
@@ -104,34 +99,32 @@ class SI{
 
 		void desligarPainel(){
 			Serial.println("\nDesligando Painel...\n");
-			digitalWrite(this->pino_painel, LOW);
+			digitalWrite(PINO_PAINEL, LOW);
 		}
 
 		void ligarPainel(){
 			Serial.println("\nLigando Painel...\n");
-			digitalWrite(this->pino_painel, HIGH);
+			digitalWrite(PINO_PAINEL, HIGH);
 		}
 
 		void desligarLED(){
 			Serial.println("\nDesligando LED...\n");
-			digitalWrite(this->pino_led, LOW);
+			digitalWrite(PINO_LED, LOW);
 		}
 
 		void ligarLED(){
 			Serial.println("\nLigando LED...\n");
-			digitalWrite(this->pino_led, HIGH);
+			digitalWrite(PINO_LED, HIGH);
 		}
 
 		void desligar(){
 			this->desligarPainel();
-			this->minutos_passados = 0;
 			this->estado_atual = this->DESLIGADO;
 			//EEPROM.update(end_estado_atual,this->estado_atual);// e se só salvar isso quando desligado?
 		}
 
 		void ligar(){
 			this->ligarPainel();
-			this->minutos_passados = 0;
 			this->estado_atual = this->LIGADO;
 			//EEPROM.update(end_estado_atual,this->estado_atual);
 		}
@@ -167,7 +160,7 @@ class SI{
 			*/
 			else{
 				//desliga fita de led e retoma o estado do painel
-				this->retomar();
+				//this->retomar();
 				//pegar milisegundo atual "inicio to timer"
 				unsigned long atual = millis();
 				//olha se passou o intervalo 
@@ -175,12 +168,7 @@ class SI{
 					//pegar qual o minuto atual 
 					uint16_t minuto_atual = minutoAtual();
 
-					//verificar se passou "1" minuto
-					if(minuto_atual != this->ultimo_minuto_registrado){
-						this->minutos_passados += 1;
-						//registra qual foi o ultimo minuto "resetar o timer"
-						this->ultimo_minuto_registrado = minuto_atual;
-					}
+					
 
 					/*Veririficações no caso do sistema ter sido reiniciado após desligamento ou queda de energia
 					caso o sistema seja desligado no meio de um ciclo e ligado novamente algum tempo depois, 
@@ -218,6 +206,7 @@ class SI{
 					if(PAGINA == PAGINA_ILUMINACAO){
 						mostraDadosIluminacao();
 					}
+					degubEstadoVariaveis();
 				}
 			}
 		}
@@ -284,9 +273,14 @@ class SI{
 			}
 
 			// EEPROM.put(end_minuto_de_ligar, this->minuto_de_ligar);
+			mostraDadosIluminacao();
 		}
 
-
+		//metodo que será chamado quando o sistema desligar
+		//por enquanto só estou salvando o estado atual
+		void salvar(){
+			EEPROM.update(end_estado_atual,this->estado_atual);
+		}
 
 
 	
@@ -317,11 +311,6 @@ SI I; //Desclaração do objeto sistema de iluminação
 		Serial.println(I.minuto_de_desligar);
 		Serial.print("minuto_de_ligar: ");
 		Serial.println(I.minuto_de_ligar);
-		Serial.print("minutos_passados: ");
-		Serial.println(I.minutos_passados);
-		
-		Serial.print("ultimo_minuto_registrado: ");
-		Serial.println(I.ultimo_minuto_registrado);
 		
 		Serial.print("minuto_atual: ");
 		Serial.println(minutoAtual());
@@ -367,14 +356,14 @@ SI I; //Desclaração do objeto sistema de iluminação
 			progresso.setValue(map(minuto_atual, I.minuto_de_ligar, I.minuto_de_desligar, 0, 100));
 			sprintf(texto_tempo_restante,
 					"%02d:%02d",
-					 (I.minutos_desligado - minuto_atual)/60, (I.minutos_desligado - minuto_atual)%60);
+					 (I.minuto_de_desligar - minuto_atual)/60, (I.minuto_de_desligar - minuto_atual)%60);
 		}
 		else{
 			estado_ciclo_texto.setText("ESCURO");
 			progresso.setValue(map(minuto_atual, I.minuto_de_desligar, I.minuto_de_ligar, 0, 100));
 			sprintf(texto_tempo_restante,
 					"%02d:%02d",
-					 (I.minutos_ligado - minuto_atual)/60, (I.minutos_ligado - minuto_atual)%60);
+					 (I.minuto_de_ligar - minuto_atual)/60, (I.minuto_de_ligar - minuto_atual)%60);
 		}
 		
 		tempo_restante.setText(texto_tempo_restante);
