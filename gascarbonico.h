@@ -61,7 +61,7 @@ public:
   
   void setCO2(uint16_t valor){
     this->valor_setup = valor;
-    EEPROM.update(end_valor_setup,valor);
+    EEPROM.update(end_valor_setup, valor);
   }
 
   void setIntCO2(uint16_t valor){
