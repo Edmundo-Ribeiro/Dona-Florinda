@@ -12,7 +12,10 @@ void PassaBotaoParaTela(uint32_t bufferValor){
 	teclado.show();
 	sprintf(buffer, "%d",bufferValor);//passar para string
 	entrada.setText(buffer);
-	dbSerialPrintln("PassaBotaoParaTela");
 }
 
+void PassaTextoParaTela(char* buffer){
+	teclado.show();
+	entrada.setText(buffer);
+}
 #endif

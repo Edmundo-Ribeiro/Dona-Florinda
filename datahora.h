@@ -9,14 +9,14 @@
 
 	
 
-	NexButton definirDataHora = NexButton(0, 5, "defDataHora");
+	NexButton definirDataHora = NexButton(PAGINA_MENU, 4, "defDataHora");
 	NexPage configData = NexPage(PAGINA_DATA_HORA,0,"configData");
-	NexNumber hora = NexNumber(PAGINA_DATA_HORA, 1, "hora");
-	NexNumber minuto = NexNumber(PAGINA_DATA_HORA, 2, "minuto");
-	NexNumber dia = NexNumber(PAGINA_DATA_HORA, 3, "dia");
-	NexNumber mes = NexNumber(PAGINA_DATA_HORA, 4, "mes");
-	NexNumber ano = NexNumber(PAGINA_DATA_HORA, 5, "ano");
-	NexButton voltar_datahora = NexButton(PAGINA_DATA_HORA, 6, "voltar");
+	NexButton hora = NexButton(PAGINA_DATA_HORA, 5, "hora");
+	NexButton minuto = NexButton(PAGINA_DATA_HORA, 6, "minuto");
+	NexButton dia = NexButton(PAGINA_DATA_HORA, 2, "dia");
+	NexButton mes = NexButton(PAGINA_DATA_HORA, 3, "mes");
+	NexButton ano = NexButton(PAGINA_DATA_HORA, 4, "ano");
+	NexButton voltar_datahora = NexButton(PAGINA_DATA_HORA, 1, "voltar");
 // ###########################################################################################################
 
 
@@ -30,43 +30,50 @@
 	}
 
 	void HoraPopCallback(void *ptr){
-		uint32_t bufferValor;
+		char bufferValor[5];
 		botaoAbertado = BTNHORA;
-		hora.getValue(&bufferValor);
-		PassaBotaoParaTela(bufferValor);
+		hora.getText(bufferValor,sizeof(bufferValor));
+		PassaTextoParaTela(bufferValor);
 	}
 	void MinutoPopCallback(void *ptr){
-		uint32_t bufferValor;
+		char bufferValor[5];
 		botaoAbertado = BTNMINUTO;
-		minuto.getValue(&bufferValor);
-		PassaBotaoParaTela(bufferValor);
+		minuto.getText(bufferValor,sizeof(bufferValor));
+		PassaTextoParaTela(bufferValor);
 	}
 	void DiaPopCallback(void *ptr){
-		uint32_t bufferValor;
+		char bufferValor[5];
 		botaoAbertado = BTNDIA;
-		dia.getValue(&bufferValor);
-		PassaBotaoParaTela(bufferValor);
+		dia.getText(bufferValor,sizeof(bufferValor));
+		PassaTextoParaTela(bufferValor);
 	}
 	void MesPopCallback(void *ptr){
-		uint32_t bufferValor;
+		char bufferValor[5];
 		botaoAbertado = BTNMES;
-		mes.getValue(&bufferValor);
-		PassaBotaoParaTela(bufferValor);
+		mes.getText(bufferValor,sizeof(bufferValor));
+		PassaTextoParaTela(bufferValor);
 	}
 	void AnoPopCallback(void *ptr){
-		uint32_t bufferValor;
+		char bufferValor[7];//pq 7? não sei, mas só funciona assim
 		botaoAbertado = BTNANO;
-		ano.getValue(&bufferValor);
-		PassaBotaoParaTela(bufferValor);
+		ano.getText(bufferValor,sizeof(bufferValor));
+		PassaTextoParaTela(bufferValor);
 	}
 
 	void mostraHoraData(){
+		char buffer[5];
 		Time t = rtc.getTime();
-		dia.setValue(t.date);
-		mes.setValue(t.mon);
-		ano.setValue(t.year);
-		hora.setValue(t.hour);
-		minuto.setValue(t.min);
+		itoa(t.date, buffer,10);
+		dia.setText(buffer);
+		itoa(t.mon, buffer,10);
+		mes.setText(buffer);
+		itoa(t.year, buffer,10);
+		ano.setText(buffer);
+		itoa(t.hour, buffer,10);
+		Serial.println(buffer);
+		hora.setText(buffer);
+		itoa(t.min, buffer,10);
+		minuto.setText(buffer);
 	
 	}
 

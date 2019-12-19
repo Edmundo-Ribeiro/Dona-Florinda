@@ -6,12 +6,12 @@
 
 
 	NexPage agendamento = NexPage(PAGINA_AGENDAMENTO,0,"Agendamento");
-	NexNumber agendarHora = NexNumber(PAGINA_AGENDAMENTO, 1, "hora");
-	NexNumber agendarMinuto = NexNumber(PAGINA_AGENDAMENTO, 2, "minuto");
-	NexNumber agendarDia = NexNumber(PAGINA_AGENDAMENTO, 3, "dia");
-	NexNumber agendarMes = NexNumber(PAGINA_AGENDAMENTO, 4, "mes");
-	NexNumber agendarAno = NexNumber(PAGINA_AGENDAMENTO, 5, "ano");
-	NexButton voltar_agendar = NexButton(PAGINA_AGENDAMENTO, 6, "voltar");
+	NexButton agendarHora = NexButton(PAGINA_AGENDAMENTO, 5, "hora");
+	NexButton agendarMinuto = NexButton(PAGINA_AGENDAMENTO, 6, "minuto");
+	NexButton agendarDia = NexButton(PAGINA_AGENDAMENTO, 2, "dia");
+	NexButton agendarMes = NexButton(PAGINA_AGENDAMENTO, 3, "mes");
+	NexButton agendarAno = NexButton(PAGINA_AGENDAMENTO, 4, "ano");
+	NexButton voltar_agendar = NexButton(PAGINA_AGENDAMENTO, 1, "voltar");
 	NexDSButton ciclo1_agendar = NexDSButton(PAGINA_AGENDAMENTO, 7, "ciclo1");
 	NexDSButton ciclo2_agendar = NexDSButton(PAGINA_AGENDAMENTO, 8, "ciclo2");
 
@@ -119,21 +119,6 @@ class SAI{
 					//reset o contador do intervalo
 					this->agendamentoMillis = atual;
 
-
-					if(year == BASEYEAR + 2){
-						EEPROM.put(end_endereco_minutos_passados, 1002);
-					}
-					else if(year == BASEYEAR + 4){
-						EEPROM.put(end_endereco_minutos_passados, 1004);
-
-					}
-					else if(year == BASEYEAR + 6){
-						EEPROM.put(end_endereco_minutos_passados, 1006);
-
-					}
-					else if(year == BASEYEAR + 8){
-						EEPROM.put(end_endereco_minutos_passados, 1008);
-					}
 				}	
 				
 			}
@@ -161,11 +146,17 @@ void degubEstadoVariveis(){
 }
 
 void mostraDadosAgendamento(){	
-		dia.setValue(A.dia_agendado);
-		mes.setValue(A.mes_agendado);
-		ano.setValue(A.ano_agendado);
-		hora.setValue(A.hora_agendada);
-		minuto.setValue(A.minuto_agendado);
+	char buffer[5];
+		itoa(A.dia_agendado, buffer,10);
+		agendarDia.setText(buffer);
+		itoa(A.mes_agendado, buffer,10);
+		agendarMes.setText(buffer);
+		itoa(A.ano_agendado, buffer,10);
+		agendarAno.setText(buffer);
+		itoa(A.hora_agendada, buffer,10);
+		agendarHora.setText(buffer);
+		itoa(A.minuto_agendado, buffer,10);
+		agendarMinuto.setText(buffer);
 
 		if(A.ciclo_agendado == I.CICLO_1){
 			ciclo1_agendar.setValue(1);
@@ -181,35 +172,36 @@ void mostraDadosAgendamento(){
 		}
 }
 void AgendaHoraPopCallback(void *ptr){
-	uint32_t bufferValor;
+	char bufferValor[5];
 	botaoAbertado = BTNHORA;
-	hora.getValue(&bufferValor);
-	PassaBotaoParaTela(bufferValor);
+	agendarHora.getText(bufferValor,sizeof(bufferValor));
+	PassaTextoParaTela(bufferValor);
 }
 void AgendaMinutoPopCallback(void *ptr){
-	uint32_t bufferValor;
+	char bufferValor[5];
 	botaoAbertado = BTNMINUTO;
-	minuto.getValue(&bufferValor);
-	PassaBotaoParaTela(bufferValor);
+	agendarMinuto.getText(bufferValor,sizeof(bufferValor));
+	PassaTextoParaTela(bufferValor);
 }
 void AgendaDiaPopCallback(void *ptr){
-	uint32_t bufferValor;
+	char bufferValor[5];
 	botaoAbertado = BTNDIA;
-	dia.getValue(&bufferValor);
-	PassaBotaoParaTela(bufferValor);
+	agendarDia.getText(bufferValor,sizeof(bufferValor));
+	PassaTextoParaTela(bufferValor);
 }
 void AgendaMesPopCallback(void *ptr){
-	uint32_t bufferValor;
+	char bufferValor[5];
 	botaoAbertado = BTNMES;
-	mes.getValue(&bufferValor);
-	PassaBotaoParaTela(bufferValor);
+	agendarMes.getText(bufferValor,sizeof(bufferValor));
+	PassaTextoParaTela(bufferValor);
 }
 void AgendaAnoPopCallback(void *ptr){
-	uint32_t bufferValor;
+	char bufferValor[7];
 	botaoAbertado = BTNANO;
-	ano.getValue(&bufferValor);
-	PassaBotaoParaTela(bufferValor);
+	agendarAno.getText(bufferValor,sizeof(bufferValor));
+	PassaTextoParaTela(bufferValor);
 }
+
 void VoltarAgendar(void *ptr){
 	PAGINA = PAGINA_ILUMINACAO;
 	iluminacao.show();
@@ -218,7 +210,7 @@ void VoltarAgendar(void *ptr){
 void SelecionaCiclo1PopCallback(void *ptr){
 	uint32_t estado_botao_c1;
 
-	ciclo1_agendar.getValue(&estado_botao_c1);
+	// ciclo1_agendar.getValue(&estado_botao_c1);
 
 	Serial.println("IF ESTADO1");
 	if(estado_botao_c1 == LIGADO){
@@ -234,7 +226,7 @@ void SelecionaCiclo1PopCallback(void *ptr){
 void SelecionaCiclo2PopCallback(void *ptr){
 	uint32_t estado_botao_c2;
 
-	ciclo2_agendar.getValue(&estado_botao_c2);
+	// ciclo2_agendar.getValue(&estado_botao_c2);
 
 	if(estado_botao_c2 == LIGADO){	
 		ciclo1_agendar.setValue(DESLIGADO);

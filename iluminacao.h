@@ -3,7 +3,7 @@
 #include "teclado.h"
 
 //TO DO
-//- colocar pra salvar estado atual na mudança de ciclo
+//na parte de mostrar os dados ainda não estão considerando quando está em ciclo nenhum
 
 //não presisaria fazer isso se tivesse um .h e .cpp separados para parte grafica e a classe SI
 void mostraDadosIluminacao();
@@ -28,7 +28,7 @@ void degubEstadoVariaveis();
 	NexProgressBar progresso = NexProgressBar(PAGINA_ILUMINACAO,8,"progresso");
 	NexText tempo_restante = NexText(PAGINA_ILUMINACAO, 10, "tempo_restante");
 	
-	NexButton icone_ilumincao = NexButton(PAGINA_MENU,4,"iluminacao");	
+	NexButton icone_ilumincao = NexButton(PAGINA_MENU,3,"iluminacao");	
 // ###########################################################################################################
 
 class SI{			
@@ -55,7 +55,7 @@ class SI{
 			pinMode(PINO_PAINEL, OUTPUT);
 			pinMode(PINO_LED, OUTPUT);
 
-			uint16_t q_minutos_desligado;
+			uint16_t q_minutos_ligado;
 
 			this->estado_atual = EEPROM.read(end_estado_atual);
 			this->ciclo_atual = EEPROM.read(end_ciclo_atual);
@@ -70,17 +70,18 @@ class SI{
 			e o intervalo de tempo 
 			*/
 			if(this->ciclo_atual == this->CICLO_1){
-				q_minutos_desligado = (24 - this->q_horas_ligado_c1)*60;
+				q_minutos_ligado = this->q_horas_ligado_c1*60;
 			}
 			else if(this->ciclo_atual == this->CICLO_2){
-				q_minutos_desligado = (24 - this->q_horas_ligado_c2)*60;
+				q_minutos_ligado = this->q_horas_ligado_c2*60;
 			}
-			else{
-				q_minutos_desligado = MINUTOS_DIA;
+			
+			this->minuto_de_desligar = calcularMinuto(this->minuto_de_ligar, q_minutos_ligado);	
+
+			if(this->ciclo_atual == this->CICLO_NENHUM){
+				this->minuto_de_ligar = MINUTOS_DIA; 
+				this->minuto_de_desligar = 0;
 			}
-
-			this->minuto_de_desligar = calcularMinuto(this->minuto_de_ligar, q_minutos_desligado);	
-
 
 		}
 
@@ -232,10 +233,11 @@ class SI{
 
 			uint16_t minuto_atual,
 					 minutos_restantes;
-				
-
+			
+			//definir de onde está saindo
 			ciclo_origem = this->ciclo_atual;
 
+			//atribuir o valor da quantidade de horas ligado conforme o ciclo de destino
 			if(ciclo_destino == this->CICLO_1){
 				q_horas_ligado = this->q_horas_ligado_c1;
 				this->ciclo_atual = this->CICLO_1;
@@ -275,6 +277,8 @@ class SI{
 			}
 
 			EEPROM.put(end_minuto_de_ligar, this->minuto_de_ligar);
+
+			EEPROM.update(end_ciclo_atual, this->ciclo_atual);
 			this->verificacoes();
 			mostraDadosIluminacao();
 		}
@@ -354,23 +358,84 @@ SI I; //Desclaração do objeto sistema de iluminação
 
 		uint16_t minuto_atual = minutoAtual();
 
-		if(I.estado_atual == LIGADO){
-			estado_ciclo_texto.setText("LUZ");
-			progresso.setValue(map(minuto_atual, I.minuto_de_ligar, I.minuto_de_desligar, 0, 100));
-			sprintf(texto_tempo_restante,
-					"%02d:%02d",
-					 (I.minuto_de_desligar - minuto_atual)/60, (I.minuto_de_desligar - minuto_atual)%60);
+		// if(I.estado_atual == LIGADO){
+		// 	estado_ciclo_texto.setText("LUZ");
+		// 	progresso.setValue(map(minuto_atual, I.minuto_de_ligar, I.minuto_de_desligar, 0, 100));
+
+		// 	sprintf(texto_tempo_restante,
+		// 			"%02d:%02d",
+		// 			 (abs(I.minuto_de_desligar - minuto_atual))/60, (I.minuto_de_desligar - minuto_atual)%60);
+		// }
+
+		// else if(I.ciclo_atual == I.CICLO_NENHUM){
+		// 	estado_ciclo_texto.setText("ESCURO");
+		// 	progresso.setValue(0);
+		// 	sprintf(texto_tempo_restante, "--:--");
+		// }
+
+		// else{
+		// 	estado_ciclo_texto.setText("ESCURO");
+		// 	progresso.setValue(map(minuto_atual, I.minuto_de_desligar, I.minuto_de_ligar, 0, 100));
+		// 	sprintf(texto_tempo_restante,
+		// 			"%02d:%02d",
+		// 			 (abs((int)I.minuto_de_ligar - (int)minuto_atual))/60, (I.minuto_de_ligar - minuto_atual)%60);
+		// }
+
+		//tempo_restante.setText(texto_tempo_restante);
+
+		//definição do valor da progress bar
+		if(I.minuto_de_ligar < I.minuto_de_desligar){
+
+			if(I.estado_atual == LIGADO){
+				estado_ciclo_texto.setText("LUZ");
+				progresso.setValue( map(minuto_atual, I.minuto_de_ligar, I.minuto_de_desligar, 0, 100) );
+				sprintf(texto_tempo_restante, "%02d:%02d",
+					 	(I.minuto_de_desligar - minuto_atual)/60, (I.minuto_de_desligar - minuto_atual)%60 );
+			}
+
+			else{
+				estado_ciclo_texto.setText("ESCURO");
+				if(minuto_atual <= I.minuto_de_ligar){
+					progresso.setValue( map(minuto_atual, 0 , I.minuto_de_ligar,  100*(MINUTOS_DIA - I.minuto_de_desligar)/MINUTOS_DIA , 100) );
+					sprintf(texto_tempo_restante, "%02d:%02d",
+					 	(I.minuto_de_ligar - minuto_atual)/60, (I.minuto_de_ligar - minuto_atual)%60 );
+				}
+				else{
+					progresso.setValue( map(minuto_atual, I.minuto_de_desligar , MINUTOS_DIA , 0 , 100*(MINUTOS_DIA - I.minuto_de_desligar)/MINUTOS_DIA ) );
+					Serial.println( map(minuto_atual, I.minuto_de_desligar , MINUTOS_DIA , 0 , 100*(MINUTOS_DIA - I.minuto_de_desligar)/MINUTOS_DIA ) );
+					sprintf(texto_tempo_restante, "%02d:%02d",
+					 	 (I.minuto_de_ligar + MINUTOS_DIA - minuto_atual)/60, (I.minuto_de_ligar + MINUTOS_DIA - minuto_atual)%60 );
+				
+				}
+			}
 		}
 		else{
-			estado_ciclo_texto.setText("ESCURO");
-			progresso.setValue(map(minuto_atual, I.minuto_de_desligar, I.minuto_de_ligar, 0, 100));
-			sprintf(texto_tempo_restante,
-					"%02d:%02d",
-					 (I.minuto_de_ligar - minuto_atual)/60, (I.minuto_de_ligar - minuto_atual)%60);
-		}
-		
-		tempo_restante.setText(texto_tempo_restante);
+			
+			if(I.estado_atual == DESLIGADO){
+				estado_ciclo_texto.setText("ESCURO");
+				progresso.setValue( map(minuto_atual, I.minuto_de_desligar, I.minuto_de_ligar, 0, 100) );
+				sprintf(texto_tempo_restante, "%02d:%02d",
+					 	(I.minuto_de_ligar - minuto_atual)/60, (I.minuto_de_ligar - minuto_atual)%60 );
+			}
 
+			else{
+				estado_ciclo_texto.setText("LUZ");
+				if(minuto_atual <= I.minuto_de_ligar){
+					progresso.setValue( map(minuto_atual, 0 , I.minuto_de_desligar,  (MINUTOS_DIA - I.minuto_de_ligar)/MINUTOS_DIA , 100) );
+					sprintf(texto_tempo_restante, "%02d:%02d",
+					 	(I.minuto_de_desligar - minuto_atual)/60, (I.minuto_de_desligar - minuto_atual)%60 );
+
+				}
+				else{
+					progresso.setValue( map(minuto_atual, I.minuto_de_ligar , MINUTOS_DIA , 0 , (MINUTOS_DIA - I.minuto_de_ligar)/MINUTOS_DIA ) );
+					sprintf(texto_tempo_restante, "%02d:%02d",
+					 	 (I.minuto_de_desligar + MINUTOS_DIA - minuto_atual)/60, (I.minuto_de_desligar + MINUTOS_DIA - minuto_atual)%60 );
+				}
+			}
+		}
+
+
+		tempo_restante.setText(texto_tempo_restante);
 	}
 
 	void selecionaC1CallBack(void *ptr){

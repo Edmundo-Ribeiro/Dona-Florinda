@@ -45,7 +45,6 @@ void ConfirmaPopCallback(void *ptr){
 					else{
 						setHora(rtc,valor);
 						PAGINA = PAGINA_DATA_HORA;
-						PAGINA = PAGINA_DATA_HORA;
 						configData.show();
 						mostraHoraData();
 					}
@@ -384,10 +383,10 @@ void loop() {
 
 	
 	nexLoop(nex_listen_list);
-	T.run();
+	//T.run();
 	runConfig();
 
-	if(T.estado_porta_inferior == FECHADA){
+	//if(T.estado_porta_inferior == FECHADA){
 		I.run(FECHADA);
 		A.run();
 		//D_CO2.run(I.estado_atual);
@@ -397,7 +396,7 @@ void loop() {
 	//     if(D_CO2.co2_ligado == 1)
 	//       digitalWrite(D_CO2.Pino_rele, LOW);
 	// }
-	}
+	//}
 }
 		
 // }
