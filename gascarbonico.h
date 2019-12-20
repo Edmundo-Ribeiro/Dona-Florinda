@@ -3,37 +3,46 @@
 
 #include "teclado.h"
 
+void mostraDadosCO2();
+void debugEstadoVariaveisCO2();
+
+
 NexPage CO2_PAG = NexPage(PAGINA_CO2,0,"CO2");
 
-NexButton valor_CO2 = NexButton(PAGINA_CO2, 5, "co2");
-NexButton intervalo_CO2 = NexButton(PAGINA_CO2, 6, "intervalo_co2");
+NexButton valor_CO2 = NexButton(PAGINA_CO2, 1, "concentracao");
+NexButton intervalo_CO2 = NexButton(PAGINA_CO2, 4, "intervalo");
+NexButton voltar_CO2 = NexButton(PAGINA_CO2, 3, "voltar");
+NexCrop cilindro = NexCrop(PAGINA_CO2, 2, "cilindro");
+NexText valor_lido = NexText(PAGINA_CO2, 5, "valorLido");
+
+NexButton icone_CO2 = NexButton(PAGINA_MENU,6,"CO2");
 
 #define INTERVALO_RAPIDO 500
 #define INTERVALO_LENTO 60000
-#define BTNCO2 1
-#define BTNINTCO2 2
+#define IMG_CILINDRO_LIGADO 19
+#define IMG_CILINDRO_DESLIGADO 18
 
-class gascarbonico{
+//Sistema de Injeção de Gas
+class SIG{
 
-private:
+public:
+
   //ED: ver se não da pra trocar esses inteiros por tipos que ocupam menos espaço (uint8 ...) ou definições
   int Valor;
-  int valor_setup = 0;
-  int valor_intervalo = 0;
-  int end_valor_setup = 0;
-  int end_valor_intervalo = 0;
+  uint16_t referencia; //valor da concentração de CO2 que vai ser definida pelo usuario
+  uint16_t intervalo;// intervalo que da a margem de operação para ativação e desativação da injeção de co2
+
   int tempo_intervalo_sensor = INTERVALO_LENTO;
   unsigned long tempo_anterior = 0;
   //variáveis da função de de trocar a leitura do sensor para ppm -> https://github.com/ihormelnyk/mh-z19_co2_meter/blob/master/mh-z19_co2_meter.ino
   int prevVal = LOW;
   long th, tl, h, l, ppm = 0;
 
-public:
-  int co2_ligado = DESLIGADO; // 1 quando ligado e 0 quando desligado
+  bool estado_atual = DESLIGADO; // 1 quando ligado e 0 quando desligado
   
-  gascarbonico(){
-    this->valor_intervalo = EEPROM.read(end_valor_intervalo);
-    this->valor_setup = EEPROM.read(end_valor_setup);
+  SIG(){
+    this->referencia =  EEPROM.get(end_co2_referencia, this->referencia);
+    this->intervalo = EEPROM.get(end_co2_intervalo, this->intervalo);
     pinMode(PINO_RELE_CO2, OUTPUT);
     pinMode(PINO_SENSOR_CO2, INPUT);
   }
@@ -60,13 +69,13 @@ public:
   }
   
   void setCO2(uint16_t valor){
-    this->valor_setup = valor;
-    EEPROM.update(end_valor_setup, valor);
+    this->referencia = valor;
+    EEPROM.put(end_co2_referencia, valor);
   }
 
   void setIntCO2(uint16_t valor){
-    this->valor_intervalo = valor;
-    EEPROM.update(end_valor_intervalo,valor);
+    this->intervalo = valor;
+    EEPROM.put(end_co2_intervalo, valor);
   }
 
   void run(bool estado_atual){
@@ -76,22 +85,22 @@ public:
     if(estado_atual == LIGADO){
     
       if((tempo_atual - this->tempo_anterior) >= this->tempo_intervalo_sensor){
-        
+        debugEstadoVariaveisCO2();
         this->tempo_anterior = tempo_atual;
 
         Valor = PWM_ISR();
         //Valor = analogRead(this->Pino_sensor); 
        
-        if(Valor <= (valor_setup - valor_intervalo)){
+        if(Valor <= (referencia - intervalo)){
           digitalWrite(PINO_RELE_CO2, HIGH);  //Liga rele
-          this->co2_ligado = 1;    
+          this->estado_atual = LIGADO;    
           this->tempo_intervalo_sensor = INTERVALO_RAPIDO;
         }
 
-        if(Valor >= (valor_setup + valor_intervalo)){
+        if(Valor >= (referencia + intervalo)){
 
           digitalWrite(PINO_RELE_CO2, LOW); //Desliga rele
-          this->co2_ligado = 0;
+          this->estado_atual = DESLIGADO;
           this->tempo_intervalo_sensor = INTERVALO_LENTO;
         }
         
@@ -99,19 +108,76 @@ public:
     }
   } 
 };
-  gascarbonico D_CO2; //Desclaração do objeto
+
+  SIG CO2; //Desclaração do objeto
 
  void CO2ValorPopCallback(void *ptr){
     PAGINA = PAGINA_CO2;//fala daonde voce veio
-    botaoAbertado = BTNCO2; //fala qual eh botao
+    botaoApertado = BTNCO2; //fala qual eh botao
     teclado.show();
+    PassaBotaoParaTela(CO2.referencia);
   }
 
   void CO2IntervaloPopCallback(void *ptr){
     PAGINA = PAGINA_CO2;
-    botaoAbertado = BTNINTCO2;
+    botaoApertado = BTNINTCO2;
     teclado.show();
-  
+    PassaBotaoParaTela(CO2.intervalo);
   }
+
+void IconeCO2Callback(void *ptr){
+    PAGINA = PAGINA_CO2;
+    CO2_PAG.show();
+    mostraDadosCO2();
+  }
+
+  void VoltarCO2CallBack(void *ptr){
+    PAGINA = PAGINA_MENU;
+    menu.show();
+  }
+
+  void mostraDadosCO2(){
+    char buffer[10];
+
+    sprintf( buffer,"%d ppm", EEPROM.get(end_co2_referencia, CO2.referencia) );
+    valor_CO2.setText(buffer);
+
+    sprintf( buffer,"%d ppm", EEPROM.get(end_co2_intervalo, CO2.intervalo) );
+    intervalo_CO2.setText(buffer);
+
+    //onde está armazendando o valor lido?
+    //sprintf( buffer,"%d ppm", <colocar aqui> );
+    //valor_lido.setText(buffer);
+
+    if(CO2.estado_atual == LIGADO){
+      cilindro.setPic(IMG_CILINDRO_LIGADO);
+    }
+    else{
+      cilindro.setPic(IMG_CILINDRO_DESLIGADO);
+    }
+
+
+  }
+
+  void debugEstadoVariaveisCO2(){
+    Serial.print("############# Variaveis CO2 #####################\n\n");
+
+    Serial.print("Estado Atual: ");
+    Serial.println(CO2.estado_atual);
+        
+    Serial.print("Valor de referencia: ");
+    Serial.println(CO2.referencia);
+    Serial.print("Valor do intervalo: ");
+    Serial.println(CO2.intervalo);
+
+
+    Serial.print("#################################################\n\n");
+
+    // Serial.print("Valor lido: ");
+    // Serial.println(CO2.);
+  }
+
+
+
   
 #endif 
