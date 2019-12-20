@@ -272,7 +272,6 @@ NexTouch *nex_listen_list[] = {
     &dia,
     &mes,
     &ano,
-    &definirDataHora,
 	&voltar_datahora,
     //agendamento
     &agendarHora,
@@ -301,6 +300,9 @@ NexTouch *nex_listen_list[] = {
   	//Travas
   	&btnTravaSuperior,
   	&btnTravaInferior,
+  	&relogio,
+  	&icone_config,
+  	&voltar_trava,
 
   &btn_setar_temp,
   &btn_setar_umi,
@@ -329,7 +331,6 @@ void setup() {
 	dia.attachPop(DiaPopCallback);
 	mes.attachPop(MesPopCallback);
 	ano.attachPop(AnoPopCallback);
-	definirDataHora.attachPop(definirDataHoraPopCallBack);
 	voltar_datahora.attachPop(voltarDataHoraCallBack);
 // ####################################################################################################
 	
@@ -363,8 +364,10 @@ void setup() {
 
 //pagina CO2
 // ####################################################################################################
-  valor_CO2.attachPop(CO2ValorPopCallback);
-  intervalo_CO2.attachPop(CO2IntervaloPopCallback); 
+	valor_CO2.attachPop(CO2ValorPopCallback);
+	intervalo_CO2.attachPop(CO2IntervaloPopCallback); 
+	icone_CO2.attachPop(IconeCO2Callback);
+	voltar_CO2.attachPop(VoltarCO2CallBack);
 
 // ####################################################################################################
 
@@ -373,9 +376,9 @@ void setup() {
 // ####################################################################################################
 btnTravaSuperior.attachPop(TravaSuperiorPopCallBack);
 btnTravaInferior.attachPop(TravaInferiorPopCallBack);
-icone_CO2.attachPop(IconeCO2Callback);
-voltar_CO2.attachPop(VoltarCO2CallBack);
-
+icone_config.attachPop(iconeCongigPopCallBack);
+relogio.attachPop(RelogioPopCallBack);
+voltar_trava.attachPop(voltarTravaCallBack);
 // ####################################################################################################
 
 //pagina Irrigacao

@@ -97,7 +97,11 @@ uint8_t PAGINA = 0;
 #define MINUTOS_DIA 1440
 // #####################################################################
 
-NexPage menu = NexPage(PAGINA_MENU,0,"Menu"); 
+NexPage menu = NexPage(PAGINA_MENU,0,"Menu");
+
+NexPage configData = NexPage(PAGINA_DATA_HORA,0,"configData");
+
+NexPage trava = NexPage(PAGINA_TRAVA,0,"Trava");
 
 
 

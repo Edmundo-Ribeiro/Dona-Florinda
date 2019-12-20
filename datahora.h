@@ -9,8 +9,7 @@
 
 	
 
-	NexButton definirDataHora = NexButton(PAGINA_MENU, 4, "defDataHora");
-	NexPage configData = NexPage(PAGINA_DATA_HORA,0,"configData");
+	
 	NexButton hora = NexButton(PAGINA_DATA_HORA, 5, "hora");
 	NexButton minuto = NexButton(PAGINA_DATA_HORA, 6, "minuto");
 	NexButton dia = NexButton(PAGINA_DATA_HORA, 2, "dia");
@@ -24,10 +23,6 @@
 // #####################CALLBACKS E FUNÇÔES PARA PAGINA DE DEFINIÇÂO DA DATA E HORA ##########################
 // ###########################################################################################################
 
-	void definirDataHoraPopCallBack(void *ptr){
-		PAGINA = PAGINA_DATA_HORA;
-		configData.show();
-	}
 
 	void HoraPopCallback(void *ptr){
 		char bufferValor[5];
@@ -78,8 +73,9 @@
 	}
 
 	void voltarDataHoraCallBack(void *ptr){
-		PAGINA = PAGINA_MENU;
-		menu.show();
+		PAGINA = PAGINA_TRAVA;
+		trava.show();
+		//talvez tenha que chamar mostrardadostrava
 	}
 
 	void runConfig(){
