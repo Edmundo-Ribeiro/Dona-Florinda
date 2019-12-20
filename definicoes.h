@@ -13,7 +13,7 @@ DS3231  rtc(SDA, SCL);
 
 
 
-uint8_t botaoAbertado = 0;
+uint8_t botaoApertado = 0;
 uint8_t PAGINA = 0;
 #define PAGINA_MENU 0
 #define PAGINA_DATA_HORA 5
@@ -21,9 +21,9 @@ uint8_t PAGINA = 0;
 #define PAGINA_ILUMINACAO 4
 #define PAGINA_AGENDAMENTO 6
 #define PAGINA_CO2 7
-#define PAGINA_TRAVA 0
 #define PAGINA_EXAUSTAO 8
 #define PAGINA_TEMP_E_UMI 9
+#define PAGINA_TRAVA 10
 
 
 #define SENSORDHTPINO 18
@@ -63,6 +63,12 @@ uint8_t PAGINA = 0;
 #define end_ano_agendado 12// e 13
 #define end_ciclo_agendado 14
 
+//precisam de 2 bytes!
+#define end_co2_referencia 19//e 20
+#define end_co2_intervalo 21// e 22
+
+
+//Ed: coloca end_ na frente pra ficar padronizado >:(
 #define temperatura_ideal 15
 #define umidade_ideal 16
 #define variacao_temperatura 17
@@ -72,10 +78,6 @@ uint8_t PAGINA = 0;
 #define DESLIGADO 0
 #define ABERTA 1
 #define FECHADA 0
-
-#define BASEYEAR 2019
-#define end_endereco_minutos_passados 1000// 1000 e 1001
-
 
 #define BTNHORA 3
 #define BTNMINUTO 4
@@ -88,8 +90,11 @@ uint8_t PAGINA = 0;
 #define BTNTEMPVAR 10
 #define BTNUMIVAR 11
 
+#define BTNCO2 12
+#define BTNINTCO2 13
+
+
 #define MINUTOS_DIA 1440
-#define SEM_ENERGIA 1023
 // #####################################################################
 
 NexPage menu = NexPage(PAGINA_MENU,0,"Menu"); 

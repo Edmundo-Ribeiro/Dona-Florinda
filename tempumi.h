@@ -132,22 +132,22 @@ DHT dht(SENSORDHTPINO, DHT22);
 // ###########################################################################################################
 
   void TemperaturaCallback(void *ptr){
-      botaoAbertado = BTNTEMP;
+      botaoApertado = BTNTEMP;
       teclado.show();
       PassaBotaoParaTela(TU.temp_ideal);
   }
   void UmidadeCallback(void *ptr){
-      botaoAbertado = BTNUMI;
+      botaoApertado = BTNUMI;
       teclado.show();
       PassaBotaoParaTela(TU.umi_ideal);
   }
   void VariacaoUmidadeCallback(void *ptr){
-      botaoAbertado = BTNUMIVAR;
+      botaoApertado = BTNUMIVAR;
       teclado.show();
       PassaBotaoParaTela(TU.umi_variacao);
   }
   void VariacaoTemperaturaCallback(void *ptr){
-      botaoAbertado = BTNTEMPVAR;
+      botaoApertado = BTNTEMPVAR;
       teclado.show();
       PassaBotaoParaTela(TU.temp_variacao);
   }   

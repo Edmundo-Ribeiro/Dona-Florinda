@@ -31,31 +31,31 @@
 
 	void HoraPopCallback(void *ptr){
 		char bufferValor[5];
-		botaoAbertado = BTNHORA;
+		botaoApertado = BTNHORA;
 		hora.getText(bufferValor,sizeof(bufferValor));
 		PassaTextoParaTela(bufferValor);
 	}
 	void MinutoPopCallback(void *ptr){
 		char bufferValor[5];
-		botaoAbertado = BTNMINUTO;
+		botaoApertado = BTNMINUTO;
 		minuto.getText(bufferValor,sizeof(bufferValor));
 		PassaTextoParaTela(bufferValor);
 	}
 	void DiaPopCallback(void *ptr){
 		char bufferValor[5];
-		botaoAbertado = BTNDIA;
+		botaoApertado = BTNDIA;
 		dia.getText(bufferValor,sizeof(bufferValor));
 		PassaTextoParaTela(bufferValor);
 	}
 	void MesPopCallback(void *ptr){
 		char bufferValor[5];
-		botaoAbertado = BTNMES;
+		botaoApertado = BTNMES;
 		mes.getText(bufferValor,sizeof(bufferValor));
 		PassaTextoParaTela(bufferValor);
 	}
 	void AnoPopCallback(void *ptr){
 		char bufferValor[7];//pq 7? não sei, mas só funciona assim
-		botaoAbertado = BTNANO;
+		botaoApertado = BTNANO;
 		ano.getText(bufferValor,sizeof(bufferValor));
 		PassaTextoParaTela(bufferValor);
 	}

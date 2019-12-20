@@ -8,7 +8,7 @@
 //não presisaria fazer isso se tivesse um .h e .cpp separados para parte grafica e a classe SI
 void mostraDadosIluminacao();
 uint16_t minutoAtual();
-void degubEstadoVariaveis();
+void debugEstadoVariaveis();
 
 // ###########################################################################################################
 // ########################## VARIAVEIS PARA PAGINA DE ILUMINAÇÃO ############################################
@@ -16,15 +16,12 @@ void degubEstadoVariaveis();
 	NexPage iluminacao = NexPage(PAGINA_ILUMINACAO,0,"Iluminacao");
 	
 	
-	NexText voltar_iluminacao = NexText(PAGINA_ILUMINACAO, 1, "voltar");
+	NexButton voltar_iluminacao = NexButton(PAGINA_ILUMINACAO, 1, "voltar");
 	NexDSButton btn_c2 = NexDSButton(PAGINA_ILUMINACAO, 2, "btn_c2");
 	NexDSButton btn_c1 = NexDSButton(PAGINA_ILUMINACAO, 3, "btn_c1");
 	NexText estado_ciclo_texto = NexText(PAGINA_ILUMINACAO, 4, "estado_ciclo");
 	NexButton btn_setar_c1 = NexButton(PAGINA_ILUMINACAO, 5, "setar_c1");
 	NexButton btn_setar_c2 = NexButton(PAGINA_ILUMINACAO, 6, "setar_c2");
-	
-	// NexButton btn_soma = NexButton(PAGINA_ILUMINACAO, 9, "soma");
-	// NexButton btn_subtrai = NexButton(PAGINA_ILUMINACAO, 10, "subtrai");
 	NexProgressBar progresso = NexProgressBar(PAGINA_ILUMINACAO,8,"progresso");
 	NexText tempo_restante = NexText(PAGINA_ILUMINACAO, 10, "tempo_restante");
 	
@@ -209,7 +206,7 @@ class SI{
 					if(PAGINA == PAGINA_ILUMINACAO){
 						mostraDadosIluminacao();
 					}
-					degubEstadoVariaveis();
+					debugEstadoVariaveis();
 				}
 			}
 		}
@@ -301,7 +298,9 @@ SI I; //Desclaração do objeto sistema de iluminação
 // #####################CALLBACKS E FUNÇÔES PARA PAGINA DE DEFINIÇÂO ILUMINAÇÃO ##############################
 // ###########################################################################################################
 	
-	void degubEstadoVariaveis(){
+	void debugEstadoVariaveis(){
+		Serial.print("############# Variaveis Iluminação #####################\n\n");
+    
 		Serial.print("Estado Atual: ");
 		Serial.println(I.estado_atual);
 
@@ -321,6 +320,8 @@ SI I; //Desclaração do objeto sistema de iluminação
 		
 		Serial.print("minuto_atual: ");
 		Serial.println(minutoAtual());
+
+		Serial.print("######################################################\n\n");
 
 	}
 
@@ -355,35 +356,8 @@ SI I; //Desclaração do objeto sistema de iluminação
 			btn_c2.setValue(0);
 		}
 
-
 		uint16_t minuto_atual = minutoAtual();
 
-		// if(I.estado_atual == LIGADO){
-		// 	estado_ciclo_texto.setText("LUZ");
-		// 	progresso.setValue(map(minuto_atual, I.minuto_de_ligar, I.minuto_de_desligar, 0, 100));
-
-		// 	sprintf(texto_tempo_restante,
-		// 			"%02d:%02d",
-		// 			 (abs(I.minuto_de_desligar - minuto_atual))/60, (I.minuto_de_desligar - minuto_atual)%60);
-		// }
-
-		// else if(I.ciclo_atual == I.CICLO_NENHUM){
-		// 	estado_ciclo_texto.setText("ESCURO");
-		// 	progresso.setValue(0);
-		// 	sprintf(texto_tempo_restante, "--:--");
-		// }
-
-		// else{
-		// 	estado_ciclo_texto.setText("ESCURO");
-		// 	progresso.setValue(map(minuto_atual, I.minuto_de_desligar, I.minuto_de_ligar, 0, 100));
-		// 	sprintf(texto_tempo_restante,
-		// 			"%02d:%02d",
-		// 			 (abs((int)I.minuto_de_ligar - (int)minuto_atual))/60, (I.minuto_de_ligar - minuto_atual)%60);
-		// }
-
-		//tempo_restante.setText(texto_tempo_restante);
-
-		//definição do valor da progress bar
 		if(I.minuto_de_ligar < I.minuto_de_desligar){
 
 			if(I.estado_atual == LIGADO){
@@ -477,13 +451,13 @@ SI I; //Desclaração do objeto sistema de iluminação
 	}
 
 	void setarCiclo1Callback(void *ptr){
-		botaoAbertado = I.CICLO_1;
+		botaoApertado = I.CICLO_1;
 		teclado.show();
 		//colocar pra levar o numero do botão para a tela do teclado
 		PassaBotaoParaTela(I.q_horas_ligado_c1);
 	}
 	void setarCiclo2Callback(void *ptr){
-		botaoAbertado = I.CICLO_2;
+		botaoApertado = I.CICLO_2;
 		teclado.show();
 		PassaBotaoParaTela(I.q_horas_ligado_c2);
 	}

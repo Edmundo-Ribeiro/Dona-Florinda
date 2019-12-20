@@ -440,7 +440,7 @@ void Irriga0Callback(void* ptr) {
   }
 
   else{
-    botaoAbertado = IR.Botao0;
+    botaoApertado = IR.Botao0;
     PAGINA = PAGINA_IR;
     teclado.show();
   }

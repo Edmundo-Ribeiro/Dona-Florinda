@@ -173,31 +173,31 @@ void mostraDadosAgendamento(){
 }
 void AgendaHoraPopCallback(void *ptr){
 	char bufferValor[5];
-	botaoAbertado = BTNHORA;
+	botaoApertado = BTNHORA;
 	agendarHora.getText(bufferValor,sizeof(bufferValor));
 	PassaTextoParaTela(bufferValor);
 }
 void AgendaMinutoPopCallback(void *ptr){
 	char bufferValor[5];
-	botaoAbertado = BTNMINUTO;
+	botaoApertado = BTNMINUTO;
 	agendarMinuto.getText(bufferValor,sizeof(bufferValor));
 	PassaTextoParaTela(bufferValor);
 }
 void AgendaDiaPopCallback(void *ptr){
 	char bufferValor[5];
-	botaoAbertado = BTNDIA;
+	botaoApertado = BTNDIA;
 	agendarDia.getText(bufferValor,sizeof(bufferValor));
 	PassaTextoParaTela(bufferValor);
 }
 void AgendaMesPopCallback(void *ptr){
 	char bufferValor[5];
-	botaoAbertado = BTNMES;
+	botaoApertado = BTNMES;
 	agendarMes.getText(bufferValor,sizeof(bufferValor));
 	PassaTextoParaTela(bufferValor);
 }
 void AgendaAnoPopCallback(void *ptr){
 	char bufferValor[7];
-	botaoAbertado = BTNANO;
+	botaoApertado = BTNANO;
 	agendarAno.getText(bufferValor,sizeof(bufferValor));
 	PassaTextoParaTela(bufferValor);
 }

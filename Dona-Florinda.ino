@@ -27,7 +27,7 @@ void ConfirmaPopCallback(void *ptr){
 			if(valor > 24 || valor < 0)
 				mensagem.setText("Valor invalido");
 			else{
-				I.setar(botaoAbertado, valor);
+				I.setar(botaoApertado, valor);
 				
 				PAGINA = PAGINA_ILUMINACAO;
 				iluminacao.show();
@@ -36,7 +36,7 @@ void ConfirmaPopCallback(void *ptr){
 			break;
 			
 		case PAGINA_DATA_HORA:
-			switch(botaoAbertado){
+			switch(botaoApertado){
 				case BTNHORA:
 					if(valor > 24 || valor < 0){
 						mensagem.setText("Valor invalido");
@@ -105,7 +105,7 @@ void ConfirmaPopCallback(void *ptr){
 			break;
 	  
 		case PAGINA_AGENDAMENTO:
-			switch(botaoAbertado){
+			switch(botaoApertado){
 				case BTNHORA:
 					if(valor > 24 || valor < 0){
 						mensagem.setText("Valor invalido");
@@ -174,14 +174,16 @@ void ConfirmaPopCallback(void *ptr){
 			}
 			break;
 
-      case PAGINA_CO2:
-        switch(botaoAbertado){
+        case PAGINA_CO2:
+        switch(botaoApertado){
           case BTNCO2:
             if(valor < 500 || valor > 5000){
               mensagem.setText("Valor inválido");
             } else{
-              D_CO2.setCO2(valor);
+              CO2.setCO2(valor);
               PAGINA = PAGINA_CO2;
+              CO2_PAG.show();
+    		  mostraDadosCO2();
             }
           break;
           
@@ -189,8 +191,10 @@ void ConfirmaPopCallback(void *ptr){
             if(valor < 200 || valor > 500){
               mensagem.setText("Valor inválido");
             } else{
-              D_CO2.setIntCO2(valor);
+              CO2.setIntCO2(valor);
               PAGINA = PAGINA_CO2;
+              CO2_PAG.show();
+    		  mostraDadosCO2();
             }
           break;
   
@@ -198,7 +202,7 @@ void ConfirmaPopCallback(void *ptr){
           break;
         }
       case PAGINA_TEMP_E_UMI:
-        switch(botaoAbertado){
+        switch(botaoApertado){
           case BTNTEMP:
             if(valor < 0 || valor > 100){
               mensagem.setText("Valor inválido");
@@ -243,7 +247,7 @@ void ConfirmaPopCallback(void *ptr){
         break;
       }
       case PAGINA_IR:
-        switch(botaoAbertado){
+        switch(botaoApertado){
         case botaoIR0://botao irriga0ligado
         	IR.IrrigaVaso0(valor);  //pega o valor que recebe
         	//necessario corrigir o valor da pagina em que Irrig esta declarado
@@ -262,11 +266,15 @@ void ConfirmaPopCallback(void *ptr){
 
 
 NexTouch *nex_listen_list[] = {
+    //data e hora
     &hora,
     &minuto,
     &dia,
     &mes,
     &ano,
+    &definirDataHora,
+	&voltar_datahora,
+    //agendamento
     &agendarHora,
 	&agendarMinuto,
 	&agendarDia,
@@ -275,8 +283,9 @@ NexTouch *nex_listen_list[] = {
 	&voltar_agendar,
 	&ciclo1_agendar,
 	&ciclo2_agendar,
+	//teclado
     &confirma,
-    &definirDataHora,
+    //iluminação
     &btn_c1,
 	&btn_c2,
 	&btn_setar_c1,
@@ -284,18 +293,21 @@ NexTouch *nex_listen_list[] = {
 	&agendar,
 	&icone_ilumincao,
 	&voltar_iluminacao,
-	&voltar_datahora,
- //Botões CO2
- //&valor_CO2,
- //&intervalo_CO2,
+ 	//Co2
+ 	&icone_CO2,
+ 	&voltar_CO2,
+ 	&valor_CO2,
+ 	&intervalo_CO2,
+  	//Travas
+  	&btnTravaSuperior,
+  	&btnTravaInferior,
+
   &btn_setar_temp,
   &btn_setar_umi,
   &btn_setar_variacao_temp,
   &btn_setar_variacao_umi,
   &voltar_tempumi,
   &Gota1, //escuta se o botao Gota1 foi abertado
-  &btnTravaSuperior,
-  &btnTravaInferior,
     NULL
 };
  
@@ -303,8 +315,8 @@ NexTouch *nex_listen_list[] = {
 void setup() {
 	Serial.begin(9600);
 	Serial2.begin(9600);
-  dht.begin(); //Sensor de umidade e temperatura
-	rtc.begin();
+  	dht.begin(); //Sensor de umidade e temperatura
+	rtc.begin(); //Relogio
 	dbSerialPrintln("SETUP");
 
 	nexInit;
@@ -353,6 +365,7 @@ void setup() {
 // ####################################################################################################
   valor_CO2.attachPop(CO2ValorPopCallback);
   intervalo_CO2.attachPop(CO2IntervaloPopCallback); 
+
 // ####################################################################################################
 
   
@@ -360,6 +373,9 @@ void setup() {
 // ####################################################################################################
 btnTravaSuperior.attachPop(TravaSuperiorPopCallBack);
 btnTravaInferior.attachPop(TravaInferiorPopCallBack);
+icone_CO2.attachPop(IconeCO2Callback);
+voltar_CO2.attachPop(VoltarCO2CallBack);
+
 // ####################################################################################################
 
 //pagina Irrigacao
@@ -389,6 +405,7 @@ void loop() {
 	//if(T.estado_porta_inferior == FECHADA){
 		I.run(FECHADA);
 		A.run();
+		CO2.run(I.estado_atual);
 		//D_CO2.run(I.estado_atual);
 		//TU.run();	    
 	//}
