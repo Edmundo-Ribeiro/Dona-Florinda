@@ -11,6 +11,7 @@
 #include "trava.h"
 #include "tempumi.h"
 #include "Irrigacao.h"
+#include "exaustao.h"
 
 
 
@@ -175,31 +176,33 @@ void ConfirmaPopCallback(void *ptr){
 			break;
 
         case PAGINA_CO2:
-        switch(botaoApertado){
-          case BTNCO2:
-            if(valor < 500 || valor > 5000){
-              mensagem.setText("Valor inválido");
-            } else{
-              CO2.setCO2(valor);
-              PAGINA = PAGINA_CO2;
-              CO2_PAG.show();
-    		  mostraDadosCO2();
-            }
-          break;
+        	switch(botaoApertado){
+				case BTNCO2:
+					if(valor < 500 || valor > 5000){
+						mensagem.setText("Valor inválido");
+					} 
+					else{
+						CO2.setCO2(valor);
+						PAGINA = PAGINA_CO2;
+						CO2_PAG.show();
+						mostraDadosCO2();
+					}
+          		break;
           
-          case BTNINTCO2:
-            if(valor < 200 || valor > 500){
-              mensagem.setText("Valor inválido");
-            } else{
-              CO2.setIntCO2(valor);
-              PAGINA = PAGINA_CO2;
-              CO2_PAG.show();
-    		  mostraDadosCO2();
-            }
-          break;
+        		case BTNINTCO2:
+					if(valor < 200 || valor > 500){
+						mensagem.setText("Valor inválido");
+					} 
+					else{
+						CO2.setIntCO2(valor);
+						PAGINA = PAGINA_CO2;
+						CO2_PAG.show();
+						mostraDadosCO2();
+					}
+          		break;
   
-          default:
-          break;
+        default:
+        break;
         }
       case PAGINA_TEMP_E_UMI:
         switch(botaoApertado){
@@ -261,7 +264,35 @@ void ConfirmaPopCallback(void *ptr){
 
 		default:
 		break;
-	}		
+	}
+		case PAGINA_EXAUSTAO:
+		switch(botaoApertado){
+			case minlig:
+				if (valor == 0 || valor > 99){
+					mensagem.setText("Valor invalido");
+				}
+				else{
+					Ciclo_ligado = valor;
+					PAGINA = PAGINA_EXAUSTAO;
+					mostraDadosExaustao();
+				}
+			break;
+
+			case mindes:
+				if (valor == 0){
+					mensagem.setText("Valor invalido");
+				}
+				else{
+					Ciclo_desligado = valor;
+					PAGINA = PAGINA_EXAUSTAO;
+					mostraDadosExaustao();
+				}
+			break;
+			
+			default:
+			break;
+		}
+
 }
 
 
