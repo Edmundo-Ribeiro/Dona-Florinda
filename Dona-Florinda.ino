@@ -264,7 +264,6 @@ void ConfirmaPopCallback(void *ptr){
 
 		default:
 		break;
-	}
 		case PAGINA_EXAUSTAO:
 		switch(botaoApertado){
 			case minlig:
@@ -272,8 +271,9 @@ void ConfirmaPopCallback(void *ptr){
 					mensagem.setText("Valor invalido");
 				}
 				else{
-					Ciclo_ligado = valor;
+					E.SetCiclo(valor, LIGADO);
 					PAGINA = PAGINA_EXAUSTAO;
+					exaustao.show();
 					mostraDadosExaustao();
 				}
 			break;
@@ -283,12 +283,13 @@ void ConfirmaPopCallback(void *ptr){
 					mensagem.setText("Valor invalido");
 				}
 				else{
-					Ciclo_desligado = valor;
+					E.SetCiclo(valor, DESLIGADO);
 					PAGINA = PAGINA_EXAUSTAO;
+					exaustao.show();
 					mostraDadosExaustao();
 				}
 			break;
-			
+
 			default:
 			break;
 		}
@@ -426,8 +427,15 @@ btn_setar_variacao_temp.attachPop(VariacaoTemperaturaCallback);
 btn_setar_variacao_umi.attachPop(VariacaoUmidadeCallback);
 voltar_tempumi.attachPop(voltarTempUmiCallback);
 icone_temp_umi.attachPop(icone_temp_umiCallback);
-}
+//#####################################################################################################
 
+//pagina exaustao
+//#####################################################################################################
+min_ligado.attachPop(setarCicloLigado);
+min_desligado.attachPop(setarCicloDesligado);
+icone_exaustao.attachPop(iconeExaustaoCallback);
+voltar_exaustao.attachPop(voltarExaustaoCallback);
+//#####################################################################################################
 
 void loop() {
 
