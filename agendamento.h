@@ -75,18 +75,18 @@ class SAI{
 				unsigned long atual = millis();
 				//olha se passou o intervalo 
 				if(atual - this->agendamentoMillis >= this->agendamentoIntervalo){
-					uint16_t year = rtc.getTime().year;
 					degubEstadoVariveis();
 					if(this->ciclo_agendado != I.CICLO_NENHUM){
 
 						uint8_t date,mon,hour,min;
+						uint16_t year;
 						
 
 							date = rtc.getTime().date; 
 							mon = rtc.getTime().mon; 	 						   
 	    					hour = rtc.getTime().hour; 
 						    min = rtc.getTime().min; 
-
+						    year = rtc.getTime().year;
 
 						if(date == this->dia_agendado && 
 							mon == this->mes_agendado &&

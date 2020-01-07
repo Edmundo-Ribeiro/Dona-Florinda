@@ -4,8 +4,8 @@
 #include "datahora.h"
 
 #define INTERVALO 5000
-#define id_img_aberto 29
-#define id_img_fechado 28
+#define IMG_TRAVA_ABERTA 29
+#define IMG_TRAVA_FECHADA 28
 
 void mostraDadosTrava();
 
@@ -76,14 +76,14 @@ Trava T; //declaração do objeto
 
 void TravaSuperiorPopCallBack(){
   //mudar imagem para imagem de cadeado aberto
-  btnTravaSuperior.setPic(id_img_aberto);
+  btnTravaSuperior.setPic(IMG_TRAVA_ABERTA);
   //abrir trava superior
   T.abrirSuperior();
 }
 
 void TravaInferiorPopCallBack(){
   //mesma coisa da trava superior
-  btnTravaInferior.setPic(id_img_aberto);
+  btnTravaInferior.setPic(IMG_TRAVA_ABERTA);
   T.abrirInferior();
 }
 
@@ -106,19 +106,19 @@ void iconeCongigPopCallBack(void *ptr){
 
 void mostraDadosTrava(){
     if(T.estado_porta_superior == ABERTA){
-      btnTravaSuperior.setPic(id_img_aberto);
+      btnTravaSuperior.setPic(IMG_TRAVA_ABERTA);
     }
     else{
       // mudar imagem para cadeado fechado
-      btnTravaSuperior.setPic(id_img_fechado);
+      btnTravaSuperior.setPic(IMG_TRAVA_FECHADA);
     }
 
     if(T.estado_porta_inferior == ABERTA){
       //mudar imagem para cadeado aberto
-      btnTravaInferior.setPic(id_img_aberto);
+      btnTravaInferior.setPic(IMG_TRAVA_ABERTA);
     }
     else{
-      btnTravaInferior.setPic(id_img_fechado);
+      btnTravaInferior.setPic(IMG_TRAVA_FECHADA);
     }
 }
 

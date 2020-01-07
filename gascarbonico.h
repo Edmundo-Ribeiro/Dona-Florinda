@@ -17,8 +17,8 @@ NexText valor_lido = NexText(PAGINA_CO2, 5, "valorLido");
 
 NexButton icone_CO2 = NexButton(PAGINA_MENU,6,"CO2");
 
-#define INTERVALO_RAPIDO 500
-#define INTERVALO_LENTO 60000
+#define INTERVALO_RAPIDO 1000
+#define INTERVALO_LENTO 30000
 #define IMG_CILINDRO_LIGADO 19
 #define IMG_CILINDRO_DESLIGADO 18
 
@@ -32,7 +32,7 @@ public:
   uint16_t referencia; //valor da concentração de CO2 que vai ser definida pelo usuario
   uint16_t intervalo;// intervalo que da a margem de operação para ativação e desativação da injeção de co2
 
-  int tempo_intervalo_sensor = INTERVALO_LENTO;
+  unsigned long tempo_intervalo_sensor = INTERVALO_LENTO;
   unsigned long tempo_anterior = 0;
   //variáveis da função de de trocar a leitura do sensor para ppm -> https://github.com/ihormelnyk/mh-z19_co2_meter/blob/master/mh-z19_co2_meter.ino
   int prevVal = LOW;
@@ -104,7 +104,14 @@ public:
           this->tempo_intervalo_sensor = INTERVALO_LENTO;
         }
         
+        if(PAGINA == PAGINA_CO2){
+          mostraDadosCO2();
+        }
+
       }
+    }
+    else{
+      //tem que desligar as paradas para garantir
     }
   } 
 };
