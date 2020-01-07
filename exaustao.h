@@ -1,7 +1,7 @@
 #ifndef exaustao_h
 #define exaustao_h
 #include "teclado.h"
-//ED: Lembrando que o código deve ver se o gas está ativo para não ligar a extaustao enquanto estiver injetando co2
+
 
 NexPage exaustao = NexPage(PAGINA_EXAUSTAO, 0,"Exaustao");
 NexButton voltar_exaustao = NexButton(PAGINA_EXAUSTAO, 1, "voltar");
@@ -22,8 +22,6 @@ class Exaustao{
         // Como só vai utilizar 1 relé para os 2 exaustores
         int pinRele;
         // Só vai precisar de saber se o tubo de CO2 vai estar ligado
-
-
         unsigned long exaustaoMillis = 0,
                       minutoMillis = 0;
         const bool LIGADO = 1;
@@ -78,13 +76,21 @@ class Exaustao{
             this->minutoMillis = atual;
             this->minutopassou += 60000; //Soma minutos em milissegundos.
             if(this->estado_atual){
-                Tempo_restante = Ciclo_ligado - this->minutopassou;
+                this->Tempo_restante = this->Ciclo_ligado - this->minutopassou;
             }
             else{
-                Tempo_restante = Ciclo_desligado - this->minutopassou;
+                this->Tempo_restante = this->Ciclo_desligado - this->minutopassou;
             }
-            Tempo_restante /= 60000; //Passa me milissegundos pra minutos.
+            this->Tempo_restante /= 60000; //Passa me milissegundos pra minutos.
         }
+    }
+    void SetCiclo(int valor, int tipo){
+        if (tipo == LIGADO){
+            this->Ciclo_ligado = valor*60*1000;
+        }
+        else{
+            this->Ciclo_desligado = valor*60*1000;
+        } 
     }
 };
 Exaustao E;
@@ -124,6 +130,11 @@ void iconeExaustaoCallback(void *ptr){
     PAGINA = PAGINA_EXAUSTAO;
     exaustao.show();
     mostraDadosExaustao();
+}
+
+void voltarExaustaoCallback(void *ptr){
+    PAGINA = PAGINA_MENU;
+    menu.show();
 }
 
 #endif
