@@ -1,7 +1,7 @@
 #ifndef exaustao_h
 #define exaustao_h
 #include "teclado.h"
-
+//ED: Lembrando que o código deve ver se o gas está ativo para não ligar a extaustao enquanto estiver injetando co2
 
 NexPage exaustao = NexPage(PAGINA_EXAUSTAO, 0,"Exaustao");
 NexButton voltar_exaustao = NexButton(PAGINA_EXAUSTAO, 1, "voltar");
@@ -22,7 +22,6 @@ class Exaustao{
         // Como só vai utilizar 1 relé para os 2 exaustores
         int pinRele;
         // Só vai precisar de saber se o tubo de CO2 vai estar ligado
-
 
 
         unsigned long exaustaoMillis = 0,
