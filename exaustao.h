@@ -2,7 +2,6 @@
 #define exaustao_h
 #include "teclado.h"
 
-
 NexPage exaustao = NexPage(PAGINA_EXAUSTAO, 0,"Exaustao");
 NexButton voltar_exaustao = NexButton(PAGINA_EXAUSTAO, 1, "voltar");
 NexButton min_ligado = NexButton(PAGINA_EXAUSTAO, 2, "minlig");
@@ -23,9 +22,6 @@ class Exaustao{
         // Só vai precisar de saber se o tubo de CO2 vai estar ligado
         unsigned long exaustaoMillis = 0,
                       minutoMillis = 0;
-        //const bool LIGADO = 1;
-        //const bool DESLIGADO = 0;
-
         const uint8_t minuto = 60000;
 
     public:
@@ -36,8 +32,6 @@ class Exaustao{
         // Ciclos da exaustão
         uint16_t Ciclo_ligado = Ciclo_padrao,
                  Ciclo_desligado = Ciclo_padrao;
-        const uint8_t CICLOLIG = 1;
-        const uint8_t CICLODESLIG = 2;
         // "Seta" o relé
         void SetupRele(){
             pinMode(PINO_RELE_EXAUST, OUTPUT);
