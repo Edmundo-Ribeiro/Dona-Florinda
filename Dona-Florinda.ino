@@ -201,100 +201,95 @@ void ConfirmaPopCallback(void *ptr){
 					}
           		break;
   
-        default:
-        break;
+   
+        	break;
         }
-      case PAGINA_TEMP_E_UMI:
-        switch(botaoApertado){
-          case BTNTEMP:
-            if(valor < 0 || valor > 100){
-              mensagem.setText("Valor inválido");
-            } else{
-              TU.setar_temperatura(valor);
-              temp_e_umi.show();
-              PAGINA = PAGINA_TEMP_E_UMI;
-            }
-          break;
+
+		case PAGINA_TEMP_E_UMI:
+			switch(botaoApertado){
+	          case BTNTEMP:
+	            if(valor < 0 || valor > 100){
+	              mensagem.setText("Valor inválido");
+	            } else{
+	              TU.setar_temperatura(valor);
+	              temp_e_umi.show();
+	              PAGINA = PAGINA_TEMP_E_UMI;
+	            }
+	          break;
         
-          case BTNTEMPVAR:
-            if(valor > 10){
-              mensagem.setText("Valor inválido");
-            } else{
-              TU.setar_variacao_temperatura(valor);
-              temp_e_umi.show();
-              PAGINA = PAGINA_TEMP_E_UMI;
-            }
-          break;
+	          case BTNTEMPVAR:
+	            if(valor > 10){
+	              mensagem.setText("Valor inválido");
+	            } else{
+	              TU.setar_variacao_temperatura(valor);
+	              temp_e_umi.show();
+	              PAGINA = PAGINA_TEMP_E_UMI;
+	            }
+	          break;
 
-          case BTNUMI:
-            if(valor < 0 || valor > 100){
-              mensagem.setText("Valor inválido");
-            } else{
-              TU.setar_umidade(valor);
-              temp_e_umi.show();
-              PAGINA = PAGINA_TEMP_E_UMI;
-            }
-          break;
+	          case BTNUMI:
+	            if(valor < 0 || valor > 100){
+	              mensagem.setText("Valor inválido");
+	            } else{
+	              TU.setar_umidade(valor);
+	              temp_e_umi.show();
+	              PAGINA = PAGINA_TEMP_E_UMI;
+	            }
+	          break;
 
-          case BTNUMIVAR:
-            if(valor > 10){
-              mensagem.setText("Valor inválido");
-            } else{
-              TU.setar_variacao_umidade(valor);
-              temp_e_umi.show();
-              PAGINA = PAGINA_TEMP_E_UMI;
-            }
-          break;
+	          case BTNUMIVAR:
+	            if(valor > 10){
+	              mensagem.setText("Valor inválido");
+	            } else{
+	              TU.setar_variacao_umidade(valor);
+	              temp_e_umi.show();
+	              PAGINA = PAGINA_TEMP_E_UMI;
+	            }
+	          break;
+        	break;
+	    }
 
-        default:
-        break;
-      }
-      case PAGINA_IR:
-        switch(botaoApertado){
-        case botaoIR0://botao irriga0ligado
-        	IR.IrrigaVaso0(valor);  //pega o valor que recebe
-        	//necessario corrigir o valor da pagina em que Irrig esta declarado
-        	Irrig.show();//volta para a tela anterior
-         break;
-
-        default:
-        break;
-        }
-        
-
-		default:
-		break;
-		case PAGINA_EXAUSTAO:
-		switch(botaoApertado){
-			case minlig:
-				if (valor == 0 || valor > 99){
-					mensagem.setText("Valor invalido");
-				}
-				else{
-					E.SetCiclo(valor, LIGADO);
-					PAGINA = PAGINA_EXAUSTAO;
-					exaustao.show();
-					mostraDadosExaustao();
-				}
+		case PAGINA_IR:
+			switch(botaoApertado){
+				case botaoIR0://botao irriga0ligado
+			    	IR.IrrigaVaso0(valor);  //pega o valor que recebe
+			    	//necessario corrigir o valor da pagina em que Irrig esta declarado
+			    	Irrig.show();//volta para a tela anterior
+			 	break;
+			}
 			break;
-
-			case mindes:
-				if (valor == 0){
-					mensagem.setText("Valor invalido");
-				}
-				else{
-					E.SetCiclo(valor, DESLIGADO);
-					PAGINA = PAGINA_EXAUSTAO;
-					exaustao.show();
-					mostraDadosExaustao();
-				}
+       	default:
 			break;
-
-			default:
-			break;
-		}
-
+	}
 }
+
+		//case PAGINA_EXAUSTAO:
+		// switch(botaoApertado){
+		// 	case minlig:
+		// 		if (valor == 0 || valor > 99){
+		// 			mensagem.setText("Valor invalido");
+		// 		}
+		// 		else{
+		// 			E.SetCiclo(valor, LIGADO);
+		// 			PAGINA = PAGINA_EXAUSTAO;
+		// 			exaustao.show();
+		// 			mostraDadosExaustao();
+		// 		}
+		// 	break;
+
+		// 	case mindes:
+		// 		if (valor == 0){
+		// 			mensagem.setText("Valor invalido");
+		// 		}
+		// 		else{
+		// 			E.SetCiclo(valor, DESLIGADO);
+		// 			PAGINA = PAGINA_EXAUSTAO;
+		// 			exaustao.show();
+		// 			mostraDadosExaustao();
+		// 		}
+		// 	break;
+
+	
 
 
 NexTouch *nex_listen_list[] = {
@@ -436,6 +431,7 @@ min_desligado.attachPop(setarCicloDesligado);
 icone_exaustao.attachPop(iconeExaustaoCallback);
 voltar_exaustao.attachPop(voltarExaustaoCallback);
 //#####################################################################################################
+}
 
 void loop() {
 

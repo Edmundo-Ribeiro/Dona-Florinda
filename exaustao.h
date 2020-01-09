@@ -24,8 +24,8 @@ class Exaustao{
         // Só vai precisar de saber se o tubo de CO2 vai estar ligado
         unsigned long exaustaoMillis = 0,
                       minutoMillis = 0;
-        const bool LIGADO = 1;
-        const bool DESLIGADO = 0;
+        //const bool LIGADO = 1;
+        //const bool DESLIGADO = 0;
 
         const uint8_t minuto = 60000;
 
