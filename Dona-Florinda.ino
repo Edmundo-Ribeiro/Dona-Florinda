@@ -203,7 +203,7 @@ void ConfirmaPopCallback(void *ptr){
   
    
         	break;
-        }
+        	}
 
 		case PAGINA_TEMP_E_UMI:
 			switch(botaoApertado){
@@ -246,8 +246,8 @@ void ConfirmaPopCallback(void *ptr){
 	              PAGINA = PAGINA_TEMP_E_UMI;
 	            }
 	          break;
-        	break;
-	    }
+     		break;
+	    	}
 
 		case PAGINA_IR:
 			switch(botaoApertado){
@@ -258,36 +258,34 @@ void ConfirmaPopCallback(void *ptr){
 			 	break;
 			}
 			break;
-       	default:
-			break;
-
-
+     
 		case PAGINA_EXAUSTAO:
-		switch(botaoApertado){
-		 	case BTNCICLOLIG:
-		 		if (valor == 0 || valor > 99){
-		 			mensagem.setText("Valor invalido");
-		 		}
-		 		else{
-		 			E.SetCiclo(valor, LIGADO);
-		 			PAGINA = PAGINA_EXAUSTAO;
-		 			exaustao.show();
-		 			mostraDadosExaustao();
-		 		}
-		 	break;
+			switch(botaoApertado){
+			 	case BTNCICLOLIG:
+			 		if (valor == 0 || valor > 99){
+			 			mensagem.setText("Valor invalido");
+			 		}
+			 		else{
+			 			E.SetCiclo(valor, LIGADO);
+			 			PAGINA = PAGINA_EXAUSTAO;
+			 			exaustao.show();
+			 			mostraDadosExaustao();
+			 		}
+			 	break;
 
-		 	case BTNCICLODESLIG:
-		 		if (valor == 0){
-		 			mensagem.setText("Valor invalido");
-		 		}
-		 		else{
-		 			E.SetCiclo(valor, DESLIGADO);
-		 			PAGINA = PAGINA_EXAUSTAO;
-		 			exaustao.show();
-		 			mostraDadosExaustao();
-		 		}
-		 	break;
-		}
+			 	case BTNCICLODESLIG:
+			 		if (valor == 0){
+			 			mensagem.setText("Valor invalido");
+			 		}
+			 		else{
+			 			E.SetCiclo(valor, DESLIGADO);
+			 			PAGINA = PAGINA_EXAUSTAO;
+			 			exaustao.show();
+			 			mostraDadosExaustao();
+			 		}
+			 	break;
+			}
+	}
 }
 	
 
