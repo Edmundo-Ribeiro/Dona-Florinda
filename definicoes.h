@@ -37,6 +37,7 @@ uint8_t PAGINA = 0;
 #define PINO_TRANSISTOR_SUPERIOR 5
 #define PINO_SENSOR_CO2 19
 #define PINO_RELE_CO2 20
+#define PINO_RELE_EXAUST 21 // Não tenho certeza se neste pino o relé vai funcionar
 
 //	Definir aqui os edereços ondes as coisas serão salvas
 // 0 - quantidade de horas ligado ciclo 1 - q_horas_ligado_c1
@@ -94,6 +95,8 @@ uint8_t PAGINA = 0;
 #define BTNCO2 12
 #define BTNINTCO2 13
 
+#define BTNCICLOLIG 14
+#define BTNCICLODESLIG 15
 
 #define MINUTOS_DIA 1440
 // #####################################################################
