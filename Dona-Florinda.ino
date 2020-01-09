@@ -260,35 +260,35 @@ void ConfirmaPopCallback(void *ptr){
 			break;
        	default:
 			break;
-	}
+
+
+		case PAGINA_EXAUSTAO:
+		switch(botaoApertado){
+		 	case BTNCICLOLIG:
+		 		if (valor == 0 || valor > 99){
+		 			mensagem.setText("Valor invalido");
+		 		}
+		 		else{
+		 			E.SetCiclo(valor, LIGADO);
+		 			PAGINA = PAGINA_EXAUSTAO;
+		 			exaustao.show();
+		 			mostraDadosExaustao();
+		 		}
+		 	break;
+
+		 	case BTNCICLODESLIG:
+		 		if (valor == 0){
+		 			mensagem.setText("Valor invalido");
+		 		}
+		 		else{
+		 			E.SetCiclo(valor, DESLIGADO);
+		 			PAGINA = PAGINA_EXAUSTAO;
+		 			exaustao.show();
+		 			mostraDadosExaustao();
+		 		}
+		 	break;
+		}
 }
-
-		//case PAGINA_EXAUSTAO:
-		// switch(botaoApertado){
-		// 	case minlig:
-		// 		if (valor == 0 || valor > 99){
-		// 			mensagem.setText("Valor invalido");
-		// 		}
-		// 		else{
-		// 			E.SetCiclo(valor, LIGADO);
-		// 			PAGINA = PAGINA_EXAUSTAO;
-		// 			exaustao.show();
-		// 			mostraDadosExaustao();
-		// 		}
-		// 	break;
-
-		// 	case mindes:
-		// 		if (valor == 0){
-		// 			mensagem.setText("Valor invalido");
-		// 		}
-		// 		else{
-		// 			E.SetCiclo(valor, DESLIGADO);
-		// 			PAGINA = PAGINA_EXAUSTAO;
-		// 			exaustao.show();
-		// 			mostraDadosExaustao();
-		// 		}
-		// 	break;
-
 	
 
 
