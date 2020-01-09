@@ -13,16 +13,17 @@ NexCrop texto_exaustao = NexCrop(PAGINA_EXAUSTAO, 7, "texto_exaus");
 
 NexButton icone_exaustao = NexButton(PAGINA_MENU, 7, "Exaustao");
 
-#define Ciclo_padrao 420000 // ciclo padrão de 7 minutos (7*60*1000)
+#define Ciclo_padrao 420000 // ciclo padrão de 7 minutos (7*MINUTO)
 #define EXAUSTOFF 20 // Id da imagem no Nextion da exaustao off
 #define EXAUSTON 21 // Id da imagem no Nextion da exaustao on
+
+#define MINUTO 60000
 
 class Exaustao{
     private:
         // Só vai precisar de saber se o tubo de CO2 vai estar ligado
         unsigned long exaustaoMillis = 0,
                       minutoMillis = 0;
-        const uint8_t minuto = 60000;
 
     public:
         int tuboCO2 = 0; //verifica se está ligado
@@ -66,32 +67,31 @@ class Exaustao{
                 this->exaustaoMillis = atual;
                 this->minutopassou = 0;
             }
-            if(atual - this->minutoMillis >= this->minuto){
+            if(atual - this->minutoMillis >= MINUTO){
                 this->minutoMillis = atual;
-                this->minutopassou += 60000; //Soma minutos em milissegundos.
+                this->minutopassou += MINUTO; //Soma minutos em milissegundos.
                 if(this->estado_atual){
                     this->Tempo_restante = this->Ciclo_ligado - this->minutopassou;
                 }
                 else{
                     this->Tempo_restante = this->Ciclo_desligado - this->minutopassou;
                 }
-                this->Tempo_restante /= 60000; //Passa me milissegundos pra minutos.
+                this->Tempo_restante /= MINUTO; //Passa me milissegundos pra minutos.
             }
         }
         void SetCiclo(int valor, int tipo){
             if (tipo == LIGADO){
-                this->Ciclo_ligado = valor*60*1000;
+                this->Ciclo_ligado = valor*MINUTO;
             }
             else{
-                this->Ciclo_desligado = valor*60*1000;
+                this->Ciclo_desligado = valor*MINUTO;
             } 
         }
 };
 Exaustao E;
 void mostraDadosExaustao(){ 
-    char conteudo_botao[2], 
+    char conteudo_botao[3], 
     texto_tempo_restante[2];
-    uint16_t minutos_ligado,minutos_desligado;
 
     sprintf(conteudo_botao,"%02d", E.Ciclo_ligado);
     min_ligado.setText(conteudo_botao);
@@ -113,13 +113,13 @@ void mostraDadosExaustao(){
 void setarCicloLigado(void *ptr){
     botaoApertado = BTNCICLOLIG;
     teclado.show();
-    PassaBotaoParaTela((E.Ciclo_ligado)/60000);
+    PassaBotaoParaTela((E.Ciclo_ligado)/MINUTO);
 }
 
 void setarCicloDesligado(void *ptr){
     botaoApertado = BTNCICLODESLIG;
     teclado.show();
-    PassaBotaoParaTela((E.Ciclo_desligado)/60000);
+    PassaBotaoParaTela((E.Ciclo_desligado)/MINUTO);
 }
 
 void iconeExaustaoCallback(void *ptr){

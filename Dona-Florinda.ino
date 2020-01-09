@@ -448,6 +448,7 @@ void loop() {
 		I.run(FECHADA);
 		A.run();
 		CO2.run(I.estado_atual);
+		E.run();
 		//D_CO2.run(I.estado_atual);
 		//TU.run();	    
 	//}
