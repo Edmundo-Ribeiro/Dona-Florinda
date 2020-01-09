@@ -19,8 +19,6 @@ NexButton icone_exaustao = NexButton(PAGINA_MENU, 8, "botaoExaustao");
 
 class Exaustao{
     private:
-        // Como só vai utilizar 1 relé para os 2 exaustores
-        int pinRele;
         // Só vai precisar de saber se o tubo de CO2 vai estar ligado
         unsigned long exaustaoMillis = 0,
                       minutoMillis = 0;
@@ -30,18 +28,18 @@ class Exaustao{
         const uint8_t minuto = 60000;
 
     public:
+        int tuboCO2 = 0; //verifica se está ligado
         uint8_t  Tempo_restante = Ciclo_desligado,
                  minutopassou = 0;
-        bool tuboCO2, //verifica se está ligado
-             estado_atual = 0; // estado_atual é 0 tá desligado, e 1 se está ligado
+        bool estado_atual = 0; // estado_atual é 0 tá desligado, e 1 se está ligado
         // Ciclos da exaustão
         uint16_t Ciclo_ligado = Ciclo_padrao,
                  Ciclo_desligado = Ciclo_padrao;
         const uint8_t CICLOLIG = 1;
         const uint8_t CICLODESLIG = 2;
         // "Seta" o relé
-        void SetupRele(uint16_t pinRele){
-            pinMode(this->pinRele, OUTPUT);
+        void SetupRele(){
+            pinMode(PINO_RELE_EXAUST, OUTPUT);
         }
         void Set_Ciclo_intervalo(uint16_t intervalo, bool ciclo){
             if(ciclo == LIGADO){
@@ -54,20 +52,21 @@ class Exaustao{
     void run(){
         //pega o millisegundo atual
         unsigned long atual = millis();
+        tuboCO2 = digitalRead(PINO_RELE_CO2);
         //Olha se o tubo de CO2 tá ligado. Se estiver, é pra reinicar o ciclo no desligado.
         if(tuboCO2 && this->estado_atual){
-            digitalWrite(this->pinRele, HIGH);
+            digitalWrite(PINO_RELE_EXAUST, HIGH);
             this->estado_atual = 0;
         }
         //olha se passou o intervalo
         if((atual - this->exaustaoMillis >= this->Ciclo_ligado) && !tuboCO2 && !this->estado_atual){ //Fica desligado
-            digitalWrite(this->pinRele, HIGH);
+            digitalWrite(PINO_RELE_EXAUST, HIGH);
             this->estado_atual = 1;
             this->exaustaoMillis = atual;
             this->minutopassou = 0;
         }
         if((atual - this->exaustaoMillis >= this->Ciclo_desligado) && !tuboCO2 && this->estado_atual){ //Fica ligado
-            digitalWrite(this->pinRele, LOW);
+            digitalWrite(PINO_RELE_EXAUST, LOW);
             this->estado_atual = 0;
             this->exaustaoMillis = atual;
             this->minutopassou = 0;
@@ -95,10 +94,9 @@ class Exaustao{
 };
 Exaustao E;
 void mostraDadosExaustao(){ 
-        char conteudo_botao[2], 
-       texto_tempo_restante[2];
+    char conteudo_botao[2], 
+    texto_tempo_restante[2];
     uint16_t minutos_ligado,minutos_desligado;
-
 
     sprintf(conteudo_botao,"%02d", E.Ciclo_ligado);
     min_ligado.setText(conteudo_botao);
@@ -108,24 +106,27 @@ void mostraDadosExaustao(){
 
     texto_restante.setText(E.Tempo_restante);
     if (E.estado_atual){
-            exaustor.setPic(EXAUSTON);
-            texto_exaustao.setPic(EXAUSTON);
-        }
-        else{
-            exaustor.setPic(EXAUSTOFF);
-            texto_exaustao.setPic(EXAUSTOFF);
-        }
-  }
+        exaustor.setPic(EXAUSTON);
+        texto_exaustao.setPic(EXAUSTON);
+    }
+    else{
+        exaustor.setPic(EXAUSTOFF);
+        texto_exaustao.setPic(EXAUSTOFF);
+    }
+}
+
 void setarCicloLigado(void *ptr){
-    botaoApertado = E.CICLOLIG;
+    botaoApertado = BTNCICLOLIG;
     teclado.show();
     PassaBotaoParaTela((E.Ciclo_ligado)/60000);
 }
+
 void setarCicloDesligado(void *ptr){
-    botaoApertado = E.CICLODESLIG;
+    botaoApertado = BTNCICLODESLIG;
     teclado.show();
     PassaBotaoParaTela((E.Ciclo_desligado)/60000);
 }
+
 void iconeExaustaoCallback(void *ptr){
     PAGINA = PAGINA_EXAUSTAO;
     exaustao.show();
