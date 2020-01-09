@@ -25,7 +25,7 @@ uint8_t PAGINA = 0;
 #define PAGINA_TEMP_E_UMI 9
 #define PAGINA_TRAVA 10
 
-#define SENSORDHTPINO 18
+#define PINO_SENSOR_DHT 18
 #define PINO_LED 8
 #define PINO_PAINEL 7
 #define PINO_CAPACITOR A0

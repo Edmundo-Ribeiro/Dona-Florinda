@@ -2,8 +2,9 @@
 #define tempumi_h
 #include "teclado.h"
 #include "filtro.h"
-#include <DHT.h>
-DHT dht(SENSORDHTPINO, DHT22); 
+#include "bibliotecas/DHT_sensor_library/DHT_U.h"
+
+DHT dht(PINO_SENSOR_DHT, DHT22); 
 
 // ###########################################################################################################
 // ########################## VARIAVEIS PARA PAGINA DE TEMPERATURA E UMIDADE  ################################
