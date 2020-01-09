@@ -12,7 +12,6 @@ DS3231  rtc(SDA, SCL);
 
 
 
-
 uint8_t botaoApertado = 0;
 uint8_t PAGINA = 0;
 #define PAGINA_MENU 0
