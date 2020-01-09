@@ -328,13 +328,19 @@ NexTouch *nex_listen_list[] = {
   	&relogio,
   	&icone_config,
   	&voltar_trava,
-
-  &btn_setar_temp,
-  &btn_setar_umi,
-  &btn_setar_variacao_temp,
-  &btn_setar_variacao_umi,
-  &voltar_tempumi,
-  &Gota1, //escuta se o botao Gota1 foi abertado
+  	//Exaustao
+  	&icone_exaustao,
+  	&veloc_ventilador,
+  	&min_ligado,
+  	&min_desligado,
+  	&voltar_exaustao,
+  	//UmiTemp
+	&btn_setar_temp,
+	&btn_setar_umi,
+	&btn_setar_variacao_temp,
+	&btn_setar_variacao_umi,
+	&voltar_tempumi,
+	&Gota1, //escuta se o botao Gota1 foi abertado
     NULL
 };
  
