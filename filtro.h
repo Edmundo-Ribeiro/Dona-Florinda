@@ -1,5 +1,4 @@
 #ifndef filtro_h
-
 #define filtro_h
 
 #include <Queue.h>

@@ -2,7 +2,7 @@
 #define tempumi_h
 #include "teclado.h"
 #include "filtro.h"
-#include "bibliotecas/DHT_sensor_library/DHT_U.h"
+#include <DHT.h>
 
 DHT dht(PINO_SENSOR_DHT, DHT22); 
 
