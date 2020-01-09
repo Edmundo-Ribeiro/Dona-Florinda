@@ -30,7 +30,7 @@ class Exaustao{
                  minutopassou = 0;
         bool estado_atual = 0; // estado_atual é 0 tá desligado, e 1 se está ligado
         // Ciclos da exaustão
-        uint16_t Ciclo_ligado = Ciclo_padrao,
+        uint32_t Ciclo_ligado = Ciclo_padrao,
                  Ciclo_desligado = Ciclo_padrao;
         // "Seta" o relé
         void SetupRele(){
@@ -44,48 +44,48 @@ class Exaustao{
                 this->Ciclo_desligado = intervalo;
             }
         }
-    void run(){
-        //pega o millisegundo atual
-        unsigned long atual = millis();
-        tuboCO2 = digitalRead(PINO_RELE_CO2);
-        //Olha se o tubo de CO2 tá ligado. Se estiver, é pra reinicar o ciclo no desligado.
-        if(tuboCO2 && this->estado_atual){
-            digitalWrite(PINO_RELE_EXAUST, HIGH);
-            this->estado_atual = 0;
+        void run(){
+            //pega o millisegundo atual
+            unsigned long atual = millis();
+            tuboCO2 = digitalRead(PINO_RELE_CO2);
+            //Olha se o tubo de CO2 tá ligado. Se estiver, é pra reinicar o ciclo no desligado.
+            if(tuboCO2 && this->estado_atual){
+                digitalWrite(PINO_RELE_EXAUST, HIGH);
+                this->estado_atual = 0;
+            }
+            //olha se passou o intervalo
+            if((atual - this->exaustaoMillis >= this->Ciclo_ligado) && !tuboCO2 && !this->estado_atual){ //Fica desligado
+                digitalWrite(PINO_RELE_EXAUST, HIGH);
+                this->estado_atual = 1;
+                this->exaustaoMillis = atual;
+                this->minutopassou = 0;
+            }
+            if((atual - this->exaustaoMillis >= this->Ciclo_desligado) && !tuboCO2 && this->estado_atual){ //Fica ligado
+                digitalWrite(PINO_RELE_EXAUST, LOW);
+                this->estado_atual = 0;
+                this->exaustaoMillis = atual;
+                this->minutopassou = 0;
+            }
+            if(atual - this->minutoMillis >= this->minuto){
+                this->minutoMillis = atual;
+                this->minutopassou += 60000; //Soma minutos em milissegundos.
+                if(this->estado_atual){
+                    this->Tempo_restante = this->Ciclo_ligado - this->minutopassou;
+                }
+                else{
+                    this->Tempo_restante = this->Ciclo_desligado - this->minutopassou;
+                }
+                this->Tempo_restante /= 60000; //Passa me milissegundos pra minutos.
+            }
         }
-        //olha se passou o intervalo
-        if((atual - this->exaustaoMillis >= this->Ciclo_ligado) && !tuboCO2 && !this->estado_atual){ //Fica desligado
-            digitalWrite(PINO_RELE_EXAUST, HIGH);
-            this->estado_atual = 1;
-            this->exaustaoMillis = atual;
-            this->minutopassou = 0;
-        }
-        if((atual - this->exaustaoMillis >= this->Ciclo_desligado) && !tuboCO2 && this->estado_atual){ //Fica ligado
-            digitalWrite(PINO_RELE_EXAUST, LOW);
-            this->estado_atual = 0;
-            this->exaustaoMillis = atual;
-            this->minutopassou = 0;
-        }
-        if(atual - this->minutoMillis >= this->minuto){
-            this->minutoMillis = atual;
-            this->minutopassou += 60000; //Soma minutos em milissegundos.
-            if(this->estado_atual){
-                this->Tempo_restante = this->Ciclo_ligado - this->minutopassou;
+        void SetCiclo(int valor, int tipo){
+            if (tipo == LIGADO){
+                this->Ciclo_ligado = valor*60*1000;
             }
             else{
-                this->Tempo_restante = this->Ciclo_desligado - this->minutopassou;
-            }
-            this->Tempo_restante /= 60000; //Passa me milissegundos pra minutos.
+                this->Ciclo_desligado = valor*60*1000;
+            } 
         }
-    }
-    void SetCiclo(int valor, int tipo){
-        if (tipo == LIGADO){
-            this->Ciclo_ligado = valor*60*1000;
-        }
-        else{
-            this->Ciclo_desligado = valor*60*1000;
-        } 
-    }
 };
 Exaustao E;
 void mostraDadosExaustao(){ 
