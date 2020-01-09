@@ -89,10 +89,31 @@ class Exaustao{
         }
 };
 Exaustao E;
+
+void debugExaustao(){
+		Serial.print("############# Variaveis Exaustão #####################\n\n");
+    
+		Serial.print("Ciclo ligado: ");
+		Serial.println(E.Ciclo_ligado);
+
+		Serial.print("Ciclo desligado: ");
+		Serial.println(E.Ciclo_desligado);
+
+				
+		Serial.print("Minuto passou: ");
+		Serial.println(E.minutopassou);
+		Serial.print("exaustaoMillis: ");
+		Serial.println(E.exaustaoMillis);
+
+		Serial.print("######################################################\n\n");
+
+	}
+
 void mostraDadosExaustao(){ 
     char conteudo_botao[3], 
     texto_tempo_restante[2];
-
+    E.Ciclo_ligado /= MINUTO;
+    E.Ciclo_desligado /= MINUTO;
     sprintf(conteudo_botao,"%02d", E.Ciclo_ligado);
     min_ligado.setText(conteudo_botao);
 
@@ -108,6 +129,8 @@ void mostraDadosExaustao(){
         exaustor.setPic(EXAUSTOFF);
         texto_exaustao.setPic(EXAUSTOFF);
     }
+    E.Ciclo_ligado *= MINUTO;
+    E.Ciclo_desligado *= MINUTO;
 }
 
 void setarCicloLigado(void *ptr){
