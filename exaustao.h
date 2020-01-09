@@ -18,6 +18,10 @@ NexButton icone_exaustao = NexButton(PAGINA_MENU, 7, "Exaustao");
 #define EXAUSTON 21 // Id da imagem no Nextion da exaustao on
 
 #define MINUTO 60000
+#define INTERVALO_MOSTRAR 5000
+
+void mostraDadosExaustao();
+void debugExaustao();
 
 class Exaustao{
     public:
@@ -28,7 +32,8 @@ class Exaustao{
                  Tempo_restante = Ciclo_desligado;
         uint8_t minutopassou = 0;
 
-        unsigned long timer = millis();
+        unsigned long timer = millis(),
+                      exaustaomillis = millis();
 
         // "Seta" o relé
         void SetupRele(){
@@ -71,6 +76,11 @@ class Exaustao{
 
                 this->Tempo_restante = (this->Ciclo_desligado - tempoPassado)/MINUTO;
             }
+            if (PAGINA == PAGINA_EXAUSTAO && atual - this->exaustaomillis >= INTERVALO_MOSTRAR){
+                mostraDadosExaustao();
+                this->exaustaomillis = atual;
+                debugExaustao();
+            }
         }
         void SetCiclo(int valor, int tipo){
             if (tipo == LIGADO){
@@ -89,12 +99,15 @@ void debugExaustao(){
 		Serial.print("Ciclo ligado: ");
 		Serial.println(E.Ciclo_ligado);
 
+        Serial.print("Estado atual: ");
+        Serial.println(E.estado_atual);
+
 		Serial.print("Ciclo desligado: ");
 		Serial.println(E.Ciclo_desligado);
 
 				
-		Serial.print("Minuto passou: ");
-		Serial.println(E.minutopassou);
+		Serial.print("Minuto restante: ");
+		Serial.println(E.Tempo_restante);
 
 		Serial.print("######################################################\n\n");
 }
