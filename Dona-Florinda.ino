@@ -210,7 +210,7 @@ void ConfirmaPopCallback(void *ptr){
 	          case BTNTEMP:
 	            if(valor < 0 || valor > 100){
 	              mensagem.setText("Valor inválido");
-	            } else{
+	            }else{
 	              TU.setar_temperatura(valor);
 	              temp_e_umi.show();
 	              PAGINA = PAGINA_TEMP_E_UMI;
@@ -218,9 +218,9 @@ void ConfirmaPopCallback(void *ptr){
 	          break;
         
 	          case BTNTEMPVAR:
-	            if(valor > 10){
+	            if(valor < 2){ //valor de mínimo definido segundo o datasheet do sensor
 	              mensagem.setText("Valor inválido");
-	            } else{
+	            }else{
 	              TU.setar_variacao_temperatura(valor);
 	              temp_e_umi.show();
 	              PAGINA = PAGINA_TEMP_E_UMI;
@@ -230,7 +230,7 @@ void ConfirmaPopCallback(void *ptr){
 	          case BTNUMI:
 	            if(valor < 0 || valor > 100){
 	              mensagem.setText("Valor inválido");
-	            } else{
+	            }else{
 	              TU.setar_umidade(valor);
 	              temp_e_umi.show();
 	              PAGINA = PAGINA_TEMP_E_UMI;
@@ -238,9 +238,9 @@ void ConfirmaPopCallback(void *ptr){
 	          break;
 
 	          case BTNUMIVAR:
-	            if(valor > 10){
+	            if(valor < 5){
 	              mensagem.setText("Valor inválido");
-	            } else{
+	            }else{
 	              TU.setar_variacao_umidade(valor);
 	              temp_e_umi.show();
 	              PAGINA = PAGINA_TEMP_E_UMI;
@@ -340,6 +340,8 @@ NexTouch *nex_listen_list[] = {
 	&btn_setar_variacao_temp,
 	&btn_setar_variacao_umi,
 	&voltar_tempumi,
+
+
 	&Gota1, //escuta se o botao Gota1 foi abertado
     NULL
 };
@@ -356,32 +358,32 @@ void setup() {
 	PAGINA = PAGINA_MENU;
 	menu.show();
 	
-// ####################################################################################################
+	// ####################################################################################################
 	hora.attachPop(HoraPopCallback);
 	minuto.attachPop(MinutoPopCallback);
 	dia.attachPop(DiaPopCallback);
 	mes.attachPop(MesPopCallback);
 	ano.attachPop(AnoPopCallback);
 	voltar_datahora.attachPop(voltarDataHoraCallBack);
-// ####################################################################################################
+	// ####################################################################################################
 	
 
-// ####################################################################################################
+	// ####################################################################################################
 	confirma.attachPop(ConfirmaPopCallback);
-// ####################################################################################################
+	// ####################################################################################################
 
 
-// ####################################################################################################
+	// ####################################################################################################
 	btn_setar_c1.attachPop(setarCiclo1Callback);
 	btn_setar_c2.attachPop(setarCiclo2Callback);
 	icone_ilumincao.attachPop(iconeIluminacaoCallback);
 	btn_c1.attachPop(selecionaC1CallBack);
 	btn_c2.attachPop(selecionaC2CallBack);
 	voltar_iluminacao.attachPop(voltarIluminacaoCallBack);
-// ####################################################################################################
+	// ####################################################################################################
 
 
-// ####################################################################################################
+	// ####################################################################################################
 	agendarHora.attachPop(AgendaHoraPopCallback);
 	agendarMinuto.attachPop(AgendaMinutoPopCallback);
 	agendarDia.attachPop(AgendaDiaPopCallback);
@@ -391,50 +393,50 @@ void setup() {
 	ciclo1_agendar.attachPop(SelecionaCiclo1PopCallback);
 	ciclo2_agendar.attachPop(SelecionaCiclo2PopCallback);
 	agendar.attachPop(AgendarPopCallBack);
-// ####################################################################################################
+	// ####################################################################################################
 
-//pagina CO2
-// ####################################################################################################
+	//pagina CO2
+	// ####################################################################################################
 	valor_CO2.attachPop(CO2ValorPopCallback);
 	intervalo_CO2.attachPop(CO2IntervaloPopCallback); 
 	icone_CO2.attachPop(IconeCO2Callback);
 	voltar_CO2.attachPop(VoltarCO2CallBack);
 
-// ####################################################################################################
+	// ####################################################################################################
 
   
-//pagina trava
-// ####################################################################################################
-btnTravaSuperior.attachPop(TravaSuperiorPopCallBack);
-btnTravaInferior.attachPop(TravaInferiorPopCallBack);
-icone_config.attachPop(iconeCongigPopCallBack);
-relogio.attachPop(RelogioPopCallBack);
-voltar_trava.attachPop(voltarTravaCallBack);
-// ####################################################################################################
+	//pagina trava
+	// ####################################################################################################
+	btnTravaSuperior.attachPop(TravaSuperiorPopCallBack);
+	btnTravaInferior.attachPop(TravaInferiorPopCallBack);
+	icone_config.attachPop(iconeCongigPopCallBack);
+	relogio.attachPop(RelogioPopCallBack);
+	voltar_trava.attachPop(voltarTravaCallBack);
+	// ####################################################################################################
 
-//pagina Irrigacao
-// ####################################################################################################
-Gota1.attachPop(Irriga0Callback);
-// ####################################################################################################
+	//pagina Irrigacao
+	// ####################################################################################################
+	Gota1.attachPop(Irriga0Callback);
+	// ####################################################################################################
 
 
-//pagina temperatura
-//#####################################################################################################
-btn_setar_temp.attachPop(TemperaturaCallback);
-btn_setar_umi.attachPop(UmidadeCallback);
-btn_setar_variacao_temp.attachPop(VariacaoTemperaturaCallback);
-btn_setar_variacao_umi.attachPop(VariacaoUmidadeCallback);
-voltar_tempumi.attachPop(voltarTempUmiCallback);
-icone_temp_umi.attachPop(icone_temp_umiCallback);
-//#####################################################################################################
+	//pagina temperatura
+	//#####################################################################################################
+	btn_setar_temp.attachPop(TemperaturaCallback);
+	btn_setar_umi.attachPop(UmidadeCallback);
+	btn_setar_variacao_temp.attachPop(VariacaoTemperaturaCallback);
+	btn_setar_variacao_umi.attachPop(VariacaoUmidadeCallback);
+	voltar_tempumi.attachPop(voltarTempUmiCallback);
+	icone_temp_umi.attachPop(icone_temp_umiCallback);
+	//#####################################################################################################
 
-//pagina exaustao
-//#####################################################################################################
-min_ligado.attachPop(setarCicloLigado);
-min_desligado.attachPop(setarCicloDesligado);
-icone_exaustao.attachPop(iconeExaustaoCallback);
-voltar_exaustao.attachPop(voltarExaustaoCallback);
-//#####################################################################################################
+	//pagina exaustao
+	//#####################################################################################################
+	min_ligado.attachPop(setarCicloLigado);
+	min_desligado.attachPop(setarCicloDesligado);
+	icone_exaustao.attachPop(iconeExaustaoCallback);
+	voltar_exaustao.attachPop(voltarExaustaoCallback);
+	//#####################################################################################################
 }
 
 void loop() {

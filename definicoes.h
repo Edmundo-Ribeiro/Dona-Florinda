@@ -35,6 +35,10 @@ uint8_t PAGINA = 0;
 #define PINO_SENSOR_CO2 19
 #define PINO_RELE_CO2 20
 #define PINO_RELE_EXAUST 21 // Não tenho certeza se neste pino o relé vai funcionar
+#define PINO_RELE_AR_CONDICIONADO 22
+#define PINO_RELE_AQUECEDOR 23
+#define PINO_RELE_UMIDIFICADOR 24
+#define PINO_RELE_DESUMIDIFICADOR 25
 
 //	Definir aqui os edereços ondes as coisas serão salvas
 // 0 - quantidade de horas ligado ciclo 1 - q_horas_ligado_c1
@@ -68,10 +72,10 @@ uint8_t PAGINA = 0;
 
 
 //Ed: coloca end_ na frente pra ficar padronizado >:(
-#define temperatura_ideal 15
-#define umidade_ideal 16
-#define variacao_temperatura 17
-#define variacao_umidade 18
+#define end_temperatura_ideal 15
+#define end_umidade_ideal 16
+#define end_variacao_temperatura 17
+#define end_variacao_umidade 18
 
 #define LIGADO 1
 #define DESLIGADO 0

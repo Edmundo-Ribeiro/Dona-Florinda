@@ -5,7 +5,7 @@
 #include <DHT.h>
 
 DHT dht(PINO_SENSOR_DHT, DHT22); 
-
+void mostraDadosTempUmi();
 // ###########################################################################################################
 // ########################## VARIAVEIS PARA PAGINA DE TEMPERATURA E UMIDADE  ################################
 // ###########################################################################################################
@@ -38,93 +38,92 @@ DHT dht(PINO_SENSOR_DHT, DHT22);
           rele_arcondicionado,
           rele_desumidificador,
           rele_umidificador,
+          rele_aquecedor,
           Temp_Millis,
           Temp_Intervalo;
+      filtro mediaST, //media da temperatura
+             mediaSU; //media da umidade
 
     STU(){
-      this->temp_ideal = EEPROM.read(temperatura_ideal); //inicializar 
-      this->umi_ideal = EEPROM.read(umidade_ideal);
-      this->temp_variacao = EEPROM.read(variacao_temperatura); //inicializar 
-      this->umi_variacao = EEPROM.read(variacao_umidade);
-      this->rele_arcondicionado;
-      this->rele_umidificador;
-      this->rele_desumidificador;
-      this->Temp_Millis;
-      this->Temp_Intervalo;    
+      this->temp_ideal = EEPROM.read(end_temperatura_ideal);
+      this->umi_ideal = EEPROM.read(end_umidade_ideal);
+      this->temp_variacao = EEPROM.read(end_variacao_temperatura); 
+      this->umi_variacao = EEPROM.read(end_variacao_umidade);
+      this->Temp_Intervalo = 100000;  
+      this->mediaST.tamanho(10);//quantidade de variáveis consideradas na média, pode ser alterada
+      this->mediaSU.tamanho(10);//quantidade de variáveis consideradas na média, pode ser alterada
+      pinMode(PINO_RELE_AR_CONDICIONADO, OUTPUT);
+      pinMode(PINO_RELE_AQUECEDOR, OUTPUT);
+      pinMode(PINO_RELE_UMIDIFICADOR, OUTPUT);
+      pinMode(PINO_RELE_DESUMIDIFICADOR, OUTPUT);
+
     }
 
-    void define_intervalo(uint8_t tempo){
-      this->Temp_Intervalo = tempo;
-    }
-    
-    void define_pino_arcondicionado(uint8_t pino){
-        this->rele_arcondicionado = pino;
-        pinMode(this->rele_arcondicionado, OUTPUT);
-    }
-    void define_pino_umidificador(uint8_t pino){
-        this->rele_umidificador = pino;
-        pinMode(this->rele_umidificador, OUTPUT);
-    }
-    void define_pino_desumidificador(uint8_t pino){
-        this->rele_desumidificador = pino;
-        pinMode(this->rele_desumidificador, OUTPUT);
-    }
     void setar_temperatura(uint8_t valor){
           this->temp_ideal = valor;
-          EEPROM.update(temperatura_ideal, valor);
+          EEPROM.update(end_temperatura_ideal, valor);
     }
+
     void setar_umidade(uint8_t valor){
           this->umi_ideal = valor;
-          EEPROM.update(umidade_ideal, valor);
+          EEPROM.update(end_umidade_ideal, valor);
     }
+
     void setar_variacao_temperatura(uint8_t valor){
           this->temp_variacao = valor;
-          EEPROM.update(variacao_temperatura, valor);
+          EEPROM.update(end_variacao_temperatura, valor);
     }
+
     void setar_variacao_umidade(uint8_t valor){
           this->umi_variacao = valor;
-          EEPROM.update(variacao_umidade, valor);
+          EEPROM.update(end_variacao_umidade, valor);
     }
 
 
-    void run(){
-      long atual = millis();
-      filtro mediaST; //media da temperatura
-      filtro mediaSU; //media da umidade
-      mediaST.tamanho(10);//quantidade de variáveis consideradas na média, pode ser alterada
-      mediaSU.tamanho(10);//quantidade de variáveis consideradas na média, pode ser alterada
-   
-      if(atual-this->Temp_Millis >= this->Temp_Intervalo){
-        mediaST.adiciona(dht.readTemperature());
-        mediaSU.adiciona(dht.readHumidity());
-       // temperatura.setText(mediaST.calcula());
-       // umidade.setText(mediaSU.calcula());
-        termometro.setValue(map(mediaST.media_nova, 0, this->temp_ideal+this->temp_variacao, 0, 100));
-        nuvem.setValue(map(mediaSU.media_nova, 0, this->umi_ideal+this->umi_variacao, 0, 100));
+    void run(bool estado_porta){
+          if (estado_porta == FECHADA){
+            unsigned long atual = millis();
+              if(atual - this->Temp_Millis >= this->Temp_Intervalo){
+                mediaST.adiciona(dht.readTemperature());
+                mediaSU.adiciona(dht.readHumidity());
+                //temperatura.setText(mediaST.calcula());
+                //umidade.setText(mediaSU.calcula());
+                termometro.setValue(map(mediaST.media_nova, 0, this->temp_ideal+this->temp_variacao, 0, 100));
+                nuvem.setValue(map(mediaSU.media_nova, 0, this->umi_ideal+this->umi_variacao, 0, 100));
 
-        this->media_temp = mediaST.calcula();
-        this->media_umi = mediaSU.calcula();
-        if(this->media_temp > this->temp_ideal + this->temp_variacao){
-          digitalWrite(this->rele_arcondicionado, HIGH);//verificar se o CO2 tá ativado
-        }
-        if(this->media_temp < this->temp_ideal - this->temp_variacao){
-          digitalWrite(this->rele_arcondicionado, LOW);
-        }
-        if(this->media_umi > this->umi_ideal + this->umi_variacao){
-          digitalWrite(this->rele_desumidificador, HIGH);
-        }
-        if(this->media_umi < this->umi_ideal - this->umi_variacao){
-          digitalWrite(this->rele_umidificador, HIGH);
-        }
-        else{
-          digitalWrite(this->rele_arcondicionado, LOW);
-          digitalWrite(this->rele_umidificador, LOW); 
-          digitalWrite(this->rele_desumidificador, LOW); 
-        }
-      }
-    this->Temp_Millis = atual;
+                this->media_temp = mediaST.calcula();
+                this->media_umi = mediaSU.calcula();
+        
+                  if(this->media_temp > this->temp_ideal + this->temp_variacao){
+                    digitalWrite(this->rele_arcondicionado, HIGH);//verificar se o CO2 tá ativado
+                    digitalWrite(this->rele_aquecedor, LOW);  
+                  }
+                  if(this->media_temp < this->temp_ideal - this->temp_variacao){
+                    digitalWrite(this->rele_aquecedor, HIGH);
+                    digitalWrite(this->rele_arcondicionado, LOW); 
+                  }
+                  if(this->media_umi > this->umi_ideal + this->umi_variacao){
+                    digitalWrite(this->rele_desumidificador, HIGH);
+                    digitalWrite(this->rele_umidificador, LOW);
+                  }
+                  if(this->media_umi < this->umi_ideal - this->umi_variacao){
+                    digitalWrite(this->rele_umidificador, HIGH);
+                    digitalWrite(this->rele_desumidificador, LOW);
+                  }
+                  else{
+                    digitalWrite(this->rele_arcondicionado, LOW);
+                    digitalWrite(this->rele_umidificador, LOW); 
+                    digitalWrite(this->rele_desumidificador, LOW); 
+                    digitalWrite(this->rele_aquecedor, LOW); 
+                  }
+              this->Temp_Millis = atual;
+                if(PAGINA == PAGINA_TEMP_E_UMI){
+                  mostraDadosTempUmi();
+                }
+              }
+          }
     }
-  };
+    };
   STU TU; //Desclaração do objeto sistema de temperatura e umidade
 // ############################################################################################################
 
@@ -137,16 +136,19 @@ DHT dht(PINO_SENSOR_DHT, DHT22);
       teclado.show();
       PassaBotaoParaTela(TU.temp_ideal);
   }
+
   void UmidadeCallback(void *ptr){
       botaoApertado = BTNUMI;
       teclado.show();
       PassaBotaoParaTela(TU.umi_ideal);
   }
+
   void VariacaoUmidadeCallback(void *ptr){
       botaoApertado = BTNUMIVAR;
       teclado.show();
       PassaBotaoParaTela(TU.umi_variacao);
   }
+
   void VariacaoTemperaturaCallback(void *ptr){
       botaoApertado = BTNTEMPVAR;
       teclado.show();
@@ -154,30 +156,31 @@ DHT dht(PINO_SENSOR_DHT, DHT22);
   }   
 
   void icone_temp_umiCallback(void *ptr){
-    PAGINA = PAGINA_TEMP_E_UMI;
-    temp_e_umi.show();
+      PAGINA = PAGINA_TEMP_E_UMI;
+      temp_e_umi.show();
   }
+
   void voltarTempUmiCallback(void *ptr){
-    PAGINA = PAGINA_MENU;
-    menu.show();
+      PAGINA = PAGINA_MENU;
+      menu.show();
   }
 
  void mostraDadosTempUmi(){  
 
-    char conteudo_botao[8],
-    texto_temperatura[8],
-    texto_umidade[8];
+    char conteudo_botao[4],
+         texto_temperatura[4],
+         texto_umidade[4];
     
-    sprintf(conteudo_botao,"%02d º", EEPROM.read(temperatura_ideal));
+    sprintf(conteudo_botao,"%02d º", EEPROM.read(end_temperatura_ideal));
     btn_setar_temp.setText(conteudo_botao);
 
-    sprintf(conteudo_botao,"%02d %", EEPROM.read(umidade_ideal));
+    sprintf(conteudo_botao,"%02d %", EEPROM.read(end_umidade_ideal));
     btn_setar_umi.setText(conteudo_botao);
 
-    sprintf(conteudo_botao,"%02d º", EEPROM.read(variacao_temperatura));
+    sprintf(conteudo_botao,"%02d º", EEPROM.read(end_variacao_temperatura));
     btn_setar_variacao_temp.setText(conteudo_botao);
 
-    sprintf(conteudo_botao,"%02d º", EEPROM.read(variacao_umidade));
+    sprintf(conteudo_botao,"%02d º", EEPROM.read(end_variacao_umidade));
     btn_setar_variacao_umi.setText(conteudo_botao);
 
     termometro.setValue(map(TU.media_temp, 0, TU.temp_ideal+TU.temp_variacao, 0, 100));
