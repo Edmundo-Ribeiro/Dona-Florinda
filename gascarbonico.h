@@ -6,7 +6,7 @@
 void mostraDadosCO2();
 void debugEstadoVariaveisCO2();
 
-
+// comentario teste 
 NexPage CO2_PAG = NexPage(PAGINA_CO2,0,"CO2");
 
 NexButton valor_CO2 = NexButton(PAGINA_CO2, 1, "concentracao");
