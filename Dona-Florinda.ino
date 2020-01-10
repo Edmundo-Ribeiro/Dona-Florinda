@@ -447,8 +447,8 @@ void loop() {
 	//if(T.estado_porta_inferior == FECHADA){
 		I.run(FECHADA);
 		A.run();
-		CO2.run(I.estado_atual);
-		E.run();
+    E.run();
+		CO2.run(I.estado_atual, E.estado_atual);
 		//D_CO2.run(I.estado_atual);
 		//TU.run();	    
 	//}
