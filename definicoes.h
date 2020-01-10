@@ -67,6 +67,11 @@ uint8_t PAGINA = 0;
 #define end_co2_intervalo 21// e 22
 
 
+//precisam de 2 bytes!
+#define end_exautao_ligado 23// e 24
+#define end_exautao_desligado 25// e 26
+
+
 //Ed: coloca end_ na frente pra ficar padronizado >:(
 #define temperatura_ideal 15
 #define umidade_ideal 16
