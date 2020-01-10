@@ -85,7 +85,7 @@ public:
     if(estado_atual == LIGADO){
     
       if((tempo_atual - this->tempo_anterior) >= this->tempo_intervalo_sensor){
-        debugEstadoVariaveisCO2();
+        
         this->tempo_anterior = tempo_atual;
 
         Valor = PWM_ISR();
@@ -106,6 +106,7 @@ public:
         
         if(PAGINA == PAGINA_CO2){
           mostraDadosCO2();
+          debugEstadoVariaveisCO2();
         }
 
       }

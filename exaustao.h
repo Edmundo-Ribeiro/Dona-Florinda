@@ -27,30 +27,36 @@ class Exaustao{
     public:
         bool estado_atual = 0; // estado_atual é 0 tá desligado, e 1 se está ligado
         // Ciclos da exaustão
-        uint32_t Ciclo_ligado = Ciclo_padrao,
-                 Ciclo_desligado = Ciclo_padrao,
-                 Tempo_restante = Ciclo_desligado;
-        uint8_t minutopassou = 0;
 
-        unsigned long timer = millis(),
-                      exaustaomillis = millis();
+        uint16_t Ciclo_ligado, Ciclo_desligado;
 
-        // "Seta" o relé
-        void SetupRele(){
+        unsigned long Tempo_restante;
+
+        unsigned long timer, exaustaomillis;
+
+        Exaustao(){
             pinMode(PINO_RELE_EXAUST, OUTPUT);
+            this->Tempo_restante = 0;
+            this->timer = millis();
+            this->exaustaomillis = millis();
+            EEPROM.get(end_exautao_ligado, this->Ciclo_ligado); 
+            EEPROM.get(end_exautao_desligado, this->Ciclo_desligado); 
         }
-        void Set_Ciclo_intervalo(uint16_t intervalo, bool ciclo){
-            if(ciclo == LIGADO){
-                this->Ciclo_ligado = intervalo;
-            }
-            else{
-                this->Ciclo_desligado = intervalo;
-            }
-        }
+
+        // void Set_Ciclo_intervalo(uint16_t intervalo, bool ciclo){
+        //     if(ciclo == LIGADO){
+        //         this->Ciclo_ligado = intervalo;
+        //     }
+        //     else{
+        //         this->Ciclo_desligado = intervalo;
+        //     }
+        // }
+
         void ligarExaustor(){
             digitalWrite(PINO_RELE_EXAUST, HIGH);//ver se é HIGH ou LOW
             this->estado_atual = LIGADO;
         }
+
         void desligarExaustor(){
             digitalWrite(PINO_RELE_EXAUST, LOW);//ver se é HIGH ou LOW
             this->estado_atual = DESLIGADO;
@@ -62,35 +68,38 @@ class Exaustao{
             unsigned long tempoPassado = atual - this->timer;
 
             if(this->estado_atual == DESLIGADO){
-                if(tempoPassado >= this->Ciclo_desligado){
+                if(tempoPassado >= (this->Ciclo_desligado * MINUTO)){
                     this->timer = millis();
                     this->ligarExaustor();
                 }
-                this->Tempo_restante = (this->Ciclo_desligado - tempoPassado)/MINUTO;
+                this->Tempo_restante = (this->Ciclo_desligado * MINUTO) - tempoPassado;
             }
             else{
-                 if(tempoPassado >= this->Ciclo_ligado){
+                 if(tempoPassado >= (this->Ciclo_ligado * MINUTO)){
                     this->timer = millis();
                     this->desligarExaustor();
                 }
-
-                this->Tempo_restante = (this->Ciclo_desligado - tempoPassado)/MINUTO;
-            }
-            if (PAGINA == PAGINA_EXAUSTAO && atual - this->exaustaomillis >= INTERVALO_MOSTRAR){
+                this->Tempo_restante = (this->Ciclo_ligado * MINUTO) - tempoPassado;
+                      }
+            if (PAGINA == PAGINA_EXAUSTAO && (atual - this->exaustaomillis) >= INTERVALO_MOSTRAR){
                 mostraDadosExaustao();
                 this->exaustaomillis = atual;
                 debugExaustao();
             }
         }
-        void SetCiclo(int valor, int tipo){
+
+        void SetCiclo(uint16_t valor, bool tipo){
             if (tipo == LIGADO){
-                this->Ciclo_ligado = valor*MINUTO;
+                this->Ciclo_ligado = valor;
+                EEPROM.put(end_exautao_ligado, this->Ciclo_ligado); 
             }
             else{
-                this->Ciclo_desligado = valor*MINUTO;
+                this->Ciclo_desligado = valor;
+                EEPROM.put(end_exautao_desligado, this->Ciclo_desligado); 
             } 
         }
 };
+
 Exaustao E;
 
 void debugExaustao(){
@@ -114,19 +123,24 @@ void debugExaustao(){
 
 void mostraDadosExaustao(){ 
     char conteudo_botao[4], 
-         texto_tempo_restante[4];
-    E.Ciclo_ligado /= MINUTO;
-    E.Ciclo_desligado /= MINUTO;
+         texto_tempo_restante[7];
+   
     sprintf(conteudo_botao,"%02d", E.Ciclo_ligado);
     min_ligado.setText(conteudo_botao);
 
     sprintf(conteudo_botao,"%02d", E.Ciclo_desligado);
     min_desligado.setText(conteudo_botao);    
 
-    sprintf(texto_tempo_restante, "%02d", E.Tempo_restante);
+   
+    if(E.Tempo_restante > 60000){
+        sprintf(texto_tempo_restante, "%02d min", (E.Tempo_restante / MINUTO) + 1);// + 1 pois a a parte fracionaria é ignorada
+    }
+    else{
+        sprintf(texto_tempo_restante, "%02d s", (E.Tempo_restante / 1000));
+    }
 
     texto_restante.setText(texto_tempo_restante);
-    if (E.estado_atual){
+    if (E.estado_atual == LIGADO){
         exaustor.setPic(EXAUSTON);
         texto_exaustao.setPic(EXAUSTON);
     }
@@ -134,20 +148,19 @@ void mostraDadosExaustao(){
         exaustor.setPic(EXAUSTOFF);
         texto_exaustao.setPic(EXAUSTOFF);
     }
-    E.Ciclo_ligado *= MINUTO;
-    E.Ciclo_desligado *= MINUTO;
+    
 }
 
 void setarCicloLigado(void *ptr){
     botaoApertado = BTNCICLOLIG;
     teclado.show();
-    PassaBotaoParaTela((E.Ciclo_ligado)/MINUTO);
+    PassaBotaoParaTela(E.Ciclo_ligado);
 }
 
 void setarCicloDesligado(void *ptr){
     botaoApertado = BTNCICLODESLIG;
     teclado.show();
-    PassaBotaoParaTela((E.Ciclo_desligado)/MINUTO);
+    PassaBotaoParaTela(E.Ciclo_desligado);
 }
 
 void iconeExaustaoCallback(void *ptr){
