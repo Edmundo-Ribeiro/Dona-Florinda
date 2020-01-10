@@ -13,94 +13,134 @@ NexCrop texto_exaustao = NexCrop(PAGINA_EXAUSTAO, 7, "texto_exaus");
 
 NexButton icone_exaustao = NexButton(PAGINA_MENU, 7, "Exaustao");
 
-#define Ciclo_padrao 420000 // ciclo padrão de 7 minutos (7*60*1000)
+#define Ciclo_padrao 420000 // ciclo padrão de 7 minutos (7*MINUTO)
 #define EXAUSTOFF 20 // Id da imagem no Nextion da exaustao off
 #define EXAUSTON 21 // Id da imagem no Nextion da exaustao on
 
-class Exaustao{
-    private:
-        // Só vai precisar de saber se o tubo de CO2 vai estar ligado
-        unsigned long exaustaoMillis = 0,
-                      minutoMillis = 0;
-        const uint8_t minuto = 60000;
+#define MINUTO 60000
+#define INTERVALO_MOSTRAR 5000
 
+void mostraDadosExaustao();
+void debugExaustao();
+
+class Exaustao{
     public:
-        int tuboCO2 = 0; //verifica se está ligado
-        uint8_t  Tempo_restante = Ciclo_desligado,
-                 minutopassou = 0;
         bool estado_atual = 0; // estado_atual é 0 tá desligado, e 1 se está ligado
         // Ciclos da exaustão
-        uint32_t Ciclo_ligado = Ciclo_padrao,
-                 Ciclo_desligado = Ciclo_padrao;
-        // "Seta" o relé
-        void SetupRele(){
+
+        uint16_t Ciclo_ligado, Ciclo_desligado;
+
+        unsigned long Tempo_restante;
+
+        unsigned long timer, exaustaomillis;
+
+        Exaustao(){
             pinMode(PINO_RELE_EXAUST, OUTPUT);
+            this->Tempo_restante = 0;
+            this->timer = millis();
+            this->exaustaomillis = millis();
+            EEPROM.get(end_exautao_ligado, this->Ciclo_ligado); 
+            EEPROM.get(end_exautao_desligado, this->Ciclo_desligado); 
         }
-        void Set_Ciclo_intervalo(uint16_t intervalo, bool ciclo){
-            if(ciclo == LIGADO){
-                this->Ciclo_ligado = intervalo;
-            }
-            else{
-                this->Ciclo_desligado = intervalo;
-            }
+
+        // void Set_Ciclo_intervalo(uint16_t intervalo, bool ciclo){
+        //     if(ciclo == LIGADO){
+        //         this->Ciclo_ligado = intervalo;
+        //     }
+        //     else{
+        //         this->Ciclo_desligado = intervalo;
+        //     }
+        // }
+
+        void ligarExaustor(){
+            digitalWrite(PINO_RELE_EXAUST, HIGH);//ver se é HIGH ou LOW
+            this->estado_atual = LIGADO;
         }
+
+        void desligarExaustor(){
+            digitalWrite(PINO_RELE_EXAUST, LOW);//ver se é HIGH ou LOW
+            this->estado_atual = DESLIGADO;
+        }
+
         void run(){
             //pega o millisegundo atual
             unsigned long atual = millis();
-            tuboCO2 = digitalRead(PINO_RELE_CO2);
-            //Olha se o tubo de CO2 tá ligado. Se estiver, é pra reinicar o ciclo no desligado.
-            if(tuboCO2 && this->estado_atual){
-                digitalWrite(PINO_RELE_EXAUST, HIGH);
-                this->estado_atual = 0;
-            }
-            //olha se passou o intervalo
-            if((atual - this->exaustaoMillis >= this->Ciclo_ligado) && !tuboCO2 && !this->estado_atual){ //Fica desligado
-                digitalWrite(PINO_RELE_EXAUST, HIGH);
-                this->estado_atual = 1;
-                this->exaustaoMillis = atual;
-                this->minutopassou = 0;
-            }
-            if((atual - this->exaustaoMillis >= this->Ciclo_desligado) && !tuboCO2 && this->estado_atual){ //Fica ligado
-                digitalWrite(PINO_RELE_EXAUST, LOW);
-                this->estado_atual = 0;
-                this->exaustaoMillis = atual;
-                this->minutopassou = 0;
-            }
-            if(atual - this->minutoMillis >= this->minuto){
-                this->minutoMillis = atual;
-                this->minutopassou += 60000; //Soma minutos em milissegundos.
-                if(this->estado_atual){
-                    this->Tempo_restante = this->Ciclo_ligado - this->minutopassou;
+            unsigned long tempoPassado = atual - this->timer;
+
+            if(this->estado_atual == DESLIGADO){
+                if(tempoPassado >= (this->Ciclo_desligado * MINUTO)){
+                    this->timer = millis();
+                    this->ligarExaustor();
                 }
-                else{
-                    this->Tempo_restante = this->Ciclo_desligado - this->minutopassou;
-                }
-                this->Tempo_restante /= 60000; //Passa me milissegundos pra minutos.
-            }
-        }
-        void SetCiclo(int valor, int tipo){
-            if (tipo == LIGADO){
-                this->Ciclo_ligado = valor*60*1000;
+                this->Tempo_restante = (this->Ciclo_desligado * MINUTO) - tempoPassado;
             }
             else{
-                this->Ciclo_desligado = valor*60*1000;
+                 if(tempoPassado >= (this->Ciclo_ligado * MINUTO)){
+                    this->timer = millis();
+                    this->desligarExaustor();
+                }
+                this->Tempo_restante = (this->Ciclo_ligado * MINUTO) - tempoPassado;
+                      }
+            if (PAGINA == PAGINA_EXAUSTAO && (atual - this->exaustaomillis) >= INTERVALO_MOSTRAR){
+                mostraDadosExaustao();
+                this->exaustaomillis = atual;
+                debugExaustao();
+            }
+        }
+
+        void SetCiclo(uint16_t valor, bool tipo){
+            if (tipo == LIGADO){
+                this->Ciclo_ligado = valor;
+                EEPROM.put(end_exautao_ligado, this->Ciclo_ligado); 
+            }
+            else{
+                this->Ciclo_desligado = valor;
+                EEPROM.put(end_exautao_desligado, this->Ciclo_desligado); 
             } 
         }
 };
-Exaustao E;
-void mostraDadosExaustao(){ 
-    char conteudo_botao[2], 
-    texto_tempo_restante[2];
-    uint16_t minutos_ligado,minutos_desligado;
 
+Exaustao E;
+
+void debugExaustao(){
+		Serial.print("############# Variaveis Exaustão #####################\n\n");
+    
+		Serial.print("Ciclo ligado: ");
+		Serial.println(E.Ciclo_ligado);
+
+        Serial.print("Estado atual: ");
+        Serial.println(E.estado_atual);
+
+		Serial.print("Ciclo desligado: ");
+		Serial.println(E.Ciclo_desligado);
+
+				
+		Serial.print("Minuto restante: ");
+		Serial.println(E.Tempo_restante);
+
+		Serial.print("######################################################\n\n");
+}
+
+void mostraDadosExaustao(){ 
+    char conteudo_botao[4], 
+         texto_tempo_restante[7];
+   
     sprintf(conteudo_botao,"%02d", E.Ciclo_ligado);
     min_ligado.setText(conteudo_botao);
 
     sprintf(conteudo_botao,"%02d", E.Ciclo_desligado);
     min_desligado.setText(conteudo_botao);    
 
-    texto_restante.setText(E.Tempo_restante);
-    if (E.estado_atual){
+   
+    if(E.Tempo_restante > 60000){
+        sprintf(texto_tempo_restante, "%02d min", (E.Tempo_restante / MINUTO) + 1);// + 1 pois a a parte fracionaria é ignorada
+    }
+    else{
+        sprintf(texto_tempo_restante, "%02d s", (E.Tempo_restante / 1000));
+    }
+
+    texto_restante.setText(texto_tempo_restante);
+    if (E.estado_atual == LIGADO){
         exaustor.setPic(EXAUSTON);
         texto_exaustao.setPic(EXAUSTON);
     }
@@ -108,18 +148,19 @@ void mostraDadosExaustao(){
         exaustor.setPic(EXAUSTOFF);
         texto_exaustao.setPic(EXAUSTOFF);
     }
+    
 }
 
 void setarCicloLigado(void *ptr){
     botaoApertado = BTNCICLOLIG;
     teclado.show();
-    PassaBotaoParaTela((E.Ciclo_ligado)/60000);
+    PassaBotaoParaTela(E.Ciclo_ligado);
 }
 
 void setarCicloDesligado(void *ptr){
     botaoApertado = BTNCICLODESLIG;
     teclado.show();
-    PassaBotaoParaTela((E.Ciclo_desligado)/60000);
+    PassaBotaoParaTela(E.Ciclo_desligado);
 }
 
 void iconeExaustaoCallback(void *ptr){

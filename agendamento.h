@@ -75,7 +75,7 @@ class SAI{
 				unsigned long atual = millis();
 				//olha se passou o intervalo 
 				if(atual - this->agendamentoMillis >= this->agendamentoIntervalo){
-					degubEstadoVariveis();
+					
 					if(this->ciclo_agendado != I.CICLO_NENHUM){
 
 						uint8_t date,mon,hour,min;
@@ -114,6 +114,7 @@ class SAI{
 
 					if(PAGINA == PAGINA_AGENDAMENTO){
 						mostraDadosAgendamento();
+						degubEstadoVariveis();
 					}
 
 					//reset o contador do intervalo
@@ -210,10 +211,10 @@ void VoltarAgendar(void *ptr){
 void SelecionaCiclo1PopCallback(void *ptr){
 	uint32_t estado_botao_c1;
 
-	// ciclo1_agendar.getValue(&estado_botao_c1);
+	ciclo1_agendar.getValue(&estado_botao_c1);
 
-	Serial.println("IF ESTADO1");
 	if(estado_botao_c1 == LIGADO){
+	Serial.println("IF ESTADO1");
 
 		ciclo2_agendar.setValue(DESLIGADO);
 		A.seleciona_ciclo(I.CICLO_1);
@@ -226,7 +227,7 @@ void SelecionaCiclo1PopCallback(void *ptr){
 void SelecionaCiclo2PopCallback(void *ptr){
 	uint32_t estado_botao_c2;
 
-	// ciclo2_agendar.getValue(&estado_botao_c2);
+	ciclo2_agendar.getValue(&estado_botao_c2);
 
 	if(estado_botao_c2 == LIGADO){	
 		ciclo1_agendar.setValue(DESLIGADO);

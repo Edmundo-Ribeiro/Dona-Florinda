@@ -2,11 +2,12 @@
 #define gascarbonico_h
 
 #include "teclado.h"
+#include "filtro.h"
 
 void mostraDadosCO2();
 void debugEstadoVariaveisCO2();
 
-
+// comentario teste 
 NexPage CO2_PAG = NexPage(PAGINA_CO2,0,"CO2");
 
 NexButton valor_CO2 = NexButton(PAGINA_CO2, 1, "concentracao");
@@ -78,19 +79,21 @@ public:
     EEPROM.put(end_co2_intervalo, valor);
   }
 
-  void run(bool estado_atual){
-    
+  void run(bool estado_iluminacao, bool estado_exaustor){
+    filtro co2;
     unsigned long tempo_atual = millis();
+    co2.tamanho(10);
 
-    if(estado_atual == LIGADO){
+    this->tempo_anterior = tempo_atual;
+
+    Valor = PWM_ISR();
+
+    co2.adiciona(Valor);
+
+    if(estado_iluminacao == LIGADO && estado_exaustor == DESLIGADO){
     
       if((tempo_atual - this->tempo_anterior) >= this->tempo_intervalo_sensor){
-        debugEstadoVariaveisCO2();
-        this->tempo_anterior = tempo_atual;
 
-        Valor = PWM_ISR();
-        //Valor = analogRead(this->Pino_sensor); 
-       
         if(Valor <= (referencia - intervalo)){
           digitalWrite(PINO_RELE_CO2, HIGH);  //Liga rele
           this->estado_atual = LIGADO;    
@@ -106,6 +109,7 @@ public:
         
         if(PAGINA == PAGINA_CO2){
           mostraDadosCO2();
+          debugEstadoVariaveisCO2();
         }
 
       }

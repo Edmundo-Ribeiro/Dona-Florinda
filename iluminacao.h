@@ -205,8 +205,8 @@ class SI{
 					//se estiver na pagina de iluminação atualiza os dados
 					if(PAGINA == PAGINA_ILUMINACAO){
 						mostraDadosIluminacao();
+						debugEstadoVariaveis();
 					}
-					debugEstadoVariaveis();
 				}
 			}
 		}
@@ -357,8 +357,13 @@ SI I; //Desclaração do objeto sistema de iluminação
 		}
 
 		uint16_t minuto_atual = minutoAtual();
-
-		if(I.minuto_de_ligar < I.minuto_de_desligar){
+		if(I.ciclo_atual == I.CICLO_NENHUM){
+			estado_ciclo_texto.setText("ESCURO");
+			progresso.setValue(0);
+			sprintf(texto_tempo_restante, "--:--");
+		}
+		
+		else if(I.minuto_de_ligar < I.minuto_de_desligar){
 
 			if(I.estado_atual == LIGADO){
 				estado_ciclo_texto.setText("LUZ");

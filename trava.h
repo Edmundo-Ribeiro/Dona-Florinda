@@ -88,7 +88,7 @@ void TravaInferiorPopCallBack(){
 }
 
 void RelogioPopCallBack(){
-   PAGINA = PAGINA_MENU;
+   PAGINA = PAGINA_DATA_HORA;
    configData.show();
    mostraHoraData();
 }
