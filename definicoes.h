@@ -16,12 +16,12 @@ uint8_t botaoApertado = 0;
 uint8_t PAGINA = 0;
 #define PAGINA_MENU 0
 #define PAGINA_DATA_HORA 5
-#define PAGINA_TECLADO 3
+#define PAGINA_TECLADO 2
 #define PAGINA_ILUMINACAO 4
 #define PAGINA_AGENDAMENTO 6
 #define PAGINA_CO2 7
 #define PAGINA_EXAUSTAO 8
-#define PAGINA_TEMP_E_UMI 9
+#define PAGINA_TEMP_E_UMI 3
 #define PAGINA_TRAVA 10
 
 #define PINO_SENSOR_DHT 18

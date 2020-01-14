@@ -340,6 +340,12 @@ NexTouch *nex_listen_list[] = {
 	&btn_setar_variacao_temp,
 	&btn_setar_variacao_umi,
 	&voltar_tempumi,
+<<<<<<< HEAD
+=======
+	&icone_temp_umi,
+
+
+>>>>>>> 83d14b274f5937fe3a0f5d692060268ec06e8d1f
 	&Gota1, //escuta se o botao Gota1 foi abertado
     NULL
 };
@@ -441,13 +447,15 @@ void loop() {
 
 	
 	nexLoop(nex_listen_list);
-	T.run();
 	runConfig();
 
+	T.run();
 	I.run(T.estado_porta_inferior);
 	A.run();
-	//CO2.run(I.estado_atual);
 	E.run();
+	CO2.run(I.estado_atual, E.estado_atual);
+	TU.run(T.estado_porta_inferior);	    
+	
 }
 		
 // }
