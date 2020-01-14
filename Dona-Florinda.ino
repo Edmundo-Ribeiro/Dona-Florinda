@@ -340,6 +340,7 @@ NexTouch *nex_listen_list[] = {
 	&btn_setar_variacao_temp,
 	&btn_setar_variacao_umi,
 	&voltar_tempumi,
+	&icone_temp_umi,
 
 
 	&Gota1, //escuta se o botao Gota1 foi abertado
@@ -452,7 +453,7 @@ void loop() {
     E.run();
 		CO2.run(I.estado_atual, E.estado_atual);
 		//D_CO2.run(I.estado_atual);
-		//TU.run();	    
+		TU.run(FECHADA);	    
 	//}
 	// else{
 	//     if(D_CO2.co2_ligado == 1)
