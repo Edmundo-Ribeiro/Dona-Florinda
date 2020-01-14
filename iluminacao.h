@@ -95,32 +95,34 @@ class SI{
 		}
 
 		void desligarPainel(){
-			Serial.println("\nDesligando Painel...\n");
+			Serial.println("\nDesligando Painel...\n");//só na fase de teste, dps tirar isso
 			digitalWrite(PINO_PAINEL, LOW);
 		}
 
 		void ligarPainel(){
-			Serial.println("\nLigando Painel...\n");
+			Serial.println("\nLigando Painel...\n");//só na fase de teste, dps tirar isso
 			digitalWrite(PINO_PAINEL, HIGH);
 		}
 
 		void desligarLED(){
-			Serial.println("\nDesligando LED...\n");
+			Serial.println("\nDesligando LED...\n");//só na fase de teste, dps tirar isso
 			digitalWrite(PINO_LED, LOW);
 		}
 
 		void ligarLED(){
-			Serial.println("\nLigando LED...\n");
-			digitalWrite(PINO_LED, HIGH);
+			Serial.println("\nLigando LED...\n");//só na fase de teste, dps tirar isso
+			digitalWrite(PINO_LED, HIGH);// no relé isso é LOW
 		}
 
-		void desligar(){
+		void desligarSistema(){
 			this->desligarPainel();
+			this->desligarLED();
 			this->estado_atual = DESLIGADO;
 			EEPROM.update(end_estado_atual,this->estado_atual);
 		}
-		void ligar(){
+		void ligarSistema(){
 			this->ligarPainel();
+			this->desligarLED();
 			this->estado_atual = LIGADO;
 			EEPROM.update(end_estado_atual,this->estado_atual);
 		}
@@ -165,12 +167,15 @@ class SI{
 			}
 
 			//se está ligado mas não está do lado do ciclo ligado
-			if(this->estado_atual == LIGADO && !esta_no_lado_ciclo_ligado){
+			if( !esta_no_lado_ciclo_ligado){
 				//desligue
-				this->desligar();
+				this->desligarSistema();
 			}
-			else if(this->estado_atual == DESLIGADO && esta_no_lado_ciclo_ligado){
-				this->ligar();
+			else if( esta_no_lado_ciclo_ligado){
+				this->ligarSistema();
+				//não tem problema chamar essa função repetidamente pois 
+				//com EEPROM.update não é feita nenhuma escrita na memoria 
+				//se o valor for o mesmo
 			}
 		}
 		void run(bool estado_porta){
@@ -180,8 +185,18 @@ class SI{
 			parar de contar minutos passados, 
 			verificar se deve ligar ou não o painel
 			*/
+
+
+			unsigned long atual = millis();
+
 			if(estado_porta == ABERTA){
+
 				this->pausa();
+				//resetar o contador do intervalo para garantir que vai esperar 5
+				//segundos antes de ligar o painel
+				this->iluminacaoMillis = atual;
+
+				
 			}
 			/*
 			Caso a porta esteja fechada 
@@ -190,13 +205,16 @@ class SI{
 			e etc...
 			*/
 			else{
+
+				
 				//desliga fita de led e retoma o estado do painel
 				//this->retomar();
 				//pegar milisegundo atual "inicio to timer"
-				unsigned long atual = millis();
+				
 				//olha se passou o intervalo 
 				if(atual - this->iluminacaoMillis >= this->iluminacaoIntervalo){
-					
+					Serial.print("estado da porta:");
+					Serial.println(estado_porta);
 					this->verificacoes();
 
 					//resetar o contador do intervalo

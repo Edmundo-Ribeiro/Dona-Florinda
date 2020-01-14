@@ -60,7 +60,6 @@ class Trava{
 
 
       if( (millis() - this->timerInferior) >= INTERVALO ){
-        Serial.println((millis() - this->timerInferior));
         digitalWrite(PINO_TRANSISTOR_INFERIOR, LOW); // trava ativada
         this->timerInferior = millis();
         mostraDadosTrava();
