@@ -76,7 +76,7 @@ class SAI{
 				//olha se passou o intervalo 
 				if(atual - this->agendamentoMillis >= this->agendamentoIntervalo){
 					
-					if(this->ciclo_agendado != I.CICLO_NENHUM){
+					if(this->ciclo_agendado != CICLO_NENHUM){
 
 						uint8_t date,mon,hour,min;
 						uint16_t year;
@@ -95,9 +95,9 @@ class SAI{
 						    min == this->minuto_agendado){
 
 												
-							I.troca_ciclo(I.CICLO_NENHUM);//só pra ter certeza que estava desligado e desconsiderar oq foi feito antes
+							I.troca_ciclo(CICLO_NENHUM);//só pra ter certeza que estava desligado e desconsiderar oq foi feito antes
 							I.troca_ciclo(this->ciclo_agendado);
-							this->ciclo_agendado = I.CICLO_NENHUM;
+							this->ciclo_agendado = CICLO_NENHUM;
 
 							EEPROM.update(end_ciclo_agendado, this->ciclo_agendado);
 						}
@@ -105,7 +105,7 @@ class SAI{
 						if(date > this->dia_agendado || 
 							mon > this->mes_agendado ||
 	    					year > this->ano_agendado){
-							this->ciclo_agendado = I.CICLO_NENHUM;
+							this->ciclo_agendado = CICLO_NENHUM;
 
 						}
 					}
@@ -159,11 +159,11 @@ void mostraDadosAgendamento(){
 		itoa(A.minuto_agendado, buffer,10);
 		agendarMinuto.setText(buffer);
 
-		if(A.ciclo_agendado == I.CICLO_1){
+		if(A.ciclo_agendado == CICLO_1){
 			ciclo1_agendar.setValue(1);
 			ciclo2_agendar.setValue(0);
 		}
-		else if(A.ciclo_agendado == I.CICLO_2){
+		else if(A.ciclo_agendado == CICLO_2){
 			ciclo1_agendar.setValue(0);
 			ciclo2_agendar.setValue(1);
 		}
@@ -217,11 +217,11 @@ void SelecionaCiclo1PopCallback(void *ptr){
 	Serial.println("IF ESTADO1");
 
 		ciclo2_agendar.setValue(DESLIGADO);
-		A.seleciona_ciclo(I.CICLO_1);
+		A.seleciona_ciclo(CICLO_1);
 		
 	}
 	else{
-		A.seleciona_ciclo(I.CICLO_NENHUM);	
+		A.seleciona_ciclo(CICLO_NENHUM);	
 	}
 }
 void SelecionaCiclo2PopCallback(void *ptr){
@@ -231,11 +231,11 @@ void SelecionaCiclo2PopCallback(void *ptr){
 
 	if(estado_botao_c2 == LIGADO){	
 		ciclo1_agendar.setValue(DESLIGADO);
-		A.seleciona_ciclo(I.CICLO_2);
+		A.seleciona_ciclo(CICLO_2);
 		
 	}
 	else{
-		A.seleciona_ciclo(I.CICLO_NENHUM);	
+		A.seleciona_ciclo(CICLO_NENHUM);	
 	}
 }
 void AgendarPopCallBack(void *ptr){

@@ -2,11 +2,11 @@
 #define iluminacao_h
 #include "teclado.h"
 
-//TO DO
-//na parte de mostrar os dados ainda não estão considerando quando está em ciclo nenhum
+
+#define INTERVALO_ILUMINACAO 10000
 
 //não presisaria fazer isso se tivesse um .h e .cpp separados para parte grafica e a classe SI
-void mostraDadosIluminacao();
+void mostraDadosIluminacao(bool estado_porta = DESLIGADO);
 uint16_t minutoAtual();
 void debugEstadoVariaveis();
 
@@ -39,18 +39,16 @@ class SI{
 		uint16_t minuto_de_desligar, // onde fica armazenado o minuto do dia em que deve desligar e ligar
 			     minuto_de_ligar;
 
-
-		const uint8_t CICLO_NENHUM = 0;
-		const uint8_t CICLO_1 = 1;
-		const uint8_t CICLO_2 = 2;
-
 		unsigned long iluminacaoMillis = 0;
-		unsigned long iluminacaoIntervalo = 10000;
+		
 
 		SI(){
 
 			pinMode(PINO_PAINEL, OUTPUT);
 			pinMode(PINO_LED, OUTPUT);
+
+			this->desligarLED();
+			this->desligarPainel();
 
 			uint16_t q_minutos_ligado;
 
@@ -66,16 +64,16 @@ class SI{
 			sempre que inicia ele é calculado a partir do minuto de ligar 
 			e o intervalo de tempo 
 			*/
-			if(this->ciclo_atual == this->CICLO_1){
+			if(this->ciclo_atual == CICLO_1){
 				q_minutos_ligado = this->q_horas_ligado_c1*60;
 			}
-			else if(this->ciclo_atual == this->CICLO_2){
+			else if(this->ciclo_atual == CICLO_2){
 				q_minutos_ligado = this->q_horas_ligado_c2*60;
 			}
 			
 			this->minuto_de_desligar = calcularMinuto(this->minuto_de_ligar, q_minutos_ligado);	
 
-			if(this->ciclo_atual == this->CICLO_NENHUM){
+			if(this->ciclo_atual == CICLO_NENHUM){
 				this->minuto_de_ligar = MINUTOS_DIA; 
 				this->minuto_de_desligar = 0;
 			}
@@ -196,7 +194,11 @@ class SI{
 				//segundos antes de ligar o painel
 				this->iluminacaoMillis = atual;
 
-				
+				if(atual - this->iluminacaoMillis >= INTERVALO_ILUMINACAO){
+					if(PAGINA == PAGINA_ILUMINACAO){
+						mostraDadosIluminacao(ABERTA);
+					}
+				}
 			}
 			/*
 			Caso a porta esteja fechada 
@@ -212,7 +214,7 @@ class SI{
 				//pegar milisegundo atual "inicio to timer"
 				
 				//olha se passou o intervalo 
-				if(atual - this->iluminacaoMillis >= this->iluminacaoIntervalo){
+				if(atual - this->iluminacaoMillis >= INTERVALO_ILUMINACAO){
 					// Serial.print("estado da porta:");
 					// Serial.println(estado_porta);
 					this->verificacoes();
@@ -230,11 +232,11 @@ class SI{
 		}
 
 		void setar(uint8_t ciclo, uint8_t valor){
-			if(ciclo == this->CICLO_1){
+			if(ciclo == CICLO_1){
 				this->q_horas_ligado_c1 = valor;
 				EEPROM.update(end_q_horas_ligado_c1,valor);
 			}
-			else if(ciclo == this->CICLO_2){
+			else if(ciclo == CICLO_2){
 				this->q_horas_ligado_c2 = valor;
 				EEPROM.update(end_q_horas_ligado_c2,valor);
 			}
@@ -253,18 +255,18 @@ class SI{
 			ciclo_origem = this->ciclo_atual;
 
 			//atribuir o valor da quantidade de horas ligado conforme o ciclo de destino
-			if(ciclo_destino == this->CICLO_1){
+			if(ciclo_destino == CICLO_1){
 				q_horas_ligado = this->q_horas_ligado_c1;
-				this->ciclo_atual = this->CICLO_1;
+				this->ciclo_atual = CICLO_1;
 			}
-			else if(ciclo_destino == this->CICLO_2){
+			else if(ciclo_destino == CICLO_2){
 				q_horas_ligado = this->q_horas_ligado_c2;
-				this->ciclo_atual = this->CICLO_2;
+				this->ciclo_atual = CICLO_2;
 					
 			}
 			else{
 				q_horas_ligado = 0;
-				this->ciclo_atual = this->CICLO_NENHUM;
+				this->ciclo_atual = CICLO_NENHUM;
 			}
 			
 			
@@ -281,7 +283,7 @@ class SI{
 			//se está saindo de ciclo nenhum para algum ciclo 
 			//entaõ o sistema esta sendo iniciado naquele momento
 			//dessa forma, o minuto de ligar é o estante atual e basta calcular quando desligar
-			else if(ciclo_destino == this->CICLO_NENHUM){
+			else if(ciclo_destino == CICLO_NENHUM){
 				this->minuto_de_ligar = MINUTOS_DIA; 
 				this->minuto_de_desligar = 0;
 			}
@@ -347,7 +349,7 @@ SI I; //Desclaração do objeto sistema de iluminação
 		return rtc.getTime().hour*60 + rtc.getTime().min;
 	}
 
-	void mostraDadosIluminacao(){	
+	void mostraDadosIluminacao(bool estado_porta = FECHADA){	
 
 		char conteudo_botao[8], 
 			 texto_tempo_restante[8];
@@ -361,11 +363,11 @@ SI I; //Desclaração do objeto sistema de iluminação
 
 
 		
-		if(I.ciclo_atual == I.CICLO_1){
+		if(I.ciclo_atual == CICLO_1){
 			btn_c1.setValue(1);
 			btn_c2.setValue(0);
 		}
-		else if(I.ciclo_atual == I.CICLO_2){
+		else if(I.ciclo_atual == CICLO_2){
 			btn_c1.setValue(0);
 			btn_c2.setValue(1);
 		}
@@ -375,7 +377,9 @@ SI I; //Desclaração do objeto sistema de iluminação
 		}
 
 		uint16_t minuto_atual = minutoAtual();
-		if(I.ciclo_atual == I.CICLO_NENHUM){
+
+
+		if(I.ciclo_atual == CICLO_NENHUM){
 			estado_ciclo_texto.setText("ESCURO");
 			progresso.setValue(0);
 			sprintf(texto_tempo_restante, "--:--");
@@ -431,6 +435,9 @@ SI I; //Desclaração do objeto sistema de iluminação
 			}
 		}
 
+		if(estado_porta == ABERTA){
+			estado_ciclo_texto.setText("PAUSA");
+		}
 
 		tempo_restante.setText(texto_tempo_restante);
 	}
@@ -442,13 +449,13 @@ SI I; //Desclaração do objeto sistema de iluminação
 
 		if(estado_botao_c1 == LIGADO){
 
-			if(I.ciclo_atual != I.CICLO_1){
+			if(I.ciclo_atual != CICLO_1){
 				btn_c2.setValue(DESLIGADO);
-				I.troca_ciclo(I.CICLO_1);
+				I.troca_ciclo(CICLO_1);
 			}
 		}
 		else{
-			I.troca_ciclo(I.CICLO_NENHUM);
+			I.troca_ciclo(CICLO_NENHUM);
 			
 		}
 		mostraDadosIluminacao();
@@ -461,26 +468,26 @@ SI I; //Desclaração do objeto sistema de iluminação
 
 		if(estado_botao_c2 == LIGADO){
 
-			if(I.ciclo_atual != I.CICLO_2){
+			if(I.ciclo_atual != CICLO_2){
 				btn_c1.setValue(DESLIGADO);
-				I.troca_ciclo(I.CICLO_2);
+				I.troca_ciclo(CICLO_2);
 			}
 		}
 		else{
-			I.troca_ciclo(I.CICLO_NENHUM);
+			I.troca_ciclo(CICLO_NENHUM);
 			
 		}
 		mostraDadosIluminacao();
 	}
 
 	void setarCiclo1Callback(void *ptr){
-		botaoApertado = I.CICLO_1;
+		botaoApertado = CICLO_1;
 		teclado.show();
 		//colocar pra levar o numero do botão para a tela do teclado
 		PassaBotaoParaTela(I.q_horas_ligado_c1);
 	}
 	void setarCiclo2Callback(void *ptr){
-		botaoApertado = I.CICLO_2;
+		botaoApertado = CICLO_2;
 		teclado.show();
 		PassaBotaoParaTela(I.q_horas_ligado_c2);
 	}

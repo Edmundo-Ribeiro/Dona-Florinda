@@ -30,10 +30,9 @@
 		}
 
 		float calcula(){
-			if(this->fila.count() < this->tamanho_janela)
-				return fila.peek();
-			else
-				return this->media_nova/ this->tamanho_janela;
+			return this->fila.count() < this->tamanho_janela
+					? fila.peek()
+					: this->media_nova/ this->tamanho_janela;
 		}
 
  };

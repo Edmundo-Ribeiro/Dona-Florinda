@@ -479,10 +479,10 @@ void loop() {
 	runConfig();
 
 	T.run();
-	//I.run(T.estado_porta_inferior);
-	//A.run();
-	//E.run();
-	//CO2.run(I.estado_atual, E.estado_atual);
+	I.run(T.estado_porta_inferior);
+	A.run();
+	E.run();
+	CO2.run(I.estado_atual, E.estado_atual);
 	TU.run(T.estado_porta_inferior);	    
 	
 }

@@ -36,21 +36,13 @@ class Exaustao{
 
         Exaustao(){
             pinMode(PINO_RELE_EXAUST, OUTPUT);
+            this->desligarExaustor();
             this->Tempo_restante = 0;
             this->timer = millis();
             this->exaustaomillis = millis();
             EEPROM.get(end_exautao_ligado, this->Ciclo_ligado); 
             EEPROM.get(end_exautao_desligado, this->Ciclo_desligado); 
         }
-
-        // void Set_Ciclo_intervalo(uint16_t intervalo, bool ciclo){
-        //     if(ciclo == LIGADO){
-        //         this->Ciclo_ligado = intervalo;
-        //     }
-        //     else{
-        //         this->Ciclo_desligado = intervalo;
-        //     }
-        // }
 
         void ligarExaustor(){
             digitalWrite(PINO_RELE_EXAUST, HIGH);//ver se é HIGH ou LOW
