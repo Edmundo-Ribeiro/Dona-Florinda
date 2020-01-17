@@ -40,6 +40,8 @@ class SI{
 			     minuto_de_ligar;
 
 		unsigned long iluminacaoMillis = 0;
+
+		bool estado_porta;
 		
 
 		SI(){
@@ -77,6 +79,8 @@ class SI{
 				this->minuto_de_ligar = MINUTOS_DIA; 
 				this->minuto_de_desligar = 0;
 			}
+
+			this->estado_porta = FECHADA;
 
 		}
 
@@ -130,13 +134,6 @@ class SI{
 			this->ligarLED();
 		}
 
-		void retomar(){
-			this->desligarLED();
-			if(this->estado_atual == LIGADO)
-				this->ligarPainel();
-			else
-				this->desligarPainel();
-		}
 		//mudar esse nome
 		void verificacoes(){
 			//pegar qual o minuto atual 
@@ -183,7 +180,7 @@ class SI{
 			parar de contar minutos passados, 
 			verificar se deve ligar ou não o painel
 			*/
-
+			this->estado_porta = estado_porta;
 
 			unsigned long atual = millis();
 
@@ -196,7 +193,7 @@ class SI{
 
 				if(atual - this->iluminacaoMillis >= INTERVALO_ILUMINACAO){
 					if(PAGINA == PAGINA_ILUMINACAO){
-						mostraDadosIluminacao(ABERTA);
+						mostraDadosIluminacao();
 					}
 				}
 			}
@@ -296,18 +293,12 @@ class SI{
 			EEPROM.put(end_minuto_de_ligar, this->minuto_de_ligar);
 
 			EEPROM.update(end_ciclo_atual, this->ciclo_atual);
-			this->verificacoes();
+			
+			if(this->estado_porta == FECHADA){
+				this->verificacoes();
+			}
 			mostraDadosIluminacao();
 		}
-
-		//metodo que será chamado quando o sistema desligar
-		//por enquanto só estou salvando o estado atual
-		void salvar(){
-			EEPROM.update(end_estado_atual,this->estado_atual);
-		}
-
-
-	
 };
 
 SI I; //Desclaração do objeto sistema de iluminação
@@ -349,7 +340,7 @@ SI I; //Desclaração do objeto sistema de iluminação
 		return rtc.getTime().hour*60 + rtc.getTime().min;
 	}
 
-	void mostraDadosIluminacao(bool estado_porta = FECHADA){	
+	void mostraDadosIluminacao(){	
 
 		char conteudo_botao[8], 
 			 texto_tempo_restante[8];
@@ -435,7 +426,7 @@ SI I; //Desclaração do objeto sistema de iluminação
 			}
 		}
 
-		if(estado_porta == ABERTA){
+		if(this->estado_porta == ABERTA){
 			estado_ciclo_texto.setText("PAUSA");
 		}
 
