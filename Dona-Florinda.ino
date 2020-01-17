@@ -14,6 +14,274 @@
 #include "exaustao.h"
 
 
+void caseIlimunacao(uint16_t valor){
+	if(valor > 24 || valor < 0)
+		mensagem.setText("Valor invalido");
+	else{
+		I.setar(botaoApertado, valor);				
+		PAGINA = PAGINA_ILUMINACAO;
+		iluminacao.show();
+		mostraDadosIluminacao();
+	}
+}
+
+void caseDataHora(uint16_t valor){
+	switch(botaoApertado){
+		case BTNHORA:
+			if(valor > 24 || valor < 0){
+				mensagem.setText("Valor invalido");
+			}
+			else{
+				setHora(rtc,valor);
+				PAGINA = PAGINA_DATA_HORA;
+				configData.show();
+				mostraHoraData();
+			}
+
+			break;
+
+		case BTNMINUTO:
+			if(valor > 60 || valor < 1){
+				mensagem.setText("Valor invalido");
+			}
+			else{
+
+				setMinuto(rtc,valor);
+				PAGINA = PAGINA_DATA_HORA;
+				configData.show();
+				mostraHoraData();					
+			}
+			break;
+
+		case BTNDIA:
+			if(valor > 31 || valor < 1){
+				mensagem.setText("Valor invalido");
+			}
+			else{
+				// Clock.setDate(valor);
+				setDia(rtc,valor);
+				PAGINA = PAGINA_DATA_HORA;
+				configData.show();
+				mostraHoraData();
+			}
+			break;
+
+		case BTNMES:
+			if(valor > 12 || valor < 1){
+				mensagem.setText("Valor invalido");
+			}
+			else{
+				setMes(rtc,valor);	
+				PAGINA = PAGINA_DATA_HORA;
+				configData.show();
+				mostraHoraData();
+			}
+			break;
+
+		case BTNANO:
+			if(valor > 2999 || valor < 1900){ // verificar qual o ano maximo
+				mensagem.setText("Valor invalido");
+				
+			}
+			else{
+				setAno(rtc,valor);
+				PAGINA = PAGINA_DATA_HORA;
+				configData.show();
+				mostraHoraData();
+			}
+			break;
+	}
+}
+
+
+void caseAgendamento(uint16_t valor){
+	switch(botaoApertado){
+		case BTNHORA:
+			if(valor > 24 || valor < 0){
+				mensagem.setText("Valor invalido");
+				//teclado.show();
+			}
+			else{
+				A.setHora(valor);
+				PAGINA = PAGINA_AGENDAMENTO;
+				agendamento.show();
+				mostraDadosAgendamento();
+			}
+
+			break;
+
+		case BTNMINUTO:
+			if(valor > 60 || valor < 1){
+				mensagem.setText("Valor invalido");
+			}
+			else{
+
+				A.setMinuto(valor);
+				PAGINA = PAGINA_AGENDAMENTO;
+				agendamento.show();
+				mostraDadosAgendamento();					
+			}
+			break;
+
+		case BTNDIA:
+			if(valor > 31 || valor < 1){
+				mensagem.setText("Valor invalido");
+			}
+			else{
+				// Clock.setDate(valor);
+				A.setDia(valor);
+				PAGINA = PAGINA_AGENDAMENTO;
+				agendamento.show();
+				mostraDadosAgendamento();
+			}
+			break;
+
+		case BTNMES:
+			Serial.println("Case..BTNMES");
+			if(valor > 12 || valor < 1){
+				mensagem.setText("Valor invalido");
+			}
+			else{
+				A.setMes(valor);	
+				PAGINA = PAGINA_AGENDAMENTO;
+				agendamento.show();
+				mostraDadosAgendamento();
+			}
+			break;
+
+		case BTNANO:
+			if(valor > 2999 || valor < 1900){ // verificar qual o ano maximo
+				mensagem.setText("Valor invalido");
+				
+			}
+			else{
+				A.setAno(valor);
+				PAGINA = PAGINA_AGENDAMENTO;
+				agendamento.show();
+				mostraDadosAgendamento();
+			}
+			break;
+	}
+}
+
+void caseCO2(uint16_t valor){
+	switch(botaoApertado){
+		case BTNCO2:
+			if(valor < 500 || valor > 5000){
+				mensagem.setText("Valor inválido");
+			} 
+			else{
+				CO2.setCO2(valor);
+				PAGINA = PAGINA_CO2;
+				CO2_PAG.show();
+				mostraDadosCO2();
+			}
+			break;
+  
+		case BTNINTCO2:
+			if(valor < 200 || valor > 500){
+				mensagem.setText("Valor inválido");
+			} 
+			else{
+				CO2.setIntCO2(valor);
+				PAGINA = PAGINA_CO2;
+				CO2_PAG.show();
+				mostraDadosCO2();
+			}
+			break;
+	} 
+}
+
+void caseTempUmi(uint16_t valor){
+	switch(botaoApertado){
+
+		case BTNTEMP:
+			if(valor < 0 || valor > 100){
+				mensagem.setText("Valor inválido");
+			} 
+			else{
+				TU.setar_temperatura(valor);
+				PAGINA = PAGINA_TEMP_E_UMI;
+				temp_e_umi.show();
+				mostraDadosTempUmi();
+			}
+			break;
+
+		case BTNTEMPVAR:
+			if(valor > 10){
+				mensagem.setText("Valor inválido");
+			} 
+			else{
+				TU.setar_variacao_temperatura(valor);
+				PAGINA = PAGINA_TEMP_E_UMI;
+				temp_e_umi.show();
+				mostraDadosTempUmi();
+			}
+			break;
+
+		case BTNUMI:
+			if(valor < 0 || valor > 100){
+				mensagem.setText("Valor inválido");
+			}
+			else{
+				TU.setar_umidade(valor);
+				PAGINA = PAGINA_TEMP_E_UMI;
+				temp_e_umi.show();
+				mostraDadosTempUmi();
+			}
+			break;
+
+		case BTNUMIVAR:
+			if(valor > 10){
+				mensagem.setText("Valor inválido");
+			}
+			else{
+				TU.setar_variacao_umidade(valor);
+				PAGINA = PAGINA_TEMP_E_UMI;
+				temp_e_umi.show();
+				mostraDadosTempUmi();
+			}
+      		break;
+	}
+}
+
+void caseExaustao(uint16_t valor){
+	switch(botaoApertado){
+	 	case BTNCICLOLIG:
+	 		if (valor == 0 || valor > 99){
+	 			mensagem.setText("Valor invalido");
+	 		}
+	 		else{
+	 			E.SetCiclo(valor, LIGADO);
+	 			PAGINA = PAGINA_EXAUSTAO;
+	 			exaustao.show();
+	 			mostraDadosExaustao();
+	 		}
+	 		break;
+
+	 	case BTNCICLODESLIG:
+	 		if (valor == 0){
+	 			mensagem.setText("Valor invalido");
+	 		}
+	 		else{
+	 			E.SetCiclo(valor, DESLIGADO);
+	 			PAGINA = PAGINA_EXAUSTAO;
+	 			exaustao.show();
+	 			mostraDadosExaustao();
+	 		}
+	 		break;
+	}
+}
+
+void caseIrrigacao(uint16_t valor){
+	switch(botaoApertado){
+		case botaoIR0://botao irriga0ligado
+	    	IR.IrrigaVaso0(valor);  //pega o valor que recebe
+	    	//necessario corrigir o valor da pagina em que Irrig esta declarado
+	    	Irrig.show();//volta para a tela anterior
+		 	break;
+	}
+}
 
 void ConfirmaPopCallback(void *ptr){
 	uint16_t valor;
@@ -25,266 +293,32 @@ void ConfirmaPopCallback(void *ptr){
 	switch(pagina_anterior){
 
 		case PAGINA_ILUMINACAO:
-			if(valor > 24 || valor < 0)
-				mensagem.setText("Valor invalido");
-			else{
-				I.setar(botaoApertado, valor);
-				
-				PAGINA = PAGINA_ILUMINACAO;
-				iluminacao.show();
-				mostraDadosIluminacao();
-			}
+			caseIlimunacao(valor);
 			break;
 			
 		case PAGINA_DATA_HORA:
-			switch(botaoApertado){
-				case BTNHORA:
-					if(valor > 24 || valor < 0){
-						mensagem.setText("Valor invalido");
-						//teclado.show();
-					}
-					else{
-						setHora(rtc,valor);
-						PAGINA = PAGINA_DATA_HORA;
-						configData.show();
-						mostraHoraData();
-					}
-
-					break;
-
-				case BTNMINUTO:
-					if(valor > 60 || valor < 1){
-						mensagem.setText("Valor invalido");
-					}
-					else{
-
-						setMinuto(rtc,valor);
-						PAGINA = PAGINA_DATA_HORA;
-						configData.show();
-						mostraHoraData();					
-					}
-					break;
-
-				case BTNDIA:
-					if(valor > 31 || valor < 1){
-						mensagem.setText("Valor invalido");
-					}
-					else{
-						// Clock.setDate(valor);
-						setDia(rtc,valor);
-						PAGINA = PAGINA_DATA_HORA;
-						configData.show();
-						mostraHoraData();
-					}
-					break;
-
-				case BTNMES:
-					if(valor > 12 || valor < 1){
-						mensagem.setText("Valor invalido");
-					}
-					else{
-						setMes(rtc,valor);	
-						PAGINA = PAGINA_DATA_HORA;
-						configData.show();
-						mostraHoraData();
-					}
-					break;
-
-				case BTNANO:
-					if(valor > 2999 || valor < 1900){ // verificar qual o ano maximo
-						mensagem.setText("Valor invalido");
-						
-					}
-					else{
-						setAno(rtc,valor);
-						PAGINA = PAGINA_DATA_HORA;
-						configData.show();
-						mostraHoraData();
-					}
-					break;
-			}
+			caseDataHora(valor);
 			break;
 	  
 		case PAGINA_AGENDAMENTO:
-			switch(botaoApertado){
-				case BTNHORA:
-					if(valor > 24 || valor < 0){
-						mensagem.setText("Valor invalido");
-						//teclado.show();
-					}
-					else{
-						A.setHora(valor);
-						PAGINA = PAGINA_AGENDAMENTO;
-						agendamento.show();
-						mostraDadosAgendamento();
-					}
-
-					break;
-
-				case BTNMINUTO:
-					if(valor > 60 || valor < 1){
-						mensagem.setText("Valor invalido");
-					}
-					else{
-
-						A.setMinuto(valor);
-						PAGINA = PAGINA_AGENDAMENTO;
-						agendamento.show();
-						mostraDadosAgendamento();					
-					}
-					break;
-
-				case BTNDIA:
-					if(valor > 31 || valor < 1){
-						mensagem.setText("Valor invalido");
-					}
-					else{
-						// Clock.setDate(valor);
-						A.setDia(valor);
-						PAGINA = PAGINA_AGENDAMENTO;
-						agendamento.show();
-						mostraDadosAgendamento();
-					}
-					break;
-
-				case BTNMES:
-					Serial.println("Case..BTNMES");
-					if(valor > 12 || valor < 1){
-						mensagem.setText("Valor invalido");
-					}
-					else{
-						A.setMes(valor);	
-						PAGINA = PAGINA_AGENDAMENTO;
-						agendamento.show();
-						mostraDadosAgendamento();
-					}
-					break;
-
-				case BTNANO:
-					if(valor > 2999 || valor < 1900){ // verificar qual o ano maximo
-						mensagem.setText("Valor invalido");
-						
-					}
-					else{
-						A.setAno(valor);
-						PAGINA = PAGINA_AGENDAMENTO;
-						agendamento.show();
-						mostraDadosAgendamento();
-					}
-					break;
-			}
+			caseAgendamento(valor);
 			break;
 
         case PAGINA_CO2:
-        	switch(botaoApertado){
-				case BTNCO2:
-					if(valor < 500 || valor > 5000){
-						mensagem.setText("Valor inválido");
-					} 
-					else{
-						CO2.setCO2(valor);
-						PAGINA = PAGINA_CO2;
-						CO2_PAG.show();
-						mostraDadosCO2();
-					}
-          		break;
-          
-        		case BTNINTCO2:
-					if(valor < 200 || valor > 500){
-						mensagem.setText("Valor inválido");
-					} 
-					else{
-						CO2.setIntCO2(valor);
-						PAGINA = PAGINA_CO2;
-						CO2_PAG.show();
-						mostraDadosCO2();
-					}
-          		break;
-  
-   
+        	caseCO2(valor);
         	break;
-        	}
 
 		case PAGINA_TEMP_E_UMI:
-			switch(botaoApertado){
-	          case BTNTEMP:
-	            if(valor < 0 || valor > 100){
-	              mensagem.setText("Valor inválido");
-	            } else{
-	              TU.setar_temperatura(valor);
-	              temp_e_umi.show();
-	              PAGINA = PAGINA_TEMP_E_UMI;
-	            }
-	          break;
-        
-	          case BTNTEMPVAR:
-	            if(valor > 10){
-	              mensagem.setText("Valor inválido");
-	            } else{
-	              TU.setar_variacao_temperatura(valor);
-	              temp_e_umi.show();
-	              PAGINA = PAGINA_TEMP_E_UMI;
-	            }
-	          break;
-
-	          case BTNUMI:
-	            if(valor < 0 || valor > 100){
-	              mensagem.setText("Valor inválido");
-	            } else{
-	              TU.setar_umidade(valor);
-	              temp_e_umi.show();
-	              PAGINA = PAGINA_TEMP_E_UMI;
-	            }
-	          break;
-
-	          case BTNUMIVAR:
-	            if(valor > 10){
-	              mensagem.setText("Valor inválido");
-	            } else{
-	              TU.setar_variacao_umidade(valor);
-	              temp_e_umi.show();
-	              PAGINA = PAGINA_TEMP_E_UMI;
-	            }
-	          break;
+			caseTempUmi(valor);
      		break;
-	    	}
 
 		case PAGINA_IR:
-			switch(botaoApertado){
-				case botaoIR0://botao irriga0ligado
-			    	IR.IrrigaVaso0(valor);  //pega o valor que recebe
-			    	//necessario corrigir o valor da pagina em que Irrig esta declarado
-			    	Irrig.show();//volta para a tela anterior
-			 	break;
-			}
+			caseIlimunacao(valor);
 			break;
      
 		case PAGINA_EXAUSTAO:
-			switch(botaoApertado){
-			 	case BTNCICLOLIG:
-			 		if (valor == 0 || valor > 99){
-			 			mensagem.setText("Valor invalido");
-			 		}
-			 		else{
-			 			E.SetCiclo(valor, LIGADO);
-			 			PAGINA = PAGINA_EXAUSTAO;
-			 			exaustao.show();
-			 			mostraDadosExaustao();
-			 		}
-			 	break;
-
-			 	case BTNCICLODESLIG:
-			 		if (valor == 0){
-			 			mensagem.setText("Valor invalido");
-			 		}
-			 		else{
-			 			E.SetCiclo(valor, DESLIGADO);
-			 			PAGINA = PAGINA_EXAUSTAO;
-			 			exaustao.show();
-			 			mostraDadosExaustao();
-			 		}
-			 	break;
-			}
+			caseExaustao(valor);
+			break;
 	}
 }
 	
@@ -340,12 +374,7 @@ NexTouch *nex_listen_list[] = {
 	&btn_setar_variacao_temp,
 	&btn_setar_variacao_umi,
 	&voltar_tempumi,
-<<<<<<< HEAD
-=======
 	&icone_temp_umi,
-
-
->>>>>>> 83d14b274f5937fe3a0f5d692060268ec06e8d1f
 	&Gota1, //escuta se o botao Gota1 foi abertado
     NULL
 };
@@ -450,10 +479,10 @@ void loop() {
 	runConfig();
 
 	T.run();
-	I.run(T.estado_porta_inferior);
-	A.run();
-	E.run();
-	CO2.run(I.estado_atual, E.estado_atual);
+	//I.run(T.estado_porta_inferior);
+	//A.run();
+	//E.run();
+	//CO2.run(I.estado_atual, E.estado_atual);
 	TU.run(T.estado_porta_inferior);	    
 	
 }
