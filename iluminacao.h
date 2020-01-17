@@ -192,11 +192,11 @@ class SI{
 				this->pausa();
 				//resetar o contador do intervalo para garantir que vai esperar 5
 				//segundos antes de ligar o painel
-				this->iluminacaoMillis = atual;
 
 				if(atual - this->iluminacaoMillis >= INTERVALO_ILUMINACAO){
 					if(PAGINA == PAGINA_ILUMINACAO){
 						mostraDadosIluminacao(ABERTA);
+						this->iluminacaoMillis = atual;
 					}
 				}
 			}
