@@ -95,22 +95,22 @@ class SI{
 		}
 
 		void desligarPainel(){
-			Serial.println("\nDesligando Painel...\n");//só na fase de teste, dps tirar isso
+			//Serial.println("\nDesligando Painel...\n");//só na fase de teste, dps tirar isso
 			digitalWrite(PINO_PAINEL, LOW);
 		}
 
 		void ligarPainel(){
-			Serial.println("\nLigando Painel...\n");//só na fase de teste, dps tirar isso
+			//Serial.println("\nLigando Painel...\n");//só na fase de teste, dps tirar isso
 			digitalWrite(PINO_PAINEL, HIGH);
 		}
 
 		void desligarLED(){
-			Serial.println("\nDesligando LED...\n");//só na fase de teste, dps tirar isso
+			//Serial.println("\nDesligando LED...\n");//só na fase de teste, dps tirar isso
 			digitalWrite(PINO_LED, LOW);
 		}
 
 		void ligarLED(){
-			Serial.println("\nLigando LED...\n");//só na fase de teste, dps tirar isso
+			//Serial.println("\nLigando LED...\n");//só na fase de teste, dps tirar isso
 			digitalWrite(PINO_LED, HIGH);// no relé isso é LOW
 		}
 
@@ -213,8 +213,8 @@ class SI{
 				
 				//olha se passou o intervalo 
 				if(atual - this->iluminacaoMillis >= this->iluminacaoIntervalo){
-					Serial.print("estado da porta:");
-					Serial.println(estado_porta);
+					// Serial.print("estado da porta:");
+					// Serial.println(estado_porta);
 					this->verificacoes();
 
 					//resetar o contador do intervalo

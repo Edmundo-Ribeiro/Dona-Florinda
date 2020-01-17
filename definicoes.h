@@ -24,20 +24,26 @@ uint8_t PAGINA = 0;
 #define PAGINA_TEMP_E_UMI 3
 #define PAGINA_TRAVA 10
 
-#define PINO_SENSOR_DHT 18
-#define PINO_LED 8
-#define PINO_PAINEL 7
+//pinos 17 e 16 são pribidos!!!
+
 #define PINO_FIM_DE_CURSO_SUPERIOR 2
 #define PINO_FIM_DE_CURSO_INFERIOR 3
 #define PINO_TRANSISTOR_INFERIOR 4
 #define PINO_TRANSISTOR_SUPERIOR 5
+
+#define PINO_LED 8
+#define PINO_PAINEL 7
+
 #define PINO_SENSOR_CO2 19
 #define PINO_RELE_CO2 20
+
 #define PINO_RELE_EXAUST 21 // Não tenho certeza se neste pino o relé vai funcionar
+
 #define PINO_RELE_AR_CONDICIONADO 22
 #define PINO_RELE_AQUECEDOR 23
 #define PINO_RELE_UMIDIFICADOR 24
 #define PINO_RELE_DESUMIDIFICADOR 25
+#define PINO_SENSOR_DHT 26
 
 //	Definir aqui os edereços ondes as coisas serão salvas
 // 0 - quantidade de horas ligado ciclo 1 - q_horas_ligado_c1
@@ -65,21 +71,19 @@ uint8_t PAGINA = 0;
 #define end_ano_agendado 12// e 13
 #define end_ciclo_agendado 14
 
+#define end_temperatura_ideal 15
+#define end_umidade_ideal 16
+#define end_variacao_temperatura 17
+#define end_variacao_umidade 18
+
 //precisam de 2 bytes!
 #define end_co2_referencia 19//e 20
 #define end_co2_intervalo 21// e 22
-
 
 //precisam de 2 bytes!
 #define end_exautao_ligado 23// e 24
 #define end_exautao_desligado 25// e 26
 
-
-//Ed: coloca end_ na frente pra ficar padronizado >:(
-#define end_temperatura_ideal 15
-#define end_umidade_ideal 16
-#define end_variacao_temperatura 17
-#define end_variacao_umidade 18
 
 #define LIGADO 1
 #define DESLIGADO 0
