@@ -61,6 +61,12 @@ class STU{
 		pinMode(PINO_RELE_AQUECEDOR, OUTPUT);
 		pinMode(PINO_RELE_UMIDIFICADOR, OUTPUT);
 		pinMode(PINO_RELE_DESUMIDIFICADOR, OUTPUT);
+
+		//garantir que na inicialização relés estejam desligados
+		this->desligarAC();
+		this->desligarUmi();
+		this->desligarDesumi();
+		this->desligarAquecedor(); 
 	}
 
 	void setar_temperatura(uint8_t valor){
@@ -117,9 +123,9 @@ class STU{
 	}
 
 	void run(bool estado_porta){
+		unsigned long atual = millis();
+		
 		if (estado_porta == FECHADA){
-			
-			unsigned long atual = millis();
 			
 			if(atual - this->Temp_Millis >= this->Temp_Intervalo){
 				
@@ -171,6 +177,14 @@ class STU{
 		}
 
 		else{
+			if(atual - this->Temp_Millis >= this->Temp_Intervalo){
+				mediaST.adiciona(dht.readTemperature());
+				mediaSU.adiciona(dht.readHumidity());
+				
+				this->media_temp = mediaST.calcula();
+				this->media_umi = mediaSU.calcula();
+			}
+
 			this->desligarAC();
 			this->desligarUmi();
 			this->desligarDesumi();
