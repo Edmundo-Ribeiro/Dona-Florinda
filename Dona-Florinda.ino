@@ -10,9 +10,9 @@
 #include "gascarbonico.h"
 #include "trava.h"
 #include "tempumi.h"
-#include "Irrigacao.h"
+// #include "Irrigacao.h"
 #include "exaustao.h"
-
+#include "novo_irrigacao.h"
 
 void caseIlimunacao(uint16_t valor){
 	if(valor > 24 || valor < 0)
@@ -274,12 +274,31 @@ void caseExaustao(uint16_t valor){
 }
 
 void caseIrrigacao(uint16_t valor){
-	switch(botaoApertado){
-		case botaoIR0://botao irriga0ligado
-	    	IR.IrrigaVaso0(valor);  //pega o valor que recebe
-	    	//necessario corrigir o valor da pagina em que Irrig esta declarado
-	    	Irrig.show();//volta para a tela anterior
-		 	break;
+
+	if (valor <= 0 || valor > 100)
+	 	mensagem.setText("Valor invalido");
+
+	else switch(botaoApertado){
+			case botaoIR0:
+				IR.setar(0, valor);
+			 	break;
+
+		 	case botaoIR1:
+				IR.setar(1, valor);
+			 	break;
+
+		 	case botaoIR2:
+				IR.setar(2, valor);
+			 	break;
+
+		 	case botaoIR3:
+				IR.setar(3, valor);
+			 	break;
+	
+
+		PAGINA = PAGINA_IRRIGACAO;
+		umidade_solo.show();//volta para a tela anterior
+		mostraDadosIrr();
 	}
 }
 
@@ -311,13 +330,13 @@ void ConfirmaPopCallback(void *ptr){
 		case PAGINA_TEMP_E_UMI:
 			caseTempUmi(valor);
      		break;
-
-		case PAGINA_IR:
-			caseIlimunacao(valor);
-			break;
      
 		case PAGINA_EXAUSTAO:
 			caseExaustao(valor);
+			break;
+
+		case PAGINA_IRRIGACAO:
+			caseIrrigacao(valor);
 			break;
 	}
 }
@@ -375,7 +394,11 @@ NexTouch *nex_listen_list[] = {
 	&btn_setar_variacao_umi,
 	&voltar_tempumi,
 	&icone_temp_umi,
-	&Gota1, //escuta se o botao Gota1 foi abertado
+	//Irrigacao
+	&sets[0],
+	&sets[1],
+	&sets[2],
+	&sets[3],
     NULL
 };
  
@@ -449,7 +472,12 @@ voltar_trava.attachPop(voltarTravaCallBack);
 
 //pagina Irrigacao
 // ####################################################################################################
-Gota1.attachPop(Irriga0Callback);
+sets[0].attachPop(Set0Callback);
+sets[1].attachPop(Set1Callback);
+sets[2].attachPop(Set2Callback);
+sets[3].attachPop(Set3Callback);
+voltar_irr.attachPop(voltarIRR);
+icone_irr.attachPop(iconeIrrCallback);
 // ####################################################################################################
 
 
