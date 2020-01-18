@@ -2,9 +2,9 @@
 #define vaso_h
 #include "filtro.h"
 
-#define INTERVALO_MEDIR_IR 100
-#define INTERVALO_ATUAR_IR 2000
-#define INTERVALO_MOLHAR_IR 500 // bomba faz 22ml por segundo
+#define INTERVALO_MEDIR_IR 2000
+#define INTERVALO_ATUAR_IR 30000
+#define INTERVALO_MOLHAR_IR 4545//+-100ml // bomba faz 22ml por segundo
 #define TOLERANCIA 5
 
 //salvar assim na memoria
@@ -90,8 +90,7 @@ class vaso{
 			//se o tempo de lavagem foi setado como diferente de zero, manter a bomba ligado por esse tempo
 			if(this->tempo_lavagem != 0){
 				if(atual - this->timerLavarTerra >= this->tempo_lavagem){
-					this->desligar();
-					this->tempo_lavagem = 0;
+					this->pararLavagem();
 				}
 				else{
 					this->ligar();
@@ -133,9 +132,14 @@ class vaso{
 		}
 
 		void lavarTerra(uint32_t tempo){
-			this->tempo_lavagem = tempo;
+			this->tempo_lavagem = tempo * 1000;//passar pra milisegundos
 			//resetar o timer de lavar a terra
 			this->timerLavarTerra = millis();
+		}
+
+		void pararLavagem(){
+			this->desligar();
+			this->tempo_lavagem = 0;
 		}
 
 		void setar(uint8_t ref){

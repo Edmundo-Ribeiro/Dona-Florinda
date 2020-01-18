@@ -127,6 +127,7 @@ uint8_t PAGINA = 0;
 #define botaoIR1 1
 #define botaoIR2 2
 #define botaoIR3 3
+#define botaoLVG 30
 
 //Definicoes especificas do codigo de iluminaçao
 #define MINUTOS_DIA 1440

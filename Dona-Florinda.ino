@@ -302,6 +302,41 @@ void caseIrrigacao(uint16_t valor){
 	}
 }
 
+void caseLavagem(uint16_t valor){
+
+	if (valor <= 0 || valor > 3600)
+	 	mensagem.setText("Valor invalido");
+
+	else switch(botaoApertado){
+			case botaoIR0:
+				IR.lavarTerra(0,valor);
+			 	break;
+
+		 	case botaoIR1:
+				IR.lavarTerra(1,valor);
+			 	break;
+
+		 	case botaoIR2:
+				IR.lavarTerra(2,valor);
+			 	break;
+
+		 	case botaoIR3:
+				IR.lavarTerra(3,valor);
+			 	break;
+
+			case botaoLVG:
+				for(uint8_t id = 0; id < NUM_VASOS; id++ ){
+					IR.lavarTerra(id,valor);
+				}
+			 	break;
+	
+
+		PAGINA = PAGINA_IRRIGACAO;
+		umidade_solo.show();//volta para a tela anterior
+		mostraDadosIrr();
+	}
+}
+
 void ConfirmaPopCallback(void *ptr){
 	uint16_t valor;
 	uint8_t pagina_anterior = PAGINA;
@@ -399,6 +434,16 @@ NexTouch *nex_listen_list[] = {
 	&sets[1],
 	&sets[2],
 	&sets[3],
+	&icone_lavar,
+	&icone_irr,
+	&voltar_irr,
+	&lavar_gotas[0],
+	&lavar_gotas[1],
+	&lavar_gotas[2],
+	&lavar_gotas[3],
+	&lavar_geral,
+	&voltar_lavagem,
+	
     NULL
 };
  
@@ -477,6 +522,17 @@ sets[1].attachPop(Set1Callback);
 sets[2].attachPop(Set2Callback);
 sets[3].attachPop(Set3Callback);
 voltar_irr.attachPop(voltarIRR);
+icone_irr.attachPop(iconeIrrCallback);
+// ####################################################################################################
+
+//pagina Lavagem
+// ####################################################################################################
+lavar_gotas[0].attachPop(Lavar0Callback);
+lavar_gotas[1].attachPop(Lavar1Callback);
+lavar_gotas[2].attachPop(Lavar2Callback);
+lavar_gotas[3].attachPop(Lavar3Callback);
+lavar_geral.attachPop(LavarGeralCallback);
+voltar_lavagem.attachPop(voltarLavagem);
 icone_irr.attachPop(iconeIrrCallback);
 // ####################################################################################################
 
