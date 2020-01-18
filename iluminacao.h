@@ -6,7 +6,7 @@
 #define INTERVALO_ILUMINACAO 10000
 
 //não presisaria fazer isso se tivesse um .h e .cpp separados para parte grafica e a classe SI
-void mostraDadosIluminacao(bool estado_porta = DESLIGADO);
+void mostraDadosIluminacao();
 uint16_t minutoAtual();
 void debugEstadoVariaveis();
 
@@ -426,7 +426,7 @@ SI I; //Desclaração do objeto sistema de iluminação
 			}
 		}
 
-		if(this->estado_porta == ABERTA){
+		if(I.estado_porta == ABERTA){
 			estado_ciclo_texto.setText("PAUSA");
 		}
 
