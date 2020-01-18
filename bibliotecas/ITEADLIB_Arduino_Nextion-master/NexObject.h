@@ -49,6 +49,9 @@ public: /* methods */
      */
     void printObjInfo(void);
 
+    //ver se funciona!!!!!
+    bool setVisible(bool flag);
+
 // protected: /* methods */
 
     /*

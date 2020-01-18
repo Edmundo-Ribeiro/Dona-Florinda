@@ -56,3 +56,22 @@ void NexObject::printObjInfo(void)
     dbSerialPrintln("]");
 }
 
+bool NexObject::setVisible(bool flag)
+{
+    const char *name = getObjName();
+    
+    if (!name)
+        return false;
+
+    String cmd = String("vis ");
+    cmd += name;
+    cmd += ","
+    if (flag) {
+        cmd += "1"
+    } else {
+        cmd += "0"
+    }
+    sendCommand(cmd.c_str());
+    return recvRetCommandFinished();
+}
+
