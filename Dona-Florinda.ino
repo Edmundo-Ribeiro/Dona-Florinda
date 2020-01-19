@@ -32,7 +32,7 @@ void caseDataHora(uint16_t valor){
 				mensagem.setText("Valor invalido");
 			}
 			else{
-				// setHora(rtc,valor);
+				setHora(rtc,valor);
 				PAGINA = PAGINA_DATA_HORA;
 				configData.show();
 				mostraHoraData();
@@ -46,7 +46,7 @@ void caseDataHora(uint16_t valor){
 			}
 			else{
 
-				// setMinuto(rtc,valor);
+				setMinuto(rtc,valor);
 				PAGINA = PAGINA_DATA_HORA;
 				configData.show();
 				mostraHoraData();					
@@ -58,8 +58,7 @@ void caseDataHora(uint16_t valor){
 				mensagem.setText("Valor invalido");
 			}
 			else{
-				// Clock.setDate(valor);
-				// setDia(rtc,valor);
+				setDia(rtc,valor);
 				PAGINA = PAGINA_DATA_HORA;
 				configData.show();
 				mostraHoraData();
@@ -71,7 +70,7 @@ void caseDataHora(uint16_t valor){
 				mensagem.setText("Valor invalido");
 			}
 			else{
-				// setMes(rtc,valor);	
+				setMes(rtc,valor);	
 				PAGINA = PAGINA_DATA_HORA;
 				configData.show();
 				mostraHoraData();
@@ -84,7 +83,7 @@ void caseDataHora(uint16_t valor){
 				
 			}
 			else{
-				// setAno(rtc,valor);
+				setAno(rtc,valor);
 				PAGINA = PAGINA_DATA_HORA;
 				configData.show();
 				mostraHoraData();
@@ -128,7 +127,6 @@ void caseAgendamento(uint16_t valor){
 				mensagem.setText("Valor invalido");
 			}
 			else{
-				// Clock.setDate(valor);
 				A.setDia(valor);
 				PAGINA = PAGINA_AGENDAMENTO;
 				agendamento.show();
