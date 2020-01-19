@@ -31,8 +31,12 @@
 
 		float calcula(){
 			return this->fila.count() < this->tamanho_janela
-					? fila.peek()
+					? this->fila.peek()
 					: this->media_nova/ this->tamanho_janela;
+		}
+
+		void resetar(){
+			this->fila.clear();
 		}
 
  };
