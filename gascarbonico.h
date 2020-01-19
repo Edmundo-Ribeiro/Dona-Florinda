@@ -171,18 +171,18 @@ void IconeCO2Callback(void *ptr){
   }
 
   void debugEstadoVariaveisCO2(){
-    Serial.print("############# Variaveis CO2 #####################\n\n");
+    dbSerialPrint("############# Variaveis CO2 #####################\n\n");
 
-    Serial.print("Estado Atual: ");
-    Serial.println(CO2.estado_atual);
+    dbSerialPrint("Estado Atual: ");
+    dbSerialPrintln(CO2.estado_atual);
         
-    Serial.print("Valor de referencia: ");
-    Serial.println(CO2.referencia);
-    Serial.print("Valor do intervalo: ");
-    Serial.println(CO2.intervalo);
+    dbSerialPrint("Valor de referencia: ");
+    dbSerialPrintln(CO2.referencia);
+    dbSerialPrint("Valor do intervalo: ");
+    dbSerialPrintln(CO2.intervalo);
 
 
-    Serial.print("#################################################\n\n");
+    dbSerialPrint("#################################################\n\n");
 
     // Serial.print("Valor lido: ");
     // Serial.println(CO2.);

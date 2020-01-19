@@ -236,38 +236,38 @@ void voltarTempUmiCallback(void *ptr){
 }
 
 void debugEstado(){
-	Serial.print("############# Variaveis Temperatura e Umidade #####################\n\n");
+	dbSerialPrint("############# Variaveis Temperatura e Umidade #####################\n\n");
 	
-	Serial.print("Temperatura Ideal: ");
-	Serial.println(TU.temp_ideal);
+	dbSerialPrint("Temperatura Ideal: ");
+	dbSerialPrintln(TU.temp_ideal);
 	
-	Serial.print("Temperatura Variacao: ");
-	Serial.println(TU.temp_variacao);
+	dbSerialPrint("Temperatura Variacao: ");
+	dbSerialPrintln(TU.temp_variacao);
 
-	Serial.print("Umidade Ideal: ");
-	Serial.println(TU.umi_ideal);
+	dbSerialPrint("Umidade Ideal: ");
+	dbSerialPrintln(TU.umi_ideal);
 
-	Serial.print("Umidade Variacao: ");
-	Serial.println(TU.umi_variacao);
+	dbSerialPrint("Umidade Variacao: ");
+	dbSerialPrintln(TU.umi_variacao);
 	
-	Serial.print("Temperatura lida dht: ");
-	Serial.println(dht.readTemperature());
+	dbSerialPrint("Temperatura lida dht: ");
+	dbSerialPrintln(dht.readTemperature());
 
-	Serial.print("Temperatura media: ");
-	Serial.println(TU.media_temp);
+	dbSerialPrint("Temperatura media: ");
+	dbSerialPrintln(TU.media_temp);
 
 
-	Serial.print("Umidade lida dht: ");
-	Serial.println(dht.readHumidity());
+	dbSerialPrint("Umidade lida dht: ");
+	dbSerialPrintln(dht.readHumidity());
 
-	Serial.print("Umidade media: ");
-	Serial.println(TU.media_umi);
+	dbSerialPrint("Umidade media: ");
+	dbSerialPrintln(TU.media_umi);
 	
 
-	Serial.print("Página Atual: ");
-	Serial.println(PAGINA);
+	dbSerialPrint("Página Atual: ");
+	dbSerialPrintln(PAGINA);
 	
-	Serial.print("######################################################\n\n");
+	dbSerialPrint("######################################################\n\n");
 
 }
 
@@ -305,10 +305,10 @@ void mostraDadosTempUmi(){
 	
 	sprintf(texto_temperatura, "%02dC",  round(TU.media_temp));
 	temperatura.setText(texto_temperatura);
-	Serial.println(texto_temperatura);
+	// Serial.println(texto_temperatura);
 	
 	sprintf(texto_umidade, "%02d%",  round(TU.media_umi));
-	Serial.println(texto_umidade);
+	// Serial.println(texto_umidade);
 	umidade.setText(texto_umidade);
 	
 }

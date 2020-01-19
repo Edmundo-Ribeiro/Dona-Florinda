@@ -310,29 +310,29 @@ SI I; //Desclaração do objeto sistema de iluminação
 // ###########################################################################################################
 	
 	void debugEstadoVariaveis(){
-		Serial.print("############# Variaveis Iluminação #####################\n\n");
+		dbSerialPrint("############# Variaveis Iluminação #####################\n\n");
     
-		Serial.print("Estado Atual: ");
-		Serial.println(I.estado_atual);
+		dbSerialPrint("Estado Atual: ");
+		dbSerialPrintln(I.estado_atual);
 
-		Serial.print("Ciclo Atual: ");
-		Serial.println(I.ciclo_atual);
+		dbSerialPrint("Ciclo Atual: ");
+		dbSerialPrintln(I.ciclo_atual);
 
 				
-		Serial.print("q_horas_ligado_c1: ");
-		Serial.println(I.q_horas_ligado_c1);
-		Serial.print("q_horas_ligado_c2: ");
-		Serial.println(I.q_horas_ligado_c2);
+		dbSerialPrint("q_horas_ligado_c1: ");
+		dbSerialPrintln(I.q_horas_ligado_c1);
+		dbSerialPrint("q_horas_ligado_c2: ");
+		dbSerialPrintln(I.q_horas_ligado_c2);
 
-		Serial.print("minuto_de_desligar: ");
-		Serial.println(I.minuto_de_desligar);
-		Serial.print("minuto_de_ligar: ");
-		Serial.println(I.minuto_de_ligar);
+		dbSerialPrint("minuto_de_desligar: ");
+		dbSerialPrintln(I.minuto_de_desligar);
+		dbSerialPrint("minuto_de_ligar: ");
+		dbSerialPrintln(I.minuto_de_ligar);
 		
-		Serial.print("minuto_atual: ");
-		Serial.println(minutoAtual());
+		dbSerialPrint("minuto_atual: ");
+		dbSerialPrintln(minutoAtual());
 
-		Serial.print("######################################################\n\n");
+		dbSerialPrint("######################################################\n\n");
 
 	}
 
@@ -394,7 +394,7 @@ SI I; //Desclaração do objeto sistema de iluminação
 				}
 				else{
 					progresso.setValue( map(minuto_atual, I.minuto_de_desligar , MINUTOS_DIA , 0 , 100*(MINUTOS_DIA - I.minuto_de_desligar)/MINUTOS_DIA ) );
-					Serial.println( map(minuto_atual, I.minuto_de_desligar , MINUTOS_DIA , 0 , 100*(MINUTOS_DIA - I.minuto_de_desligar)/MINUTOS_DIA ) );
+					// Serial.println( map(minuto_atual, I.minuto_de_desligar , MINUTOS_DIA , 0 , 100*(MINUTOS_DIA - I.minuto_de_desligar)/MINUTOS_DIA ) );
 					sprintf(texto_tempo_restante, "%02d:%02d",
 					 	 (I.minuto_de_ligar + MINUTOS_DIA - minuto_atual)/60, (I.minuto_de_ligar + MINUTOS_DIA - minuto_atual)%60 );
 				

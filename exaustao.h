@@ -95,22 +95,22 @@ class Exaustao{
 Exaustao E;
 
 void debugExaustao(){
-		Serial.print("############# Variaveis Exaustão #####################\n\n");
+		dbSerialPrint("############# Variaveis Exaustão #####################\n\n");
     
-		Serial.print("Ciclo ligado: ");
-		Serial.println(E.Ciclo_ligado);
+		dbSerialPrint("Ciclo ligado: ");
+		dbSerialPrintln(E.Ciclo_ligado);
 
-        Serial.print("Estado atual: ");
-        Serial.println(E.estado_atual);
+        dbSerialPrint("Estado atual: ");
+        dbSerialPrintln(E.estado_atual);
 
-		Serial.print("Ciclo desligado: ");
-		Serial.println(E.Ciclo_desligado);
+		dbSerialPrint("Ciclo desligado: ");
+		dbSerialPrintln(E.Ciclo_desligado);
 
 				
-		Serial.print("Minuto restante: ");
-		Serial.println(E.Tempo_restante);
+		dbSerialPrint("Minuto restante: ");
+		dbSerialPrintln(E.Tempo_restante);
 
-		Serial.print("######################################################\n\n");
+		dbSerialPrint("######################################################\n\n");
 }
 
 void mostraDadosExaustao(){ 

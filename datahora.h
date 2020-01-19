@@ -65,7 +65,6 @@
 		itoa(t.year, buffer,10);
 		ano.setText(buffer);
 		itoa(t.hour, buffer,10);
-		Serial.println(buffer);
 		hora.setText(buffer);
 		itoa(t.min, buffer,10);
 		minuto.setText(buffer);

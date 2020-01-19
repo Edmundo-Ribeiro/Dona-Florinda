@@ -131,18 +131,18 @@ SAI A;
 
 void degubEstadoVariveis(){
 
-		Serial.print("ano_agendado");
-		Serial.println(A.ano_agendado);
-		Serial.print("dia_agendado");
-		Serial.println(A.dia_agendado);
-		Serial.print("mes_agendado");
-		Serial.println(A.mes_agendado);
-		Serial.print("hora_agendado");
-		Serial.println(A.hora_agendada);
-		Serial.print("minuto_agendado");
-		Serial.println(A.minuto_agendado);
-		Serial.print("ciclo_agendado");
-		Serial.println(A.ciclo_agendado);
+		dbSerialPrint("ano_agendado");
+		dbSerialPrintln(A.ano_agendado);
+		dbSerialPrint("dia_agendado");
+		dbSerialPrintln(A.dia_agendado);
+		dbSerialPrint("mes_agendado");
+		dbSerialPrintln(A.mes_agendado);
+		dbSerialPrint("hora_agendado");
+		dbSerialPrintln(A.hora_agendada);
+		dbSerialPrint("minuto_agendado");
+		dbSerialPrintln(A.minuto_agendado);
+		dbSerialPrint("ciclo_agendado");
+		dbSerialPrintln(A.ciclo_agendado);
 		
 }
 
@@ -214,8 +214,6 @@ void SelecionaCiclo1PopCallback(void *ptr){
 	ciclo1_agendar.getValue(&estado_botao_c1);
 
 	if(estado_botao_c1 == LIGADO){
-	Serial.println("IF ESTADO1");
-
 		ciclo2_agendar.setValue(DESLIGADO);
 		A.seleciona_ciclo(CICLO_1);
 		
