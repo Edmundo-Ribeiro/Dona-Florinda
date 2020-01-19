@@ -28,7 +28,8 @@ class vaso{
 		uint32_t tempo_lavagem; //Tempo inserido para lavar a terra
 
 		bool estado_atual, // Se está irrigando ou não
-			 molhar; //flag para saber quando o "pulso" de irrigação deve acabar
+			 molhar,
+			 calibrando; //flag para saber quando o "pulso" de irrigação deve acabar
 
 		//timers 
 		unsigned long timerMedir;
@@ -45,6 +46,7 @@ class vaso{
 			this->id = id;
 			this->estado_atual = DESLIGADO;
 			this->molhar = false;
+			this->calibrando = false;
 			this->media = 0;
 			this->tempo_lavagem = 0;
 			this->timerMedir = this->timerMolhar = this->timerAtuar = millis();
@@ -57,8 +59,6 @@ class vaso{
 			this->referencia = EEPROM.read(end_base);
 			this->max = EEPROM.get(end_base + end_max, this->max);
 			this->min = EEPROM.get(end_base + end_min, this->min);
-
-
 		}
 
 		float medir(){
@@ -74,11 +74,10 @@ class vaso{
 		void desligar(){
 			digitalWrite(this->rele,HIGH);
 			this->estado_atual = DESLIGADO;
-
 		}
 
 		void run(){
-
+		
 			unsigned long atual = millis();
 
 			//A cada periudo definido, fazer uma medição 
@@ -87,18 +86,16 @@ class vaso{
 				this->timerMedir = atual;
 			}
 
-			//se o tempo de lavagem foi setado como diferente de zero, manter a bomba ligado por esse tempo
+			//se o tempo de lavagem foi setado como diferente de zero, 
+			//manter a bomba ligado por esse tempo
 			if(this->tempo_lavagem != 0){
-				if(atual - this->timerLavarTerra >= this->tempo_lavagem){
-					this->pararLavagem();
-				}
-				else{
-					this->ligar();
-				}
+				(atual - this->timerLavarTerra >= this->tempo_lavagem) ? this->pararLavagem()
+																	   :this->ligar();
 			}
-
+			//caso o tempo de lavar seja 0, fazer apenas a verificacao se a umidade do solo
+			//precisa de correcao e atuar caso necessário
 			else{
-				//Depois de um periodo maior de tempo, verificar se, com o valor da media, deve iniciar irrigacao 
+				//A cada determindado periodo maior de tempo, verificar se, com o valor da media, deve iniciar irrigacao 
 				if(atual - this->timerMedir >= INTERVALO_ATUAR_IR){
 
 					//se a media esta abaixo do limite inferior
@@ -111,50 +108,54 @@ class vaso{
 					//do contrario só garantir que a flag é falsa
 					else
 						this->molhar = false;
-					//resetar timer
+					//resetar timer de atuar
 					this->timerAtuar = atual;
 				}
 
-				// ver se deve molhar
+				// se a flag de molhar foi setada como true
 				if(this->molhar){
-					//molhar por um pequeno periodo de tempo e parar(isso para dar tempo da agua espalhar)
-					if(atual - this->timerMolhar >= INTERVALO_MOLHAR_IR){
-						this->desligar();
-					}
-					else{
-						this->ligar();
-					}
+					//molhar por um pequeno periodo de tempo e parar
+					//isso é feito assim para dar tempo da agua espalhar no vaso
+					(atual - this->timerMolhar >= INTERVALO_MOLHAR_IR) ? this->desligar()
+																	   : this->ligar();
 				}
 			}
 			//caso esse "pulso" de agua não tenha sido suiciente, quando o sistema verificar novamente se deve agir 
 			//ele ira pedir mais um pulso
 			//isso se repete até que o vaso esteja devidadmente irrigado
 		}
-
+		
+		//recebe por qunato tempo o savo deve lavar a terra
 		void lavarTerra(uint32_t tempo){
 			this->tempo_lavagem = tempo * 1000;//passar pra milisegundos
 			//resetar o timer de lavar a terra
 			this->timerLavarTerra = millis();
 		}
 
+		//Interromper lavagem da terra
 		void pararLavagem(){
 			this->desligar();
 			this->tempo_lavagem = 0;
 		}
 
+		//definir qual valor de umidade o vaso deve manter
 		void setar(uint8_t ref){
 			this->referencia = ref;
 			EEPROM.put(this->end_base,this->referencia);
 		}
 
-		void calibraMax(uint16_t max){
-			this->max = max;
+		//ler o novo valor de max e salva-lo na memoria
+		void calibraMax(){
+			this->max = analogRead(this->sensor);
 			EEPROM.put(this->end_base + end_max,this->max);
 		}
-		void calibraMin(uint16_t min){
-			this->min = min;
+
+		//ler o novo valor de min e salva-lo na memoria
+		void calibraMin(){
+			this->min = analogRead(this->sensor);
 			EEPROM.put(this->end_base + end_min,this->min);
 		}
+		
 };
 
 #endif

@@ -32,7 +32,7 @@ void caseDataHora(uint16_t valor){
 				mensagem.setText("Valor invalido");
 			}
 			else{
-				setHora(rtc,valor);
+				// setHora(rtc,valor);
 				PAGINA = PAGINA_DATA_HORA;
 				configData.show();
 				mostraHoraData();
@@ -46,7 +46,7 @@ void caseDataHora(uint16_t valor){
 			}
 			else{
 
-				setMinuto(rtc,valor);
+				// setMinuto(rtc,valor);
 				PAGINA = PAGINA_DATA_HORA;
 				configData.show();
 				mostraHoraData();					
@@ -59,7 +59,7 @@ void caseDataHora(uint16_t valor){
 			}
 			else{
 				// Clock.setDate(valor);
-				setDia(rtc,valor);
+				// setDia(rtc,valor);
 				PAGINA = PAGINA_DATA_HORA;
 				configData.show();
 				mostraHoraData();
@@ -71,7 +71,7 @@ void caseDataHora(uint16_t valor){
 				mensagem.setText("Valor invalido");
 			}
 			else{
-				setMes(rtc,valor);	
+				// setMes(rtc,valor);	
 				PAGINA = PAGINA_DATA_HORA;
 				configData.show();
 				mostraHoraData();
@@ -84,7 +84,7 @@ void caseDataHora(uint16_t valor){
 				
 			}
 			else{
-				setAno(rtc,valor);
+				// setAno(rtc,valor);
 				PAGINA = PAGINA_DATA_HORA;
 				configData.show();
 				mostraHoraData();
@@ -137,7 +137,6 @@ void caseAgendamento(uint16_t valor){
 			break;
 
 		case BTNMES:
-			Serial.println("Case..BTNMES");
 			if(valor > 12 || valor < 1){
 				mensagem.setText("Valor invalido");
 			}
@@ -373,6 +372,10 @@ void ConfirmaPopCallback(void *ptr){
 		case PAGINA_IRRIGACAO:
 			caseIrrigacao(valor);
 			break;
+
+		case PAGINA_LAVAGEM:
+			caseLavagem(valor);
+			break;
 	}
 }
 	
@@ -434,9 +437,18 @@ NexTouch *nex_listen_list[] = {
 	&sets[1],
 	&sets[2],
 	&sets[3],
+	&Maxs[0],
+	&Maxs[1],
+	&Maxs[2],
+	&Maxs[3],
+	&Mins[0],
+	&Mins[1],
+	&Mins[2],
+	&Mins[3],
+	&btn_calibrar,
+	&voltar_irr,
 	&icone_lavar,
 	&icone_irr,
-	&voltar_irr,
 	&lavar_gotas[0],
 	&lavar_gotas[1],
 	&lavar_gotas[2],
@@ -451,11 +463,11 @@ NexTouch *nex_listen_list[] = {
 void setup() {
 	Serial.begin(9600);
 	Serial2.begin(9600);
+	nexInit();
   	dht.begin(); //Sensor de umidade e temperatura
 	rtc.begin(); //Relogio
 	dbSerialPrintln("SETUP");
 
-	nexInit;
 	PAGINA = PAGINA_MENU;
 	menu.show();
 	
@@ -473,7 +485,7 @@ void setup() {
 	confirma.attachPop(ConfirmaPopCallback);
 // ####################################################################################################
 
-
+//pagina iluminacao
 // ####################################################################################################
 	btn_setar_c1.attachPop(setarCiclo1Callback);
 	btn_setar_c2.attachPop(setarCiclo2Callback);
@@ -483,7 +495,7 @@ void setup() {
 	voltar_iluminacao.attachPop(voltarIluminacaoCallBack);
 // ####################################################################################################
 
-
+//pagina Agendamento
 // ####################################################################################################
 	agendarHora.attachPop(AgendaHoraPopCallback);
 	agendarMinuto.attachPop(AgendaMinutoPopCallback);
@@ -508,21 +520,29 @@ void setup() {
   
 //pagina trava
 // ####################################################################################################
-btnTravaSuperior.attachPop(TravaSuperiorPopCallBack);
-btnTravaInferior.attachPop(TravaInferiorPopCallBack);
-icone_config.attachPop(iconeCongigPopCallBack);
-relogio.attachPop(RelogioPopCallBack);
-voltar_trava.attachPop(voltarTravaCallBack);
+	btnTravaSuperior.attachPop(TravaSuperiorPopCallBack);
+	btnTravaInferior.attachPop(TravaInferiorPopCallBack);
+	icone_config.attachPop(iconeCongigPopCallBack);
+	relogio.attachPop(RelogioPopCallBack);
+	voltar_trava.attachPop(voltarTravaCallBack);
 // ####################################################################################################
 
 //pagina Irrigacao
 // ####################################################################################################
-sets[0].attachPop(Set0Callback);
-sets[1].attachPop(Set1Callback);
-sets[2].attachPop(Set2Callback);
-sets[3].attachPop(Set3Callback);
-voltar_irr.attachPop(voltarIRR);
-icone_irr.attachPop(iconeIrrCallback);
+	sets[0].attachPop(Set0Callback);
+	sets[1].attachPop(Set1Callback);
+	sets[2].attachPop(Set2Callback);
+	sets[3].attachPop(Set3Callback);
+	Maxs[0].attachPop(setMax0);
+	Maxs[1].attachPop(setMax1);
+	Maxs[2].attachPop(setMax2);
+	Maxs[3].attachPop(setMax3);
+	Mins[0].attachPop(setMin0);
+	Mins[1].attachPop(setMin1);
+	Mins[2].attachPop(setMin2);
+	Mins[3].attachPop(setMin3);
+	voltar_irr.attachPop(voltarIRR);
+	icone_irr.attachPop(iconeIrrCallback);
 // ####################################################################################################
 
 //pagina Lavagem
@@ -561,13 +581,13 @@ void loop() {
 	
 	nexLoop(nex_listen_list);
 	runConfig();
-
 	T.run();
 	I.run(T.estado_porta_inferior);
 	A.run();
 	E.run();
 	CO2.run(I.estado_atual, E.estado_atual);
-	TU.run(T.estado_porta_inferior);	    
+	TU.run(T.estado_porta_inferior);
+	IR.run();	    
 	
 }
 		
