@@ -55,14 +55,16 @@ class Trava{
       if( (millis() - this->timerSuperior) >= INTERVALO ){
         digitalWrite(PINO_TRANSISTOR_SUPERIOR, LOW); // trava ativada
         this->timerSuperior = millis();
-        mostraDadosTrava();
+        if(PAGINA==PAGINA_TRAVA)
+          mostraDadosTrava();
       }
 
 
       if( (millis() - this->timerInferior) >= INTERVALO ){
         digitalWrite(PINO_TRANSISTOR_INFERIOR, LOW); // trava ativada
         this->timerInferior = millis();
-        mostraDadosTrava();
+        if(PAGINA==PAGINA_TRAVA)
+          mostraDadosTrava();
       }
     }
 
