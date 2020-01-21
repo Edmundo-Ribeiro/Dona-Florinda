@@ -128,6 +128,14 @@ uint8_t PAGINA = 0;
 #define botaoIR2 2
 #define botaoIR3 3
 #define botaoLVG 30
+#define botaoMax0 40
+#define botaoMax1 41
+#define botaoMax2 42
+#define botaoMax3 43
+#define botaoMin0 50
+#define botaoMin1 51
+#define botaoMin2 52
+#define botaoMin3 53
 
 //Definicoes especificas do codigo de iluminaçao
 #define MINUTOS_DIA 1440

@@ -484,6 +484,8 @@ SI I; //Desclaração do objeto sistema de iluminação
 	}
 
 	void iconeIluminacaoCallback(void *ptr){
+		
+
 		PAGINA = PAGINA_ILUMINACAO;
 		iluminacao.show();
 		mostraDadosIluminacao();

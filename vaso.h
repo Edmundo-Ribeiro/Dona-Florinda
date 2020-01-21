@@ -2,6 +2,9 @@
 #define vaso_h
 #include "filtro.h"
 
+
+
+
 #define INTERVALO_MEDIR_IR 2000
 #define INTERVALO_ATUAR_IR 30000
 #define INTERVALO_MOLHAR_IR 4545//+-100ml // bomba faz 22ml por segundo
@@ -28,9 +31,7 @@ class vaso{
 		uint32_t tempo_lavagem; //Tempo inserido para lavar a terra
 
 		bool estado_atual, // Se está irrigando ou não
-			 molhar,
-			 calibrando; //flag para saber quando o "pulso" de irrigação deve acabar
-
+			 molhar;
 		//timers 
 		unsigned long timerMedir;
 		unsigned long timerMolhar;
@@ -46,25 +47,27 @@ class vaso{
 			this->id = id;
 			this->estado_atual = DESLIGADO;
 			this->molhar = false;
-			this->calibrando = false;
 			this->media = 0;
 			this->tempo_lavagem = 0;
-			this->timerMedir = this->timerMolhar = this->timerAtuar = millis();
-			
+			this->timerMedir = 0;
+			this->timerMolhar = 0;
+			this->timerLavarTerra = 0;
+			this->timerAtuar = 0;
+			this->F.tamanho(5);
 			pinMode(rele, OUTPUT);
 			pinMode(sensor, INPUT); 
 
 			this->end_base = end_base;
 
 			this->referencia = EEPROM.read(end_base);
-			this->max = EEPROM.get(end_base + end_max, this->max);
-			this->min = EEPROM.get(end_base + end_min, this->min);
+			this->max = 1023;//EEPROM.get(end_base + end_max, this->max);
+			this->min = 0;//EEPROM.get(end_base + end_min, this->min);
 		}
 
-		float medir(){
-			F.adiciona( map( analogRead(this->sensor) , min, max, 0, 100 ) );
-			this->media = F.calcula();
-			return this->media;
+		void medir(){
+			F.adiciona( map( analogRead(this->sensor) , this->min, this->max, 0, 100 ) );
+			// this->media = F.calcula();
+			// return this->media;
 		}
 
 		void ligar(){
@@ -74,12 +77,13 @@ class vaso{
 		void desligar(){
 			digitalWrite(this->rele,HIGH);
 			this->estado_atual = DESLIGADO;
+
 		}
 
 		void run(){
 		
 			unsigned long atual = millis();
-
+			// dbSerialPrintln(this->id);
 			//A cada periudo definido, fazer uma medição 
 			if(atual - this->timerMedir >= INTERVALO_MEDIR_IR){
 				this->medir();
@@ -89,17 +93,25 @@ class vaso{
 			//se o tempo de lavagem foi setado como diferente de zero, 
 			//manter a bomba ligado por esse tempo
 			if(this->tempo_lavagem != 0){
-				(atual - this->timerLavarTerra >= this->tempo_lavagem) ? this->pararLavagem()
-																	   :this->ligar();
+				if(atual - this->timerLavarTerra >= this->tempo_lavagem){
+					this->pararLavagem();
+				}
+				else{
+					this->ligar();
+				}
+
 			}
 			//caso o tempo de lavar seja 0, fazer apenas a verificacao se a umidade do solo
 			//precisa de correcao e atuar caso necessário
 			else{
+
 				//A cada determindado periodo maior de tempo, verificar se, com o valor da media, deve iniciar irrigacao 
-				if(atual - this->timerMedir >= INTERVALO_ATUAR_IR){
+				if(atual - this->timerAtuar >= INTERVALO_ATUAR_IR){
 
 					//se a media esta abaixo do limite inferior
-					if(this->media < referencia - TOLERANCIA){
+					this->media = F.calcula();
+
+					if(this->media < (referencia - TOLERANCIA)){
 						//setar a flag para molhar
 						this->molhar = true;
 						//resetar o timmer de molhar
@@ -116,13 +128,17 @@ class vaso{
 				if(this->molhar){
 					//molhar por um pequeno periodo de tempo e parar
 					//isso é feito assim para dar tempo da agua espalhar no vaso
-					(atual - this->timerMolhar >= INTERVALO_MOLHAR_IR) ? this->desligar()
-																	   : this->ligar();
+					if(atual - this->timerMolhar >= INTERVALO_MOLHAR_IR){
+						this->desligar();
+					}
+					else{
+						this->ligar();
+					}
 				}
 			}
-			//caso esse "pulso" de agua não tenha sido suiciente, quando o sistema verificar novamente se deve agir 
-			//ele ira pedir mais um pulso
-			//isso se repete até que o vaso esteja devidadmente irrigado
+			// caso esse "pulso" de agua não tenha sido suiciente, quando o sistema verificar novamente se deve agir 
+			// ele ira pedir mais um pulso
+			// isso se repete até que o vaso esteja devidadmente irrigado
 		}
 		
 		//recebe por qunato tempo o savo deve lavar a terra
@@ -130,12 +146,16 @@ class vaso{
 			this->tempo_lavagem = tempo * 1000;//passar pra milisegundos
 			//resetar o timer de lavar a terra
 			this->timerLavarTerra = millis();
+			//não continuar caso estivesse no meio de uma irrigacao
+			this->molhar = false;
 		}
 
 		//Interromper lavagem da terra
 		void pararLavagem(){
 			this->desligar();
 			this->tempo_lavagem = 0;
+			//resetar o timer de atuar
+			this->timerAtuar = millis();
 		}
 
 		//definir qual valor de umidade o vaso deve manter
@@ -146,7 +166,10 @@ class vaso{
 
 		//ler o novo valor de max e salva-lo na memoria
 		void calibraMax(){
-			this->max = analogRead(this->sensor);
+			do{
+				this->max = analogRead(this->sensor);
+			
+			}while(this->max < 0 || this->max > 1023);
 			EEPROM.put(this->end_base + end_max,this->max);
 		}
 
@@ -159,3 +182,4 @@ class vaso{
 };
 
 #endif
+

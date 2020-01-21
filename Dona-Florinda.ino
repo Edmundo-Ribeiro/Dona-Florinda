@@ -176,7 +176,7 @@ void caseCO2(uint16_t valor){
 			break;
   
 		case BTNINTCO2:
-			if(valor < 200 || valor > 500){
+			if(valor < 100 || valor > 500){
 				mensagem.setText("Valor inválido");
 			} 
 			else{
@@ -275,7 +275,8 @@ void caseIrrigacao(uint16_t valor){
 	if (valor <= 0 || valor > 100)
 	 	mensagem.setText("Valor invalido");
 
-	else switch(botaoApertado){
+	else {
+		switch(botaoApertado){
 			case botaoIR0:
 				IR.setar(0, valor);
 			 	break;
@@ -291,7 +292,38 @@ void caseIrrigacao(uint16_t valor){
 		 	case botaoIR3:
 				IR.setar(3, valor);
 			 	break;
+
+			case botaoMax0:
+				IR.calibraMax(0);
+			 	break;
+
+			case botaoMax1:
+				IR.calibraMax(1);
+			 	break;
+			case botaoMax2:
+				IR.calibraMax(2);
+			 	break;
+
+			case botaoMax3:
+				IR.calibraMax(3);
+			 	break;
+
+			case botaoMin0:
+				IR.calibraMin(0);
+			 	break;
+
+			case botaoMin1:
+				IR.calibraMin(1);
+			 	break;
+			case botaoMin2:
+				IR.calibraMin(2);
+			 	break;
+
+			case botaoMin3:
+				IR.calibraMin(3);
+			 	break;
 	
+		}
 
 		PAGINA = PAGINA_IRRIGACAO;
 		umidade_solo.show();//volta para a tela anterior
@@ -304,7 +336,8 @@ void caseLavagem(uint16_t valor){
 	if (valor <= 0 || valor > 3600)
 	 	mensagem.setText("Valor invalido");
 
-	else switch(botaoApertado){
+	else{
+		switch(botaoApertado){
 			case botaoIR0:
 				IR.lavarTerra(0,valor);
 			 	break;
@@ -326,11 +359,11 @@ void caseLavagem(uint16_t valor){
 					IR.lavarTerra(id,valor);
 				}
 			 	break;
-	
-
-		PAGINA = PAGINA_IRRIGACAO;
-		umidade_solo.show();//volta para a tela anterior
-		mostraDadosIrr();
+		}
+		
+		PAGINA = PAGINA_LAVAGEM;
+		lavagem_terra.show();//volta para a tela anterior
+		mostraDadosLavagem();
 	}
 }
 
@@ -375,6 +408,8 @@ void ConfirmaPopCallback(void *ptr){
 			caseLavagem(valor);
 			break;
 	}
+
+
 }
 	
 
@@ -463,7 +498,7 @@ void setup() {
 	Serial2.begin(9600);
 	nexInit();
   	dht.begin(); //Sensor de umidade e temperatura
-	rtc.begin(); //Relogio
+	//rtc.begin(); //Relogio
 	dbSerialPrintln("SETUP");
 
 	PAGINA = PAGINA_MENU;
@@ -545,13 +580,14 @@ void setup() {
 
 //pagina Lavagem
 // ####################################################################################################
-lavar_gotas[0].attachPop(Lavar0Callback);
-lavar_gotas[1].attachPop(Lavar1Callback);
-lavar_gotas[2].attachPop(Lavar2Callback);
-lavar_gotas[3].attachPop(Lavar3Callback);
-lavar_geral.attachPop(LavarGeralCallback);
-voltar_lavagem.attachPop(voltarLavagem);
-icone_irr.attachPop(iconeIrrCallback);
+	lavar_gotas[0].attachPop(Lavar0Callback);
+	lavar_gotas[1].attachPop(Lavar1Callback);
+	lavar_gotas[2].attachPop(Lavar2Callback);
+	lavar_gotas[3].attachPop(Lavar3Callback);
+	lavar_geral.attachPop(LavarGeralCallback);
+	voltar_lavagem.attachPop(voltarLavagemCallback);
+	icone_lavar.attachPop(IconeLavarCallback);
+	btn_calibrar.attachPop(calibrarCallback);
 // ####################################################################################################
 
 
@@ -578,15 +614,14 @@ void loop() {
 
 	
 	nexLoop(nex_listen_list);
-	runConfig();
-	T.run();
-	I.run(T.estado_porta_inferior);
-	A.run();
-	E.run();
-	CO2.run(I.estado_atual, E.estado_atual);
-	TU.run(T.estado_porta_inferior);
+	// runConfig();
+	//T.run();
+	//I.run(T.estado_porta_inferior);
+	//A.run();
+	// E.run();
+	// CO2.run(I.estado_atual, E.estado_atual);
+	// TU.run(T.estado_porta_inferior);
 	IR.run();	    
-	
 }
 		
 // }
