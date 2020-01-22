@@ -10,7 +10,6 @@
 #include "gascarbonico.h"
 #include "trava.h"
 #include "tempumi.h"
-// #include "Irrigacao.h"
 #include "exaustao.h"
 #include "novo_irrigacao.h"
 
@@ -333,7 +332,7 @@ void caseIrrigacao(uint16_t valor){
 
 void caseLavagem(uint16_t valor){
 
-	if (valor <= 0 || valor > 3600)
+	if (valor <= 0 || valor > TEMP_MAX_LAVAGEM)
 	 	mensagem.setText("Valor invalido");
 
 	else{

@@ -1,16 +1,29 @@
 #ifndef novorrigacao_h
 #define novoirrigacao_h
-#include "vaso.h"
+#include "filtro.h"
 
 
-//Todo: mostrar na tela o tempo restante de lavagem de cada gota
-		// fazer o botao lavar geral desligar sozinho
+//Todo: [X] mostrar na tela o tempo restante de lavagem de cada gota
+	   //[] fazer o botao lavar geral desligar sozinho
+	   //[]impedir que valores negtivos sejam mostrados no display
+
+
+
 
 //colocar isso em definiçoes.h
 #define NUM_VASOS 4
 #define INTERVALO_MOSTRA_DADOS_IR 3000
 #define AZUL 1301
 #define BRANCO 65535
+#define INTERVALO_MEDIR_IR 2000
+#define INTERVALO_ATUAR_IR 30000
+#define INTERVALO_MOLHAR_IR 4545//+-100ml // bomba faz 22ml por segundo
+#define TOLERANCIA 5
+#define TEMP_MAX_LAVAGEM 3600
+//salvar assim na memoria
+//[1byte referencia][2bytes max][2bytes min]
+#define end_max 1
+#define end_min 3 
 
 
 void mostraDadosIrr();
@@ -72,9 +85,171 @@ void debugEstadoUmiSolo();
 											NexDSButton(PAGINA_LAVAGEM, 5, "lavar3")
 											};
 
+	NexText restam[NUM_VASOS] = 	{
+									NexText(PAGINA_LAVAGEM, 9, "restante0"),
+									NexText(PAGINA_LAVAGEM, 10, "restante1"),
+									NexText(PAGINA_LAVAGEM, 8, "restante2"),
+									NexText(PAGINA_LAVAGEM, 7, "restante3")
+									};
+
 	NexDSButton lavar_geral = NexDSButton(PAGINA_LAVAGEM, 6, "geral");
 	NexButton voltar_lavagem = NexButton(PAGINA_LAVAGEM, 1, "voltar_lavagem");
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//Classe para os vasos
+
+class vaso{
+	public:
+		float media;
+
+		uint8_t rele, //rele da bomba
+				sensor,//Sensor de umidade do solo
+				id, // qual o vaso
+				referencia, // valor de umidade desejado
+				end_base; // endereço para salvar na memoria
+
+		uint16_t max, // valor maximo para calibragem
+				 min; // valor minimo para calibragem
+
+		unsigned long tempo_lavagem; //Tempo inserido para lavar a terra em  milisegundos
+		uint16_t tempo_restante;//tempo restante de lavagem
+		bool estado_atual, // Se está irrigando ou não
+			 molhar;
+		//timers 
+		unsigned long timerMedir;
+		unsigned long timerMolhar;
+		unsigned long timerAtuar;
+		unsigned long timerLavarTerra;
+
+		//filtro para as medidas
+		filtro 	F;
+
+		vaso(uint8_t id, uint8_t rele, uint8_t sensor, uint8_t end_base){
+			this->rele = rele;
+			this->sensor = sensor;
+			this->id = id;
+			this->estado_atual = DESLIGADO;
+			this->molhar = false;
+			this->media = 0;
+			this->tempo_lavagem = 0;
+			this->tempo_restante = 0;
+			this->timerMedir = 0;
+			this->timerMolhar = 0;
+			this->timerLavarTerra = 0;
+			this->timerAtuar = 0;
+			this->F.tamanho(5);
+			pinMode(rele, OUTPUT);
+			pinMode(sensor, INPUT); 
+
+			this->end_base = end_base;
+
+			this->referencia = EEPROM.read(end_base);
+			this->max = 1023;//EEPROM.get(end_base + end_max, this->max);
+			this->min = 0;//EEPROM.get(end_base + end_min, this->min);
+		}
+		void medir(){
+			F.adiciona( map( analogRead(this->sensor) , this->min, this->max, 0, 100 ) );
+		}
+		void ligar(){
+			digitalWrite(this->rele,LOW);
+			this->estado_atual = LIGADO;
+		}
+		void desligar(){
+			digitalWrite(this->rele,HIGH);
+			this->estado_atual = DESLIGADO;
+		}
+		void run(){
+		
+			unsigned long atual = millis();
+			// dbSerialPrintln(this->id);
+			//A cada periudo definido, fazer uma medição 
+			if(atual - this->timerMedir >= INTERVALO_MEDIR_IR){
+				this->medir();
+				this->timerMedir = atual;
+			}
+
+			//se o tempo de lavagem foi setado como diferente de zero, 
+			//manter a bomba ligado por esse tempo
+			if(this->tempo_lavagem != 0){
+				this->tempo_restante = (this->tempo_lavagem - atual + this->timerLavarTerra) * 0.001;//em segundos
+				if(atual - this->timerLavarTerra >= this->tempo_lavagem){
+					this->pararLavagem();
+				}
+				else{
+					this->ligar();
+				}
+
+			}
+			//caso o tempo de lavar seja 0, fazer apenas a verificacao se a umidade do solo
+			//precisa de correcao e atuar caso necessário
+			else{
+				this->tempo_restante = 0;
+				//A cada determindado periodo maior de tempo, verificar se, com o valor da media, deve iniciar irrigacao 
+				if(atual - this->timerAtuar >= INTERVALO_ATUAR_IR){
+
+					//se a media esta abaixo do limite inferior
+					this->media = F.calcula();
+
+					if(this->media < (referencia - TOLERANCIA)){
+						//setar a flag para molhar
+						this->molhar = true;
+						//resetar o timmer de molhar
+						this->timerMolhar = atual;
+					}
+					//do contrario só garantir que a flag é falsa
+					else
+						this->molhar = false;
+					//resetar timer de atuar
+					this->timerAtuar = atual;
+				}
+
+				// se a flag de molhar foi setada como true
+				if(this->molhar){
+					//molhar por um pequeno periodo de tempo e parar
+					//isso é feito assim para dar tempo da agua espalhar no vaso
+					if(atual - this->timerMolhar >= INTERVALO_MOLHAR_IR){
+						this->desligar();
+					}
+					else{
+						this->ligar();
+					}
+				}
+			}
+			// caso esse "pulso" de agua não tenha sido suiciente, quando o sistema verificar novamente se deve agir 
+			// ele ira pedir mais um pulso
+			// isso se repete até que o vaso esteja devidadmente irrigado
+		}	
+		//recebe por qunato tempo o savo deve lavar a terra
+		void lavarTerra(uint32_t tempo){
+			this->tempo_lavagem = tempo * 1000;//passar pra milisegundos
+			//resetar o timer de lavar a terra
+			this->timerLavarTerra = millis();
+			//não continuar caso estivesse no meio de uma irrigacao
+			this->molhar = false;
+		}
+		//Interromper lavagem da terra
+		void pararLavagem(){
+			this->desligar();
+			this->tempo_lavagem = 0;
+			//resetar o timer de atuar
+			this->timerAtuar = millis();
+		}
+		//definir qual valor de umidade o vaso deve manter
+		void setar(uint8_t ref){
+			this->referencia = ref;
+			EEPROM.put(this->end_base,this->referencia);
+		}
+		//ler o novo valor de max e salva-lo na memoria
+		void calibraMax(){
+			this->max = analogRead(this->sensor);
+			EEPROM.put(this->end_base + end_max,this->max);
+		}
+		//ler o novo valor de min e salva-lo na memoria
+		void calibraMin(){
+			this->min = analogRead(this->sensor);
+			EEPROM.put(this->end_base + end_min,this->min);
+		}		
+};
 
 //Classe para o sistema 
 class SIRR{
@@ -311,6 +486,9 @@ void mostraDadosIrr(){
 		
 		sprintf(conteudo_botao, "%02d%%", IR.vasos[id].referencia);
 		sets[id].setText(conteudo_botao);
+
+		sprintf(conteudo_botao, "%02d%%", IR.vasos[id].referencia);
+		sets[id].setText(conteudo_botao);
 		
 		gotas[id].setValue(round(IR.vasos[id].F.calcula()));
 
@@ -324,10 +502,23 @@ void mostraDadosIrr(){
 	}
 }
 void mostraDadosLavagem(){
-	uint8_t count = 0;
-
+	char texto_tempo_restante[7];
 	
 	for(uint8_t id = 0; id < NUM_VASOS; id++ ){
+
+		if(IR.vasos[id].tempo_restante > 60){
+        	sprintf(texto_tempo_restante, "%02d min", (IR.vasos[id].tempo_restante / 60) + 1);// + 1 pois a a parte fracionaria é ignorada
+    	}
+    	else{
+        	sprintf(texto_tempo_restante, "%02d s",IR.vasos[id].tempo_restante);
+    	}
+
+    	restam[id].setText(texto_tempo_restante);
+    	if(IR.vasos[id].estado_atual == LIGADO)
+			restam[id].Set_font_color_pco(AZUL);
+		else
+			restam[id].Set_font_color_pco(BRANCO);
+
 		if(IR.vasos[id].estado_atual == LIGADO){
 			lavar_gotas[id].setValue(LIGADO);
 		}
@@ -359,7 +550,7 @@ void debugEstadoUmiSolo(){
 		dbSerialPrintln(IR.vasos[id].molhar);
 
 		dbSerialPrint("Umidade media: ");
-		dbSerialPrintln(IR.vasos[id].media);
+		dbSerialPrintln(IR.vasos[id].F.calcula());
 
 		dbSerialPrint("Umidade medida: ");
 		dbSerialPrintln(map( analogRead(IR.vasos[id].sensor) , IR.vasos[id].min, IR.vasos[id].max, 0, 100 ) );
