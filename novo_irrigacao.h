@@ -86,13 +86,13 @@ void debugEstadoUmiSolo();
 											};
 
 	NexText restam[NUM_VASOS] = 	{
-									NexText(PAGINA_LAVAGEM, 9, "restante0"),
-									NexText(PAGINA_LAVAGEM, 10, "restante1"),
-									NexText(PAGINA_LAVAGEM, 8, "restante2"),
-									NexText(PAGINA_LAVAGEM, 7, "restante3")
+									NexText(PAGINA_LAVAGEM, 8, "restante0"),
+									NexText(PAGINA_LAVAGEM, 9, "restante1"),
+									NexText(PAGINA_LAVAGEM, 7, "restante2"),
+									NexText(PAGINA_LAVAGEM, 6, "restante3")
 									};
 
-	NexDSButton lavar_geral = NexDSButton(PAGINA_LAVAGEM, 6, "geral");
+	NexButton lavar_geral = NexButton(PAGINA_LAVAGEM, 10, "geral");
 	NexButton voltar_lavagem = NexButton(PAGINA_LAVAGEM, 1, "voltar_lavagem");
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -264,7 +264,6 @@ class SIRR{
 
 		unsigned long timerMostrardados = 0;
 		bool calibrando = false;
-		bool lavagemGeral = false;
 
 		void run(){
 			uint8_t id;
@@ -435,7 +434,6 @@ void auxLavar(uint8_t id, uint8_t botao){
 	}
 	else{
 		IR.pararLavagem(id);
-		IR.lavagemGeral = DESLIGADO;
 		mostraDadosLavagem();
 	}
 }
@@ -444,22 +442,10 @@ void Lavar1Callback(void *ptr) { auxLavar(1,botaoIR1);}
 void Lavar2Callback(void *ptr) { auxLavar(2,botaoIR2);}
 void Lavar3Callback(void *ptr) { auxLavar(3,botaoIR3);}
 
-void LavarGeralCallback(void *ptr){
-	uint32_t estado_botao;
-
-	lavar_geral.getValue(&estado_botao);
-
-	IR.lavagemGeral = estado_botao;
-	
-	if(estado_botao == LIGADO){
-		botaoApertado = botaoLVG;
-		teclado.show();
-		PassaBotaoParaTela(0);
-	}
-
-	else for(uint8_t id = 0; id < NUM_VASOS; id++){
-		IR.pararLavagem(id);
-	}
+void LavarGeralCallback(void *ptr){	
+	botaoApertado = botaoLVG;
+	teclado.show();
+	PassaBotaoParaTela(0);	
 }
 void voltarLavagemCallback(void *ptr){
 	PAGINA = PAGINA_IRRIGACAO;
@@ -524,10 +510,8 @@ void mostraDadosLavagem(){
 		}
 		else{
 			lavar_gotas[id].setValue(DESLIGADO);
-			IR.lavagemGeral = DESLIGADO;
 		}
 	}
-	lavar_geral.setValue(IR.lavagemGeral);
 }
 
 void debugEstadoUmiSolo(){
@@ -571,8 +555,6 @@ void debugEstadoUmiSolo(){
 	}
 	
 
-	dbSerialPrint("Lavagem geral: ");
-	dbSerialPrintln(IR.lavagemGeral);
 
 	dbSerialPrint("Calibragem: ");
 	dbSerialPrintln(IR.calibrando);

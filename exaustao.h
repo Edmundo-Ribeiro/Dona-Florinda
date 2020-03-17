@@ -14,8 +14,8 @@ NexCrop texto_exaustao = NexCrop(PAGINA_EXAUSTAO, 7, "texto_exaus");
 NexButton icone_exaustao = NexButton(PAGINA_MENU, 7, "Exaustao");
 
 #define Ciclo_padrao 420000 // ciclo padrão de 7 minutos (7*MINUTO)
-#define EXAUSTOFF 20 // Id da imagem no Nextion da exaustao off
-#define EXAUSTON 21 // Id da imagem no Nextion da exaustao on
+#define EXAUSTOFF 15 // Id da imagem no Nextion da exaustao off
+#define EXAUSTON 16 // Id da imagem no Nextion da exaustao on
 
 #define MINUTO 60000
 #define INTERVALO_MOSTRAR 5000
