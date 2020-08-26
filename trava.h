@@ -3,19 +3,16 @@
 
 #include "datahora.h"
 
-#define INTERVALO 5000
+#define INTERVALO 5000 // 
 #define IMG_TRAVA_ABERTA 29
 #define IMG_TRAVA_FECHADA 28
 
 void mostraDadosTrava();
 
-//alterar nome do objeto na pagina
-NexButton icone_config = NexButton(PAGINA_MENU, 4, "defDataHora");//mudar esse nome
 
-NexCrop btnTravaSuperior = NexCrop(PAGINA_TRAVA, 4, "travaSuperior");
-NexCrop btnTravaInferior = NexCrop(PAGINA_TRAVA, 3, "travaInferior");
-NexButton relogio = NexButton(PAGINA_TRAVA, 1, "relogio");
-NexButton voltar_trava = NexButton(PAGINA_TRAVA, 2, "voltar");
+// ###########################################################################################################
+// ######################## DECLARAÇÃO DO OBJETO E LÓGICA DE FUNCIONAMENTO ###################################
+// ###########################################################################################################
 
 class Trava{
   private:
@@ -49,31 +46,43 @@ class Trava{
     }
 
     void Trava::run(){
+
+      //Atualizar estado dos sensores
       this->estado_porta_superior = digitalRead(PINO_FIM_DE_CURSO_SUPERIOR);
       this->estado_porta_inferior = digitalRead(PINO_FIM_DE_CURSO_INFERIOR);
 
+      //Se passou o tempo do intervalo de atualização
       if( (millis() - this->timerSuperior) >= INTERVALO ){
         digitalWrite(PINO_TRANSISTOR_SUPERIOR, LOW); // trava ativada
-        this->timerSuperior = millis();
-        if(PAGINA==PAGINA_TRAVA)
-          mostraDadosTrava();
+        this->timerSuperior = millis(); //resetar timer da trava superior
+        if(PAGINA==PAGINA_TRAVA) // se estiver na pagina da trava
+          mostraDadosTrava(); // atulizar as imagens
       }
 
 
       if( (millis() - this->timerInferior) >= INTERVALO ){
         digitalWrite(PINO_TRANSISTOR_INFERIOR, LOW); // trava ativada
-        this->timerInferior = millis();
-        if(PAGINA==PAGINA_TRAVA)
-          mostraDadosTrava();
+        this->timerInferior = millis(); //resetar timer da trava inferior
+        if(PAGINA==PAGINA_TRAVA) // se estiver na pagina da trava
+          mostraDadosTrava(); // atulizar as imagens
       }
     }
 
 };
+// ###########################################################################################################
 
+Trava T; //Intanciando o objeto
 
+// ###########################################################################################################
+// ########################## VARIAVEIS e FUNCIONALIDADES PARA PAGINA DA TRAVA ###############################
+// ###########################################################################################################
 
+NexButton icone_config = NexButton(PAGINA_MENU, 4, "defDataHora");//mudar esse nome
+NexCrop btnTravaSuperior = NexCrop(PAGINA_TRAVA, 4, "travaSuperior");
+NexCrop btnTravaInferior = NexCrop(PAGINA_TRAVA, 3, "travaInferior");
+NexButton relogio = NexButton(PAGINA_TRAVA, 1, "relogio");
+NexButton voltar_trava = NexButton(PAGINA_TRAVA, 2, "voltar");
 
-Trava T; //declaração do objeto
 
 void TravaSuperiorPopCallBack(){
   //mudar imagem para imagem de cadeado aberto
@@ -122,6 +131,9 @@ void mostraDadosTrava(){
       btnTravaInferior.setPic(IMG_TRAVA_FECHADA);
     }
 }
+
+// ###########################################################################################################
+
 
 
 #endif
