@@ -11,21 +11,7 @@ uint16_t minutoAtual();
 void debugEstadoVariaveis();
 
 // ###########################################################################################################
-// ########################## VARIAVEIS PARA PAGINA DE ILUMINAÇÃO ############################################
-// ###########################################################################################################
-	NexPage iluminacao = NexPage(PAGINA_ILUMINACAO,0,"Iluminacao");
-	
-	
-	NexButton voltar_iluminacao = NexButton(PAGINA_ILUMINACAO, 1, "voltar");
-	NexDSButton btn_c2 = NexDSButton(PAGINA_ILUMINACAO, 2, "btn_c2");
-	NexDSButton btn_c1 = NexDSButton(PAGINA_ILUMINACAO, 3, "btn_c1");
-	NexText estado_ciclo_texto = NexText(PAGINA_ILUMINACAO, 4, "estado_ciclo");
-	NexButton btn_setar_c1 = NexButton(PAGINA_ILUMINACAO, 5, "setar_c1");
-	NexButton btn_setar_c2 = NexButton(PAGINA_ILUMINACAO, 6, "setar_c2");
-	NexProgressBar progresso = NexProgressBar(PAGINA_ILUMINACAO,8,"progresso");
-	NexText tempo_restante = NexText(PAGINA_ILUMINACAO, 10, "tempo_restante");
-	
-	NexButton icone_ilumincao = NexButton(PAGINA_MENU,3,"iluminacao");	
+// ######################## DECLARAÇÃO DO OBJETO E LÓGICA DE FUNCIONAMENTO ###################################
 // ###########################################################################################################
 
 class SI{			
@@ -301,201 +287,218 @@ class SI{
 		}
 };
 
-SI I; //Desclaração do objeto sistema de iluminação
+// ###########################################################################################################
+
+SI I; //Intanciando o objeto
 
 
+// ###########################################################################################################
+// ########################## VARIAVEIS PARA PAGINA DE ILUMINAÇÃO ############################################
+// ###########################################################################################################
+NexPage iluminacao = NexPage(PAGINA_ILUMINACAO,0,"Iluminacao");
+
+NexButton voltar_iluminacao = NexButton(PAGINA_ILUMINACAO, 1, "voltar");
+NexDSButton btn_c2 = NexDSButton(PAGINA_ILUMINACAO, 2, "btn_c2");
+NexDSButton btn_c1 = NexDSButton(PAGINA_ILUMINACAO, 3, "btn_c1");
+NexText estado_ciclo_texto = NexText(PAGINA_ILUMINACAO, 4, "estado_ciclo");
+NexButton btn_setar_c1 = NexButton(PAGINA_ILUMINACAO, 5, "setar_c1");
+NexButton btn_setar_c2 = NexButton(PAGINA_ILUMINACAO, 6, "setar_c2");
+NexProgressBar progresso = NexProgressBar(PAGINA_ILUMINACAO,8,"progresso");
+NexText tempo_restante = NexText(PAGINA_ILUMINACAO, 10, "tempo_restante");
+
+NexButton icone_ilumincao = NexButton(PAGINA_MENU,3,"iluminacao");	
+// ###########################################################################################################
 
 // ###########################################################################################################
 // #####################CALLBACKS E FUNÇÔES PARA PAGINA DE DEFINIÇÂO ILUMINAÇÃO ##############################
 // ###########################################################################################################
 	
-	void debugEstadoVariaveis(){
-		dbSerialPrint("############# Variaveis Iluminação #####################\n\n");
-    
-		dbSerialPrint("Estado Atual: ");
-		dbSerialPrintln(I.estado_atual);
+void debugEstadoVariaveis(){
+	dbSerialPrint("############# Variaveis Iluminação #####################\n\n");
+	
+	dbSerialPrint("Estado Atual: ");
+	dbSerialPrintln(I.estado_atual);
 
-		dbSerialPrint("Ciclo Atual: ");
-		dbSerialPrintln(I.ciclo_atual);
+	dbSerialPrint("Ciclo Atual: ");
+	dbSerialPrintln(I.ciclo_atual);
 
-				
-		dbSerialPrint("q_horas_ligado_c1: ");
-		dbSerialPrintln(I.q_horas_ligado_c1);
-		dbSerialPrint("q_horas_ligado_c2: ");
-		dbSerialPrintln(I.q_horas_ligado_c2);
+			
+	dbSerialPrint("q_horas_ligado_c1: ");
+	dbSerialPrintln(I.q_horas_ligado_c1);
+	dbSerialPrint("q_horas_ligado_c2: ");
+	dbSerialPrintln(I.q_horas_ligado_c2);
 
-		dbSerialPrint("minuto_de_desligar: ");
-		dbSerialPrintln(I.minuto_de_desligar);
-		dbSerialPrint("minuto_de_ligar: ");
-		dbSerialPrintln(I.minuto_de_ligar);
-		
-		dbSerialPrint("minuto_atual: ");
-		dbSerialPrintln(minutoAtual());
+	dbSerialPrint("minuto_de_desligar: ");
+	dbSerialPrintln(I.minuto_de_desligar);
+	dbSerialPrint("minuto_de_ligar: ");
+	dbSerialPrintln(I.minuto_de_ligar);
+	
+	dbSerialPrint("minuto_atual: ");
+	dbSerialPrintln(minutoAtual());
 
-		dbSerialPrint("######################################################\n\n");
+	dbSerialPrint("######################################################\n\n");
 
+}
+
+uint16_t minutoAtual(){
+	return 60*rtc.now().hour() + rtc.now().minute();
+}
+
+void mostraDadosIluminacao(){	
+
+	char conteudo_botao[8], 
+			texto_tempo_restante[8];
+	
+
+	sprintf(conteudo_botao,"%02d | %02d", EEPROM.read(end_q_horas_ligado_c1), 24-EEPROM.read(end_q_horas_ligado_c1));
+	btn_c1.setText(conteudo_botao);
+
+	sprintf(conteudo_botao,"%02d | %02d", EEPROM.read(end_q_horas_ligado_c2), 24-EEPROM.read(end_q_horas_ligado_c2));
+	btn_c2.setText(conteudo_botao);		
+
+
+	
+	if(I.ciclo_atual == CICLO_1){
+		btn_c1.setValue(1);
+		btn_c2.setValue(0);
+	}
+	else if(I.ciclo_atual == CICLO_2){
+		btn_c1.setValue(0);
+		btn_c2.setValue(1);
+	}
+	else{
+		btn_c1.setValue(0);
+		btn_c2.setValue(0);
 	}
 
-	uint16_t minutoAtual(){
-		return rtc.getTime().hour*60 + rtc.getTime().min;
+	uint16_t minuto_atual = minutoAtual();
+
+
+	if(I.ciclo_atual == CICLO_NENHUM){
+		estado_ciclo_texto.setText("ESCURO");
+		progresso.setValue(0);
+		sprintf(texto_tempo_restante, "--:--");
 	}
+	
+	else if(I.minuto_de_ligar < I.minuto_de_desligar){
 
-	void mostraDadosIluminacao(){	
-
-		char conteudo_botao[8], 
-			 texto_tempo_restante[8];
-		
-
-		sprintf(conteudo_botao,"%02d | %02d", EEPROM.read(end_q_horas_ligado_c1), 24-EEPROM.read(end_q_horas_ligado_c1));
-		btn_c1.setText(conteudo_botao);
-
-		sprintf(conteudo_botao,"%02d | %02d", EEPROM.read(end_q_horas_ligado_c2), 24-EEPROM.read(end_q_horas_ligado_c2));
-		btn_c2.setText(conteudo_botao);		
-
-
-		
-		if(I.ciclo_atual == CICLO_1){
-			btn_c1.setValue(1);
-			btn_c2.setValue(0);
+		if(I.estado_atual == LIGADO){
+			estado_ciclo_texto.setText("LUZ");
+			progresso.setValue( map(minuto_atual, I.minuto_de_ligar, I.minuto_de_desligar, 0, 100) );
+			sprintf(texto_tempo_restante, "%02d:%02d",
+					(I.minuto_de_desligar - minuto_atual)/60, (I.minuto_de_desligar - minuto_atual)%60 );
 		}
-		else if(I.ciclo_atual == CICLO_2){
-			btn_c1.setValue(0);
-			btn_c2.setValue(1);
-		}
+
 		else{
-			btn_c1.setValue(0);
-			btn_c2.setValue(0);
-		}
-
-		uint16_t minuto_atual = minutoAtual();
-
-
-		if(I.ciclo_atual == CICLO_NENHUM){
 			estado_ciclo_texto.setText("ESCURO");
-			progresso.setValue(0);
-			sprintf(texto_tempo_restante, "--:--");
-		}
-		
-		else if(I.minuto_de_ligar < I.minuto_de_desligar){
-
-			if(I.estado_atual == LIGADO){
-				estado_ciclo_texto.setText("LUZ");
-				progresso.setValue( map(minuto_atual, I.minuto_de_ligar, I.minuto_de_desligar, 0, 100) );
+			if(minuto_atual <= I.minuto_de_ligar){
+				progresso.setValue( map(minuto_atual, 0 , I.minuto_de_ligar,  100*(MINUTOS_DIA - I.minuto_de_desligar)/MINUTOS_DIA , 100) );
 				sprintf(texto_tempo_restante, "%02d:%02d",
-					 	(I.minuto_de_desligar - minuto_atual)/60, (I.minuto_de_desligar - minuto_atual)%60 );
+					(I.minuto_de_ligar - minuto_atual)/60, (I.minuto_de_ligar - minuto_atual)%60 );
 			}
-
 			else{
-				estado_ciclo_texto.setText("ESCURO");
-				if(minuto_atual <= I.minuto_de_ligar){
-					progresso.setValue( map(minuto_atual, 0 , I.minuto_de_ligar,  100*(MINUTOS_DIA - I.minuto_de_desligar)/MINUTOS_DIA , 100) );
-					sprintf(texto_tempo_restante, "%02d:%02d",
-					 	(I.minuto_de_ligar - minuto_atual)/60, (I.minuto_de_ligar - minuto_atual)%60 );
-				}
-				else{
-					progresso.setValue( map(minuto_atual, I.minuto_de_desligar , MINUTOS_DIA , 0 , 100*(MINUTOS_DIA - I.minuto_de_desligar)/MINUTOS_DIA ) );
-					// Serial.println( map(minuto_atual, I.minuto_de_desligar , MINUTOS_DIA , 0 , 100*(MINUTOS_DIA - I.minuto_de_desligar)/MINUTOS_DIA ) );
-					sprintf(texto_tempo_restante, "%02d:%02d",
-					 	 (I.minuto_de_ligar + MINUTOS_DIA - minuto_atual)/60, (I.minuto_de_ligar + MINUTOS_DIA - minuto_atual)%60 );
-				
-				}
-			}
-		}
-		else{
-			
-			if(I.estado_atual == DESLIGADO){
-				estado_ciclo_texto.setText("ESCURO");
-				progresso.setValue( map(minuto_atual, I.minuto_de_desligar, I.minuto_de_ligar, 0, 100) );
+				progresso.setValue( map(minuto_atual, I.minuto_de_desligar , MINUTOS_DIA , 0 , 100*(MINUTOS_DIA - I.minuto_de_desligar)/MINUTOS_DIA ) );
+				// Serial.println( map(minuto_atual, I.minuto_de_desligar , MINUTOS_DIA , 0 , 100*(MINUTOS_DIA - I.minuto_de_desligar)/MINUTOS_DIA ) );
 				sprintf(texto_tempo_restante, "%02d:%02d",
-					 	(I.minuto_de_ligar - minuto_atual)/60, (I.minuto_de_ligar - minuto_atual)%60 );
-			}
-
-			else{
-				estado_ciclo_texto.setText("LUZ");
-				if(minuto_atual <= I.minuto_de_ligar){
-					progresso.setValue( map(minuto_atual, 0 , I.minuto_de_desligar,  (MINUTOS_DIA - I.minuto_de_ligar)/MINUTOS_DIA , 100) );
-					sprintf(texto_tempo_restante, "%02d:%02d",
-					 	(I.minuto_de_desligar - minuto_atual)/60, (I.minuto_de_desligar - minuto_atual)%60 );
-
-				}
-				else{
-					progresso.setValue( map(minuto_atual, I.minuto_de_ligar , MINUTOS_DIA , 0 , (MINUTOS_DIA - I.minuto_de_ligar)/MINUTOS_DIA ) );
-					sprintf(texto_tempo_restante, "%02d:%02d",
-					 	 (I.minuto_de_desligar + MINUTOS_DIA - minuto_atual)/60, (I.minuto_de_desligar + MINUTOS_DIA - minuto_atual)%60 );
-				}
-			}
-		}
-
-		if(I.estado_porta == ABERTA){
-			estado_ciclo_texto.setText("PAUSA");
-		}
-
-		tempo_restante.setText(texto_tempo_restante);
-	}
-
-	void selecionaC1CallBack(void *ptr){
-		uint32_t estado_botao_c1;
-
-		btn_c1.getValue(&estado_botao_c1);
-
-		if(estado_botao_c1 == LIGADO){
-
-			if(I.ciclo_atual != CICLO_1){
-				btn_c2.setValue(DESLIGADO);
-				I.troca_ciclo(CICLO_1);
-			}
-		}
-		else{
-			I.troca_ciclo(CICLO_NENHUM);
+						(I.minuto_de_ligar + MINUTOS_DIA - minuto_atual)/60, (I.minuto_de_ligar + MINUTOS_DIA - minuto_atual)%60 );
 			
-		}
-		mostraDadosIluminacao();
-	}
-
-	void selecionaC2CallBack(void *ptr){
-		uint32_t estado_botao_c2;
-
-		btn_c2.getValue(&estado_botao_c2);
-
-		if(estado_botao_c2 == LIGADO){
-
-			if(I.ciclo_atual != CICLO_2){
-				btn_c1.setValue(DESLIGADO);
-				I.troca_ciclo(CICLO_2);
 			}
 		}
-		else{
-			I.troca_ciclo(CICLO_NENHUM);
-			
-		}
-		mostraDadosIluminacao();
 	}
-
-	void setarCiclo1Callback(void *ptr){
-		botaoApertado = CICLO_1;
-		teclado.show();
-		//colocar pra levar o numero do botão para a tela do teclado
-		PassaBotaoParaTela(I.q_horas_ligado_c1);
-	}
-	void setarCiclo2Callback(void *ptr){
-		botaoApertado = CICLO_2;
-		teclado.show();
-		PassaBotaoParaTela(I.q_horas_ligado_c2);
-	}
-
-	void iconeIluminacaoCallback(void *ptr){
+	else{
 		
+		if(I.estado_atual == DESLIGADO){
+			estado_ciclo_texto.setText("ESCURO");
+			progresso.setValue( map(minuto_atual, I.minuto_de_desligar, I.minuto_de_ligar, 0, 100) );
+			sprintf(texto_tempo_restante, "%02d:%02d",
+					(I.minuto_de_ligar - minuto_atual)/60, (I.minuto_de_ligar - minuto_atual)%60 );
+		}
 
-		PAGINA = PAGINA_ILUMINACAO;
-		iluminacao.show();
-		mostraDadosIluminacao();
+		else{
+			estado_ciclo_texto.setText("LUZ");
+			if(minuto_atual <= I.minuto_de_ligar){
+				progresso.setValue( map(minuto_atual, 0 , I.minuto_de_desligar,  (MINUTOS_DIA - I.minuto_de_ligar)/MINUTOS_DIA , 100) );
+				sprintf(texto_tempo_restante, "%02d:%02d",
+					(I.minuto_de_desligar - minuto_atual)/60, (I.minuto_de_desligar - minuto_atual)%60 );
+
+			}
+			else{
+				progresso.setValue( map(minuto_atual, I.minuto_de_ligar , MINUTOS_DIA , 0 , (MINUTOS_DIA - I.minuto_de_ligar)/MINUTOS_DIA ) );
+				sprintf(texto_tempo_restante, "%02d:%02d",
+						(I.minuto_de_desligar + MINUTOS_DIA - minuto_atual)/60, (I.minuto_de_desligar + MINUTOS_DIA - minuto_atual)%60 );
+			}
+		}
 	}
 
-	void voltarIluminacaoCallBack(void *ptr){
-		PAGINA = PAGINA_MENU;
-		menu.show();
+	if(I.estado_porta == ABERTA){
+		estado_ciclo_texto.setText("PAUSA");
 	}
 
+	tempo_restante.setText(texto_tempo_restante);
+}
+
+void selecionaC1CallBack(void *ptr){
+	uint32_t estado_botao_c1;
+
+	btn_c1.getValue(&estado_botao_c1);
+
+	if(estado_botao_c1 == LIGADO){
+
+		if(I.ciclo_atual != CICLO_1){
+			btn_c2.setValue(DESLIGADO);
+			I.troca_ciclo(CICLO_1);
+		}
+	}
+	else{
+		I.troca_ciclo(CICLO_NENHUM);
+		
+	}
+	mostraDadosIluminacao();
+}
+
+void selecionaC2CallBack(void *ptr){
+	uint32_t estado_botao_c2;
+
+	btn_c2.getValue(&estado_botao_c2);
+
+	if(estado_botao_c2 == LIGADO){
+
+		if(I.ciclo_atual != CICLO_2){
+			btn_c1.setValue(DESLIGADO);
+			I.troca_ciclo(CICLO_2);
+		}
+	}
+	else{
+		I.troca_ciclo(CICLO_NENHUM);
+		
+	}
+	mostraDadosIluminacao();
+}
+
+void setarCiclo1Callback(void *ptr){
+	botaoApertado = CICLO_1;
+	teclado.show();
+	//colocar pra levar o numero do botão para a tela do teclado
+	PassaBotaoParaTela(I.q_horas_ligado_c1);
+}
+void setarCiclo2Callback(void *ptr){
+	botaoApertado = CICLO_2;
+	teclado.show();
+	PassaBotaoParaTela(I.q_horas_ligado_c2);
+}
+
+void iconeIluminacaoCallback(void *ptr){
+	
+
+	PAGINA = PAGINA_ILUMINACAO;
+	iluminacao.show();
+	mostraDadosIluminacao();
+}
+
+void voltarIluminacaoCallBack(void *ptr){
+	PAGINA = PAGINA_MENU;
+	menu.show();
+}
 
 // ###########################################################################################################
 

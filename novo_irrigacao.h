@@ -92,7 +92,7 @@ void debugEstadoUmiSolo();
 									NexText(PAGINA_LAVAGEM, 6, "restante3")
 									};
 
-	NexButton lavar_geral = NexButton(PAGINA_LAVAGEM, 10, "geral");
+	NexButton lavar_geral = NexButton(PAGINA_LAVAGEM, 6, "geral");
 	NexButton voltar_lavagem = NexButton(PAGINA_LAVAGEM, 1, "voltar_lavagem");
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////
 

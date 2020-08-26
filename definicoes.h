@@ -2,7 +2,7 @@
 #define definicoes_h
 
 //Inicialização do relogio
-DS3231  rtc(SDA, SCL);
+RTC_DS3231 rtc;
 /*Pinos do CO2:
     Pino rele do Cilindro de CO2 = 18
     Pino sensor do CO2 = 19
@@ -56,6 +56,7 @@ uint8_t PAGINA = 0;
 #define PINO_RELE_DESUMIDIFICADOR 25
 #define PINO_SENSOR_DHT 26
 
+// Umidade Solo
 #define PINO_VASO_0 30
 #define PINO_VASO_1 31
 #define PINO_VASO_2 32
@@ -146,6 +147,7 @@ uint8_t PAGINA = 0;
 // #####################################################################
 
 NexPage menu = NexPage(PAGINA_MENU,0,"Menu");
+NexText avisoSR = NexText(PAGINA_MENU,8,"avisoSR");
 
 NexPage configData = NexPage(PAGINA_DATA_HORA,0,"configData");
 
