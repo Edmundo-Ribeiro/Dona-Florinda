@@ -164,6 +164,15 @@ public: /* methods */
      */
     bool Set_background_image_pic(uint32_t number);	
     
+
+
+    /**
+     * Set visible attribute of component
+     *
+     * @param flag - To set up the data
+     * @return true if success, false for failure
+     */
+    bool NexText::setVisible(bool flag);
 };
 
 /**
