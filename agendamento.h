@@ -5,41 +5,33 @@
 
 
 
-	NexPage agendamento = NexPage(PAGINA_AGENDAMENTO,0,"Agendamento");
-	NexButton agendarHora = NexButton(PAGINA_AGENDAMENTO, 5, "hora");
-	NexButton agendarMinuto = NexButton(PAGINA_AGENDAMENTO, 6, "minuto");
-	NexButton agendarDia = NexButton(PAGINA_AGENDAMENTO, 2, "dia");
-	NexButton agendarMes = NexButton(PAGINA_AGENDAMENTO, 3, "mes");
-	NexButton agendarAno = NexButton(PAGINA_AGENDAMENTO, 4, "ano");
-	NexButton voltar_agendar = NexButton(PAGINA_AGENDAMENTO, 1, "voltar");
-	NexDSButton ciclo1_agendar = NexDSButton(PAGINA_AGENDAMENTO, 7, "ciclo1");
-	NexDSButton ciclo2_agendar = NexDSButton(PAGINA_AGENDAMENTO, 8, "ciclo2");
-
-	NexButton agendar = NexButton(PAGINA_ILUMINACAO, 7, "agendar");
-
 void degubEstadoVariveis();
 void mostraDadosAgendamento();
 
-class SAI{			
-		public:
-			
-			uint8_t dia_agendado,
-					mes_agendado,
-					hora_agendada,
-					minuto_agendado,
-					ciclo_agendado;
-				    
-			uint16_t ano_agendado;
+// ###########################################################################################################
+// ######################## DECLARAÇÃO DO OBJETO E LÓGICA DE FUNCIONAMENTO ###################################
+// ###########################################################################################################
 
+class SAI{			
+		public:		
+			uint8_t ciclo_agendado;
+			DateTime data_agendada;
+				    
 			unsigned long agendamentoMillis = 0;
 			unsigned long agendamentoIntervalo = 40000;
 
 			SAI(){
-				this->dia_agendado = EEPROM.read(end_dia_agendado);
-				this->mes_agendado = EEPROM.read(end_mes_agendado);
-				this->ano_agendado = EEPROM.get(end_ano_agendado, this->ano_agendado);
-				this->hora_agendada = EEPROM.read(end_hora_agendado);
-				this->minuto_agendado = EEPROM.read(end_minuto_agendado);
+				uint16_t aux_ano;
+				EEPROM.get(end_ano_agendado, aux_ano);
+
+				this->data_agendada = DateTime(
+					aux_ano,
+					EEPROM.read(end_mes_agendado),
+					EEPROM.read(end_dia_agendado),
+					EEPROM.read(end_hora_agendado),
+					EEPROM.read(end_minuto_agendado)
+				);
+
 				this->ciclo_agendado = EEPROM.read(end_ciclo_agendado);
 			}
 
@@ -49,84 +41,119 @@ class SAI{
 				mostraDadosAgendamento();
 			}
 			void setDia(uint8_t valor){
-				this->dia_agendado = valor;
+				this->data_agendada = DateTime(
+					this->data_agendada.year(),
+					this->data_agendada.month(),
+					valor,
+					this->data_agendada.hour(),
+					this->data_agendada.minute()
+				);
 				EEPROM.update(end_dia_agendado,valor);
 			}
 			void setMes(uint8_t valor){
-				this->mes_agendado = valor;
+				this->data_agendada = DateTime(
+					this->data_agendada.year(),
+					valor,
+					this->data_agendada.day(),
+					this->data_agendada.hour(),
+					this->data_agendada.minute()
+				);
 				EEPROM.update(end_mes_agendado,valor);
 			}
 			void setAno(uint16_t valor){
-				this->ano_agendado = valor;
+				this->data_agendada = DateTime(
+					valor,
+					this->data_agendada.month(),
+					this->data_agendada.day(),
+					this->data_agendada.hour(),
+					this->data_agendada.minute()
+				);
 				EEPROM.put(end_ano_agendado,valor);
 			}
 			void setHora(uint8_t valor){
-				this->hora_agendada = valor;
+				this->data_agendada = DateTime(
+					this->data_agendada.year(),
+					this->data_agendada.month(),
+					this->data_agendada.day(),
+					valor,
+					this->data_agendada.minute()
+				);
 				EEPROM.update(end_hora_agendado,valor);
 			}
 			void setMinuto(uint8_t valor){
-				this->minuto_agendado = valor;
+				this->data_agendada = DateTime(
+					this->data_agendada.year(),
+					this->data_agendada.month(),
+					this->data_agendada.day(),
+					this->data_agendada.hour(),
+					valor
+				);
 				EEPROM.update(end_minuto_agendado,valor);
 			}
-			void run(){
+			void run(SI& iluminacao){
 
 
 				//pega o millisegundo atual
-				unsigned long atual = millis();
+				// unsigned long atual = millis();
+				
 				//olha se passou o intervalo 
-				if(atual - this->agendamentoMillis >= this->agendamentoIntervalo){
+				if(millis() - this->agendamentoMillis >= this->agendamentoIntervalo){
 					
 					if(this->ciclo_agendado != CICLO_NENHUM){
+						DateTime now = rtc.now();
+		
 
-						uint8_t date,mon,hour,min;
-						uint16_t year;
-						
-
-							date = rtc.getTime().date; 
-							mon = rtc.getTime().mon; 	 						   
-	    					hour = rtc.getTime().hour; 
-						    min = rtc.getTime().min; 
-						    year = rtc.getTime().year;
-
-						if(date == this->dia_agendado && 
-							mon == this->mes_agendado &&
-	    					year == this->ano_agendado &&
-						    hour == this->hora_agendada &&
-						    min == this->minuto_agendado){
-
-												
-							I.troca_ciclo(CICLO_NENHUM);//só pra ter certeza que estava desligado e desconsiderar oq foi feito antes
-							I.troca_ciclo(this->ciclo_agendado);
+						if (now >= this->data_agendada + TimeSpan(0,0,30,0)){
 							this->ciclo_agendado = CICLO_NENHUM;
-
-							EEPROM.update(end_ciclo_agendado, this->ciclo_agendado);
 						}
 
-						if(date > this->dia_agendado || 
-							mon > this->mes_agendado ||
-	    					year > this->ano_agendado){
+
+						else if(now >= this->data_agendada){
+							iluminacao.troca_ciclo(CICLO_NENHUM);//só pra ter certeza que estava desligado e desconsiderar oq foi feito antes
+							iluminacao.troca_ciclo(this->ciclo_agendado);
 							this->ciclo_agendado = CICLO_NENHUM;
 
 						}
+
+						EEPROM.update(end_ciclo_agendado, this->ciclo_agendado);
+
 					}
-				
-
 
 					if(PAGINA == PAGINA_AGENDAMENTO){
 						mostraDadosAgendamento();
 						degubEstadoVariveis();
-					}
+					}	
+				
 
 					//reset o contador do intervalo
-					this->agendamentoMillis = atual;
+					this->agendamentoMillis = millis();
 
-				}	
+				}
+
 				
 			}
 };
 
-SAI A;
+// ###########################################################################################################
 
+SAI A; //Intanciando o objeto
+
+// ###########################################################################################################
+// ################### VARIAVEIS e FUNCIONALIDADES PARA PAGINA DE AGENDAMENTO ################################
+// ###########################################################################################################
+
+
+NexPage agendamento = NexPage(PAGINA_AGENDAMENTO,0,"Agendamento");
+NexButton agendarHora = NexButton(PAGINA_AGENDAMENTO, 5, "hora");
+NexButton agendarMinuto = NexButton(PAGINA_AGENDAMENTO, 6, "minuto");
+NexButton agendarDia = NexButton(PAGINA_AGENDAMENTO, 2, "dia");
+NexButton agendarMes = NexButton(PAGINA_AGENDAMENTO, 3, "mes");
+NexButton agendarAno = NexButton(PAGINA_AGENDAMENTO, 4, "ano");
+NexButton voltar_agendar = NexButton(PAGINA_AGENDAMENTO, 1, "voltar");
+NexDSButton ciclo1_agendar = NexDSButton(PAGINA_AGENDAMENTO, 7, "ciclo1");
+NexDSButton ciclo2_agendar = NexDSButton(PAGINA_AGENDAMENTO, 8, "ciclo2");
+
+NexButton agendar = NexButton(PAGINA_ILUMINACAO, 7, "agendar");
 
 
 void degubEstadoVariveis(){
@@ -147,17 +174,22 @@ void degubEstadoVariveis(){
 }
 
 void mostraDadosAgendamento(){	
-	char buffer[5];
-		itoa(A.dia_agendado, buffer,10);
-		agendarDia.setText(buffer);
-		itoa(A.mes_agendado, buffer,10);
-		agendarMes.setText(buffer);
-		itoa(A.ano_agendado, buffer,10);
-		agendarAno.setText(buffer);
-		itoa(A.hora_agendada, buffer,10);
-		agendarHora.setText(buffer);
-		itoa(A.minuto_agendado, buffer,10);
-		agendarMinuto.setText(buffer);
+	char DD[]="DD",
+		 MM[]="MM",
+		 YYYY[]="YYYY",
+		 hh[]="hh",
+		 mm[]="mm";
+
+
+		agendarDia.setText(A.data_agendada.toString(DD));
+
+		agendarMes.setText(A.data_agendada.toString(MM));
+
+		agendarAno.setText(A.data_agendada.toString(YYYY));
+	
+		agendarHora.setText(A.data_agendada.toString(hh));
+
+		agendarMinuto.setText(A.data_agendada.toString(mm));
 
 		if(A.ciclo_agendado == CICLO_1){
 			ciclo1_agendar.setValue(1);
@@ -241,5 +273,8 @@ void AgendarPopCallBack(void *ptr){
 		agendamento.show();
 		mostraDadosAgendamento();
 }
+
+
+// ###########################################################################################################
 
 #endif

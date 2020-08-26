@@ -1,7 +1,8 @@
 #include <Nextion.h>
 #include <string.h>
 #include <EEPROM.h>
-#include <DS3231.h>
+#include <RTClib.h>
+//--------------------------------------------------------------------
 #include "definicoes.h"
 #include "datahora.h"
 #include "iluminacao.h"
@@ -25,13 +26,16 @@ void caseIlimunacao(uint16_t valor){
 }
 
 void caseDataHora(uint16_t valor){
+	//remover texto falando que relogio desconfigurou
+	
+	aviso_relogio.setVisible(0);
 	switch(botaoApertado){
 		case BTNHORA:
 			if(valor > 24 || valor < 0){
 				mensagem.setText("Valor invalido");
 			}
 			else{
-				setHora(rtc,valor);
+				setHora(valor);
 				PAGINA = PAGINA_DATA_HORA;
 				configData.show();
 				mostraHoraData();
@@ -40,12 +44,12 @@ void caseDataHora(uint16_t valor){
 			break;
 
 		case BTNMINUTO:
-			if(valor > 60 || valor < 1){
+			if(valor > 60 || valor < 0){
 				mensagem.setText("Valor invalido");
 			}
 			else{
 
-				setMinuto(rtc,valor);
+				setMinuto(valor);
 				PAGINA = PAGINA_DATA_HORA;
 				configData.show();
 				mostraHoraData();					
@@ -57,7 +61,7 @@ void caseDataHora(uint16_t valor){
 				mensagem.setText("Valor invalido");
 			}
 			else{
-				setDia(rtc,valor);
+				setDia(valor);
 				PAGINA = PAGINA_DATA_HORA;
 				configData.show();
 				mostraHoraData();
@@ -69,7 +73,7 @@ void caseDataHora(uint16_t valor){
 				mensagem.setText("Valor invalido");
 			}
 			else{
-				setMes(rtc,valor);	
+				setMes(valor);	
 				PAGINA = PAGINA_DATA_HORA;
 				configData.show();
 				mostraHoraData();
@@ -82,7 +86,7 @@ void caseDataHora(uint16_t valor){
 				
 			}
 			else{
-				setAno(rtc,valor);
+				setAno(valor);
 				PAGINA = PAGINA_DATA_HORA;
 				configData.show();
 				mostraHoraData();
@@ -90,7 +94,6 @@ void caseDataHora(uint16_t valor){
 			break;
 	}
 }
-
 
 void caseAgendamento(uint16_t valor){
 	switch(botaoApertado){
@@ -109,7 +112,7 @@ void caseAgendamento(uint16_t valor){
 			break;
 
 		case BTNMINUTO:
-			if(valor > 60 || valor < 1){
+			if(valor > 60 || valor < 0){
 				mensagem.setText("Valor invalido");
 			}
 			else{
@@ -146,7 +149,7 @@ void caseAgendamento(uint16_t valor){
 			break;
 
 		case BTNANO:
-			if(valor > 2999 || valor < 1900){ // verificar qual o ano maximo
+			if(valor > 2099 || valor < 1900){ // verificar qual o ano maximo
 				mensagem.setText("Valor invalido");
 				
 			}
@@ -412,7 +415,6 @@ void ConfirmaPopCallback(void *ptr){
 }
 	
 
-
 NexTouch *nex_listen_list[] = {
     //data e hora
     &hora,
@@ -492,16 +494,34 @@ NexTouch *nex_listen_list[] = {
 };
  
 
+bool avisoVisivelFlag = 0;
+
 void setup() {
 	Serial.begin(9600);
 	Serial2.begin(9600);
 	nexInit();
   	dht.begin(); //Sensor de umidade e temperatura
-	//rtc.begin(); //Relogio
-	dbSerialPrintln("SETUP");
 
-	PAGINA = PAGINA_MENU;
-	menu.show();
+	if( rtc.begin() ) {
+
+		if(rtc.lostPower()){
+			dbSerialPrintln("Relogio desconfigurado");
+			PAGINA = PAGINA_DATA_HORA;
+			configData.show();
+			aviso_relogio.setVisible(1);
+			//criar campo de texto informando que relogio desconfigurou
+		}
+		avisoSR.setVisible(0);
+		avisoVisivelFlag = 0;
+	}
+	else{
+		dbSerialPrintln("Setup");
+		PAGINA = PAGINA_MENU;
+		menu.show();
+		avisoSR.setVisible(1);
+		avisoVisivelFlag = 1;
+	}
+
 	
 // ####################################################################################################
 	hora.attachPop(HoraPopCallback);
@@ -611,16 +631,38 @@ voltar_exaustao.attachPop(voltarExaustaoCallback);
 
 void loop() {
 
-	
 	nexLoop(nex_listen_list);
-	// runConfig();
-	//T.run();
-	//I.run(T.estado_porta_inferior);
-	//A.run();
+	
+	T.run();
 	// E.run();
-	// CO2.run(I.estado_atual, E.estado_atual);
 	// TU.run(T.estado_porta_inferior);
 	IR.run();	    
+	
+	if( !rtc.begin() ) {
+		if(!avisoVisivelFlag){
+			PAGINA = PAGINA_MENU;
+			menu.show();
+			avisoVisivelFlag = 1;
+		 	avisoSR.setVisible(1);
+		}
+	}
+	else{
+		avisoVisivelFlag = 0;
+		if(rtc.lostPower()){
+			dbSerialPrintln("Relogio desconfigurado");
+			if( PAGINA != PAGINA_DATA_HORA){
+				PAGINA = PAGINA_DATA_HORA;
+				configData.show();
+				aviso_relogio.setVisible(1);
+				//criar campo de texto informando que relogio desconfigurou
+			}
+		}
+		else {
+			runDataHora();
+			I.run(0); //I.run(T.estado_porta_inferior);
+			A.run(I);
+			// CO2.run(I.estado_atual, E.estado_atual);
+		}
+	}
 }
 		
-// }

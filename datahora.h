@@ -4,10 +4,9 @@
 // ###########################################################################################################
 // ########################## VARIAVEIS PARA PAGINA DE DEFINIÇÂO DA DATA E HORA ##############################
 // ###########################################################################################################
-	#define CONFIGINTERVALO 2000
-	unsigned long configMillis = 0;
+	#define INTERVALO_DADOS_DATAHORA 10000
+	unsigned long datahoraMillis = 0;
 
-	
 
 	
 	NexButton hora = NexButton(PAGINA_DATA_HORA, 5, "hora");
@@ -16,6 +15,7 @@
 	NexButton mes = NexButton(PAGINA_DATA_HORA, 3, "mes");
 	NexButton ano = NexButton(PAGINA_DATA_HORA, 4, "ano");
 	NexButton voltar_datahora = NexButton(PAGINA_DATA_HORA, 1, "voltar");
+	NexText aviso_relogio = NexText(PAGINA_DATA_HORA, 7, "aviso");
 // ###########################################################################################################
 
 
@@ -56,61 +56,65 @@
 	}
 
 	void mostraHoraData(){
-		char buffer[5];
-		Time t = rtc.getTime();
-		itoa(t.date, buffer,10);
-		dia.setText(buffer);
-		itoa(t.mon, buffer,10);
-		mes.setText(buffer);
-		itoa(t.year, buffer,10);
-		ano.setText(buffer);
-		itoa(t.hour, buffer,10);
-		hora.setText(buffer);
-		itoa(t.min, buffer,10);
-		minuto.setText(buffer);
+		DateTime t = rtc.now();
+
+		char DD[]="DD",
+		 MM[]="MM",
+		 YYYY[]="YYYY",
+		 hh[]="hh",
+		 mm[]="mm";
+
+
+		dia.setText(t.toString(DD));
+
+		mes.setText(t.toString(MM));
+
+		ano.setText(t.toString(YYYY));
 	
+		hora.setText(t.toString(hh));
+
+		minuto.setText(t.toString(mm));
+
 	}
 
-	void voltarDataHoraCallBack(void *ptr){
+	void voltarDataHoraCallBack(void *ptr){		
 		PAGINA = PAGINA_TRAVA;
 		trava.show();
 		//talvez tenha que chamar mostrardadostrava
 	}
 
-	void runConfig(){
-		if((millis() - configMillis) >= CONFIGINTERVALO)
+	void runDataHora(){
+		if((millis() - datahoraMillis) >= INTERVALO_DADOS_DATAHORA)
 			if(PAGINA == PAGINA_DATA_HORA){
-				//Time T = rtc.getTime();
-				// uint32_t buffer;
-				
+
 				mostraHoraData();
-				configMillis = millis();
+				datahoraMillis = millis();
 			}
 	}
-	void setHora(DS3231 &rtc, uint8_t aux_hora){
-		uint8_t aux_minuto = rtc.getTime().min;
-		uint8_t aux_segundo = rtc.getTime().sec;
-		rtc.setTime(aux_hora,aux_minuto,aux_segundo);
+	void setHora( uint8_t aux_hora){
+		DateTime  now = rtc.now();
+		DateTime adjust = DateTime(now.year(), now.month(), now.day(), aux_hora, now.minute(), now.second());
+		rtc.adjust(adjust);
 	}
-	void setMinuto(DS3231 &rtc, uint8_t aux_minuto){
-		uint8_t aux_hora = rtc.getTime().hour;
-		uint8_t aux_segundo = rtc.getTime().sec;
-		rtc.setTime(aux_hora,aux_minuto,aux_segundo);
+	void setMinuto( uint8_t aux_minuto){
+		DateTime  now = rtc.now();
+		DateTime adjust = DateTime(now.year(), now.month(), now.day(), now.hour(), aux_minuto, now.second());
+		rtc.adjust(adjust);
 	}
-	void setDia(DS3231 &rtc, uint8_t aux_dia){
-		uint8_t aux_mes = rtc.getTime().mon;		
-		uint16_t aux_ano = rtc.getTime().year;
-		rtc.setDate(aux_dia,aux_mes,aux_ano);
+	void setDia( uint8_t aux_dia){
+		DateTime  now = rtc.now();
+		DateTime adjust = DateTime(now.year(), now.month(), aux_dia, now.hour(), now.minute(), now.second());
+		rtc.adjust(adjust);
 	}
-	void setMes(DS3231 &rtc, uint8_t aux_mes){
-		uint8_t aux_dia = rtc.getTime().date;
-		uint16_t aux_ano = rtc.getTime().year;
-		rtc.setDate(aux_dia,aux_mes,aux_ano);
+	void setMes( uint8_t aux_mes){
+		DateTime  now = rtc.now();
+		DateTime adjust = DateTime(now.year(), aux_mes, now.day(), now.hour(), now.minute(), now.second());
+		rtc.adjust(adjust);
 	}
-	void setAno(DS3231 &rtc, uint16_t aux_ano){
-		uint8_t aux_dia = rtc.getTime().date;
-		uint8_t aux_mes = rtc.getTime().mon;
-		rtc.setDate(aux_dia,aux_mes,aux_ano);
+	void setAno( uint16_t aux_ano){
+			DateTime  now = rtc.now();
+		DateTime adjust = DateTime(aux_ano, now.month(), now.day(), now.hour(), now.minute(), now.second());
+		rtc.adjust(adjust);
 	}
 // ###########################################################################################################
 
