@@ -39,28 +39,28 @@ uint8_t PAGINA = 0;
 #define PINO_TRANSISTOR_SUPERIOR 5
 
 //Iluminacao
-#define PINO_LED 8
-#define PINO_PAINEL 7
+#define PINO_LED 23
+#define PINO_PAINEL 25
 
 //CO2
 #define PINO_SENSOR_CO2 19
-#define PINO_RELE_CO2 20
+#define PINO_RELE_CO2 35
 
 //Exaustor
-#define PINO_RELE_EXAUST 21 // Não tenho certeza se neste pino o relé vai funcionar
+#define PINO_RELE_EXAUST 37 // Não tenho certeza se neste pino o relé vai funcionar
 
 //Temp Umi
-#define PINO_RELE_AR_CONDICIONADO 22
-#define PINO_RELE_AQUECEDOR 23
-#define PINO_RELE_UMIDIFICADOR 24
-#define PINO_RELE_DESUMIDIFICADOR 25
+#define PINO_RELE_AR_CONDICIONADO 27
+#define PINO_RELE_AQUECEDOR 29
+#define PINO_RELE_UMIDIFICADOR 31
+#define PINO_RELE_DESUMIDIFICADOR 33
 #define PINO_SENSOR_DHT 26
 
 // Umidade Solo
-#define PINO_VASO_0 30
-#define PINO_VASO_1 31
-#define PINO_VASO_2 32
-#define PINO_VASO_3 33
+#define PINO_VASO_0 43
+#define PINO_VASO_1 45
+#define PINO_VASO_2 47
+#define PINO_VASO_3 49
 #define PINO_SIRR_0 A0
 #define PINO_SIRR_1 A1
 #define PINO_SIRR_2 A2
